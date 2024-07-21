@@ -9,6 +9,7 @@ import (
 	"social-network/cmd/web/handlers"
 	"social-network/cmd/web/helpers"
 	"social-network/cmd/web/middleware"
+	"social-network/cmd/web/validators"
 	"social-network/internal/models"
 	"social-network/internal/utils"
 
@@ -17,6 +18,7 @@ import (
 
 type Application struct {
 	ConnDB     *models.ConnDB
+	Validators *validators.Validator
 	Middleware *middleware.Middleware
 	Handlers   *handlers.Handler
 }
@@ -39,7 +41,7 @@ func main() {
 		return
 	}
 
-	// On appelle ça dans le jargon injection des dépendances si j'ne m'abuse biensur
+	// On appelle ça dans le jargon injection des dépendances si j'ne m'abuse
 
 	app := &Application{
 		ConnDB: &models.ConnDB{DB: db},
@@ -48,6 +50,10 @@ func main() {
 		},
 		Handlers: &handlers.Handler{
 			Helpers: help,
+		},
+		Validators: &validators.Validator{
+			Helpers: help,
+			DB: db,
 		},
 	}
 
