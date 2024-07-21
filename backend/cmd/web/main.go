@@ -33,7 +33,7 @@ func main() {
 	}
 
 	// Ouverture de la base de donnee
-	db, err := utils.OpenDB("./db/DB_forum.db")
+	db, err := utils.OpenDB("./database/social.network.db")
 	if err != nil {
 		help.ErrorLog.Fatalln("Open DB error\t", err.Error())
 		return
