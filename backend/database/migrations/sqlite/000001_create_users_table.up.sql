@@ -7,7 +7,7 @@ CREATE TABLE users (
     date_of_birth VARCHAR(255) NOT NULL,
     profile_picture TEXT,
     nickname VARCHAR(255) UNIQUE,
-    about_me VARCHAR(255) UNIQUE,
+    about_me VARCHAR(255),
     profile_privacy BOOLEAN DEFAULT FALSE,
     created_at DATETIME NOT NULL
 );
