@@ -34,7 +34,7 @@ func (m *ConnDB) SetPost(title, content, imageName, privacy string, userId, grou
 
 func (db *ConnDB) SetPostViewer(postId, userId int) (int, error) {
 	query := `
-		INSERT INTO post_viewers (post_id, user_id)
+		INSERT INTO post_visibility (id_post, id_viewer)
 		VALUES (?, ?)`
 
 	_, err := db.DB.Exec(query, postId, userId)
@@ -45,14 +45,6 @@ func (db *ConnDB) SetPostViewer(postId, userId int) (int, error) {
 	return 1, nil
 }
 
-// CREATE TABLE post_viewers (
-//     id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-//     post_id INTEGER NOT NULL,
-//     user_id INTEGER NOT NULL,
-//     FOREIGN KEY (post_id) REFERENCES posts(id),
-//     FOREIGN KEY (user_id) REFERENCES users(id),
-//     UNIQUE(post_id, user_id) -- Assurer que chaque combinaison post_id et user_id est unique
-// );
 
 
 func (m *ConnDB) getPost(postId int) (*Post, error) {
