@@ -13,3 +13,6 @@ type Comment struct {
 	Post          *Post
 	Author        *User
 }
+
+
+
