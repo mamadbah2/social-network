@@ -7,6 +7,7 @@ import "time"
 type User struct {
 	Id             int
 	Email          string
+	Password       string
 	FirstName      string
 	LastName       string
 	Nickname       string
@@ -14,6 +15,7 @@ type User struct {
 	ProfilePicture string
 	AboutMe        string
 	Private        bool
+	CreatedAt      time.Time
 	Followers      []*User
 	Groups         []*Group
 	Posts          []*Post
@@ -37,8 +39,9 @@ func (m *ConnDB) getFollowers(userID int) ([]*User, error) {
 
 	for rows.Next() {
 		f := &User{}
+		var dateOfBirthStr string
 		err := rows.Scan(
-			&f.Id, &f.Email, &f.FirstName, &f.LastName, &f.Nickname, &f.DateOfBirth, &f.ProfilePicture, &f.AboutMe, &f.Private)
+			&f.Id, &f.Email, &f.Password, &f.FirstName, &f.LastName,  &dateOfBirthStr, &f.ProfilePicture, &f.Nickname, &f.AboutMe, &f.Private, &f.CreatedAt)
 		if err != nil {
 			return nil, err
 		}
@@ -52,7 +55,7 @@ func (m *ConnDB) getGroups(userID int) ([]*Group, error) {
 		SELECT g.*, u.*
 		FROM groups g
 		JOIN users u ON g.id_creator = u.id
-		JOIN group_members gm ON g.id = gm.id_group
+		JOIN groups_members gm ON g.id = gm.id_group
 		WHERE gm.id_member = ?
     `
 
@@ -67,11 +70,12 @@ func (m *ConnDB) getGroups(userID int) ([]*Group, error) {
 	for rows.Next() {
 
 		g := &Group{Creator: &User{}}
+		var dateOfBirthStr string
 
 		err := rows.Scan(
 			&g.Id, &g.Name, &g.Description, &g.CreatedAt,
 			&g.Creator.Id, &g.Creator.Email, &g.Creator.FirstName, &g.Creator.LastName,
-			&g.Creator.Nickname, &g.Creator.DateOfBirth, &g.Creator.ProfilePicture,
+			&g.Creator.Nickname, &dateOfBirthStr, &g.Creator.ProfilePicture,
 			&g.Creator.AboutMe, &g.Creator.Private,
 		)
 		if err != nil {
@@ -85,7 +89,11 @@ func (m *ConnDB) getGroups(userID int) ([]*Group, error) {
 
 func (m *ConnDB) getPosts(userID int) ([]*Post, error) {
 	query := `
-        SELECT p.*, g.*, u.*
+        SELECT p.id, p.title, p.content, p.privacy, p.created_at,
+		 g.id, g.name, g.description, p.created_at, u.id, u.email,
+		 u.password, u.first_name, u.last_name, u.date_of_birth, 
+		 u.profile_picture, u.nickname, u.about_me, u.profile_privacy,
+		 u.created_at
         FROM posts p
 		JOIN groups g ON g.id = p.id_group
 		JOIN users u ON u.id = p.id_author
@@ -104,12 +112,14 @@ func (m *ConnDB) getPosts(userID int) ([]*Post, error) {
 			Author: &User{},
 			Group:  &Group{},
 		}
+		var dateOfBirthStr string
+
 		err := rows.Scan(
 			&p.Id, &p.Title, &p.Content, &p.Privacy, &p.CreatedAt,
 			&p.Group.Id, &p.Group.Name, &p.Group.Description, &p.Group.CreatedAt,
-			&p.Author.Id, &p.Author.Email, &p.Author.FirstName, &p.Author.LastName,
-			&p.Author.Nickname, &p.Author.DateOfBirth, &p.Author.ProfilePicture,
-			&p.Author.AboutMe, &p.Author.Private,
+			&p.Author.Id, &p.Author.Email, &p.Author.Password, &p.Author.FirstName, &p.Author.LastName,
+			 &dateOfBirthStr, &p.Author.ProfilePicture,&p.Author.Nickname,
+			&p.Author.AboutMe, &p.Author.Private, &p.Author.CreatedAt,
 		)
 		if err != nil {
 			return nil, err
@@ -132,8 +142,14 @@ func (m *ConnDB) GetAllUsers() ([]*User, error) {
 
 	for rows.Next() {
 		u := &User{}
+		var dateOfBirthStr string
+		err := rows.Scan(&u.Id, &u.Email, &u.Password, &u.FirstName, &u.LastName, &dateOfBirthStr, &u.ProfilePicture, &u.Nickname, &u.AboutMe, &u.Private, &u.CreatedAt)
+		if err != nil {
+			return nil, err
+		}
 
-		err := rows.Scan(&u.Id, &u.Email, &u.FirstName, &u.LastName, &u.Nickname, &u.DateOfBirth, &u.ProfilePicture, &u.AboutMe, &u.Private)
+		// Convertir la chaîne de caractères en time.Time
+		u.DateOfBirth, err = time.Parse("2006-01-02", dateOfBirthStr)
 		if err != nil {
 			return nil, err
 		}
@@ -164,12 +180,23 @@ func (m *ConnDB) GetAllUsers() ([]*User, error) {
 
 func (m *ConnDB) GetUser(userID int) (*User, error) {
 	statement := `
-		SELECT * FROM users WHERE id = ?
+		SELECT u.id, u.email,
+		u.password, u.first_name, u.last_name, u.date_of_birth, 
+		u.profile_picture, u.nickname, u.about_me, u.profile_privacy,
+		u.created_at FROM users u WHERE u.id = ?
 	`
 	row := m.DB.QueryRow(statement, userID)
+	
 	u := &User{}
+	var dateOfBirthStr string
 
-	err := row.Scan(&u.Id, &u.Email, &u.FirstName, &u.LastName, &u.Nickname, &u.DateOfBirth, &u.ProfilePicture, &u.AboutMe, &u.Private)
+	err := row.Scan(&u.Id, &u.Email, &u.Password, &u.FirstName, &u.LastName, &dateOfBirthStr, &u.ProfilePicture, &u.Nickname, &u.AboutMe, &u.Private, &u.CreatedAt)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convertir la chaîne de caractères en time.Time
+	u.DateOfBirth, err = time.Parse("2006-01-02", dateOfBirthStr)
 	if err != nil {
 		return nil, err
 	}
