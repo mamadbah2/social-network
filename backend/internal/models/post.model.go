@@ -5,8 +5,8 @@ import "time"
 type Post struct {
 	Id            int
 	Title         string
-	Comment       string
-	Date          time.Time
+	Content       string
+	CreatedAt     time.Time
 	Privacy       string
 	Author        *User
 	Group         *Group
