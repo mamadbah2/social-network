@@ -50,7 +50,7 @@ func main() {
 		},
 		Handlers: &handlers.Handler{
 			Helpers: help,
-			ConnDB: &models.ConnDB{DB: db},
+			ConnDB : &models.ConnDB{DB: db},
 		},
 		Validators: &validators.Validator{
 			Helpers: help,

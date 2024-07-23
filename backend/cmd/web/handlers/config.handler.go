@@ -10,7 +10,7 @@ import (
 
 type Handler struct {
 	Helpers *helpers.Helpers
-	ConnDB *models.ConnDB
+	ConnDB  *models.ConnDB
 }
 
 func (hand *Handler) renderJSON(w http.ResponseWriter, data interface{}) {
