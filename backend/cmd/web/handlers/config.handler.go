@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"social-network/cmd/web/helpers"
+	"social-network/cmd/web/sessionManager"
 	"social-network/cmd/web/validators"
 	"social-network/internal/models"
 )
@@ -12,6 +13,7 @@ import (
 type Handler struct {
 	Helpers *helpers.Helpers
 	ConnDB  *models.ConnDB
+	SessionManager *sessionManager.SessionManager
 	validators.Validator
 }
 

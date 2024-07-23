@@ -9,6 +9,7 @@ import (
 	"social-network/cmd/web/handlers"
 	"social-network/cmd/web/helpers"
 	"social-network/cmd/web/middleware"
+	"social-network/cmd/web/sessionManager"
 	"social-network/cmd/web/validators"
 	"social-network/internal/models"
 	"social-network/internal/utils"
@@ -41,16 +42,22 @@ func main() {
 		return
 	}
 
+	newsession := &sessionManager.SessionManager{
+		Sessions: make(map[string]*sessionManager.Session),
+		Db:       db,
+	}
 	// On appelle ça dans le jargon injection des dépendances si j'ne m'abuse
 
 	app := &Application{
 		ConnDB: &models.ConnDB{DB: db},
 		Middleware: &middleware.Middleware{
 			Helpers: help,
+			SessionManager: newsession,
 		},
 		Handlers: &handlers.Handler{
 			Helpers: help,
 			ConnDB : &models.ConnDB{DB: db},
+			SessionManager:newsession,
 		},
 		Validators: &validators.Validator{
 			Helpers: help,

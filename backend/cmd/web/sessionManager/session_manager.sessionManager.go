@@ -1,4 +1,4 @@
-package models
+package sessionManager
 
 import (
 	"database/sql"
@@ -6,17 +6,16 @@ import (
 	"errors"
 	"log"
 	"net/http"
-	"sync"
 	"time"
 
 	"github.com/gofrs/uuid/v5"
 )
 
 type Session struct {
-	SessionID string
-	Iduser    int
+	Id string
+	UserId    int
 	Data      map[string]interface{}
-	Expires   time.Time
+	Expired_at   time.Time
 	IsActive  bool
 	Cookie    http.Cookie
 }
@@ -30,18 +29,6 @@ func generateSessionID() string {
 	return u2.String()
 }
 
-type SessionManager struct {
-	Sessions map[string]*Session
-	Db       *sql.DB
-	mu       sync.RWMutex
-}
-
-func NewSessionManager(db *sql.DB) *SessionManager {
-	return &SessionManager{
-		Sessions: make(map[string]*Session),
-		Db:       db,
-	}
-}
 func (sess *SessionManager) ClearSessions() {
 	sess.Sessions = make(map[string]*Session)
 }
@@ -52,11 +39,11 @@ func (sess *SessionManager) NewSession(w http.ResponseWriter, iduser int) (*Sess
 	sessionId := generateSessionID()
 
 	session := &Session{
-		SessionID: sessionId,
-		Iduser:    iduser,
+		Id: sessionId,
+		UserId:    iduser,
 		IsActive:  true,
 		Data:      make(map[string]interface{}),
-		Expires:   time.Now().Add(120 * time.Minute),
+		Expired_at:   time.Now().Add(120 * time.Minute),
 		Cookie: http.Cookie{
 			Name:     "session",
 			Value:    sessionId,
@@ -73,7 +60,7 @@ func (sess *SessionManager) NewSession(w http.ResponseWriter, iduser int) (*Sess
 	if err != nil {
 		return nil, err
 	}
-	_, err = sess.Db.Exec("INSERT INTO session (sessionID, iduser, data, expires, isactive) VALUES (?, ?, ?, ?,true)", sessionId, iduser, encodedData, session.Expires)
+	_, err = sess.Db.Exec("INSERT INTO session (id, userId, data, expired_at, isactive) VALUES (?, ?, ?, ?,true)", sessionId, iduser, encodedData, session.Expired_at)
 	if err != nil {
 		return nil, err
 	}
@@ -99,7 +86,7 @@ func (sess *SessionManager) GetSession(r *http.Request) (*Session, error) {
 	sessionID := cookie.Value
 	// session, ok := sess.Sessions[sessionID]
 	// if !ok {
-	row := sess.Db.QueryRow("SELECT iduser, data, expires FROM session WHERE sessionID = ?", sessionID)
+	row := sess.Db.QueryRow("SELECT userId, data, expired_at FROM session WHERE id = ?", sessionID)
 	dataBytes := []byte{}
 	expires := time.Time{}
 	var iduser int
@@ -122,10 +109,10 @@ func (sess *SessionManager) GetSession(r *http.Request) (*Session, error) {
 	}
 
 	session := &Session{
-		SessionID: sessionID,
-		Iduser:    iduser,
+		Id: sessionID,
+		UserId:    iduser,
 		Data:      decodedData,
-		Expires:   expires,
+		Expired_at:   expires,
 		Cookie:    *cookie,
 	}
 
@@ -148,7 +135,7 @@ func encodeSessionData(data map[string]interface{}) ([]byte, error) {
 func (m *SessionManager) DeleteSession(sessionID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	stmt := `DELETE FROM session WHERE sessionID = ?`
+	stmt := `DELETE FROM session WHERE id = ?`
 	_, err := m.Db.Exec(stmt, sessionID)
 	return err
 }
@@ -156,11 +143,11 @@ func (m *SessionManager) DeleteSession(sessionID string) error {
 func (sess *SessionManager) GetActiveSession(userID int) (*Session, error) {
 	sess.mu.Lock()         // Lock the map for writing
 	defer sess.mu.Unlock() // Defer the unlocking of the map
-	stmt := `SELECT sessionID FROM session WHERE iduser = ? AND isactive = true`
+	stmt := `SELECT id FROM session WHERE userId = ? AND isactive = true`
 	row := sess.Db.QueryRow(stmt, userID)
 
 	s := &Session{}
-	err := row.Scan(&s.SessionID)
+	err := row.Scan(&s.Id)
 	if err != nil {
 
 		if errors.Is(err, sql.ErrNoRows) {
@@ -174,9 +161,9 @@ func (sess *SessionManager) GetActiveSession(userID int) (*Session, error) {
 }
 
 func (u *SessionManager) GetSessions(IdUser int) (bool, error) {
-	stmt := `SELECT sessionID FROM session WHERE iduser = ?`
+	stmt := `SELECT id FROM session WHERE userId = ?`
 	s := &Session{}
-	err := u.Db.QueryRow(stmt, IdUser).Scan(&s.SessionID)
+	err := u.Db.QueryRow(stmt, IdUser).Scan(&s.Id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return false,errors.New("models: no matching record found")
