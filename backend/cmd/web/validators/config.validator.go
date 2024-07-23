@@ -6,6 +6,7 @@ import (
 )
 
 type Validator struct {
+	NonFieldErrors []string
 	FieldErrors map[string]string
 	Helpers     *helpers.Helpers
 	DB          *sql.DB

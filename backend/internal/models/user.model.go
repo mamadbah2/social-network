@@ -1,6 +1,16 @@
 package models
 
-import "time"
+import (
+	"database/sql"
+	"errors"
+	"fmt"
+	"social-network/cmd/web/validators"
+	"strings"
+	"time"
+
+	"github.com/mattn/go-sqlite3"
+	"golang.org/x/crypto/bcrypt"
+)
 
 // Ceci n'est pas un model officiel mais un exemple
 
@@ -220,4 +230,62 @@ func (m *ConnDB) GetUser(userID int) (*User, error) {
 	u.Posts = posts
 
 	return u, nil
+}
+
+func (m *ConnDB) InsertUser(user User) error {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+
+	stmt := `INSERT INTO users (email, password, first_name, last_name, date_of_birth, profile_picture, nickname, about_me, profile_privacy, created_at)
+ 	VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?,CURRENT_TIMESTAMP)`
+
+	result, err := m.DB.Exec(stmt, user.Email,  string(hashedPassword), user.FirstName, user.LastName, user.DateOfBirth, user.ProfilePicture, user.Nickname, user.AboutMe, user.Private)
+	if err != nil {
+		if sqliteErr, ok := err.(sqlite3.Error); ok {
+			if sqliteErr.Code == sqlite3.ErrConstraint && strings.Contains(sqliteErr.Error(), "UNIQUE constraint failed: user.email") {
+				return errors.New("models: duplicate email")
+			}
+		}
+		fmt.Println("Error inserting user:", err)
+		return err
+	}
+	rowsAffected, _ := result.RowsAffected()
+	fmt.Println("Rows affected:", rowsAffected)
+	return nil
+}
+
+
+func (m *ConnDB) Authenticate(emailOrUsername, password string) (int, error) {
+	var id int
+	var passwordeu string
+	var stmt string
+	if (validators.Matches(emailOrUsername, validators.EmailRX)){
+		stmt = `SELECT id, password FROM users WHERE email = ?`
+	}else{
+		stmt = `SELECT id, password FROM users WHERE nickname = ?`
+	}
+	err := m.DB.QueryRow(stmt, emailOrUsername).Scan(&id, &passwordeu)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			fmt.Println("error 1")
+			return 0, errors.New("models: invalid credentials")
+		} else {
+			fmt.Println("error 2")
+			return 0, err
+		}
+	}
+	err = bcrypt.CompareHashAndPassword([]byte(passwordeu), []byte(password))
+	if err != nil {
+		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
+			fmt.Println("error 3")
+			return 0, errors.New("models: invalid credentials")
+		} else {
+			fmt.Println("error 4")
+			return 0, err
+		}
+	}
+	return id, nil
+
 }

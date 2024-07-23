@@ -5,12 +5,14 @@ import (
 	"net/http"
 
 	"social-network/cmd/web/helpers"
+	"social-network/cmd/web/validators"
 	"social-network/internal/models"
 )
 
 type Handler struct {
 	Helpers *helpers.Helpers
 	ConnDB  *models.ConnDB
+	validators.Validator
 }
 
 func (hand *Handler) renderJSON(w http.ResponseWriter, data interface{}) {
