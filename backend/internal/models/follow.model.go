@@ -9,6 +9,7 @@ type Follow struct {
 	Id       int
 	Followed *User
 	Follower *User
+	Archived bool
 }
 
 func (m *ConnDB) SetFollower(followerID, followedID int) error {
@@ -28,12 +29,13 @@ func (m *ConnDB) SetFollower(followerID, followedID int) error {
 	fmt.Println("Successfully inserted follow relationship")
 	return nil
 }
+
 func (m *ConnDB) GetFollowers(userID int) ([]*Follow, error) {
 	query := `
-	SELECT f.id, u.*
+	SELECT f.id, f.archived, u.*
 	FROM users u
 	JOIN follows f ON u.id = f.id_follower
-	WHERE f.id_followed = ?
+	WHERE f.id_followed = ? AND f.archived = FALSE
 `
 
 	rows, err := m.DB.Query(query, userID)
@@ -50,7 +52,7 @@ func (m *ConnDB) GetFollowers(userID int) ([]*Follow, error) {
 		}
 		var dateOfBirthFollowerStr string
 		err := rows.Scan(
-			&f.Id, &f.Follower.Id, &f.Follower.Email, &f.Follower.Password, &f.Follower.FirstName, &f.Follower.LastName, &dateOfBirthFollowerStr, &f.Follower.ProfilePicture, &f.Follower.Nickname, &f.Follower.AboutMe, &f.Follower.Private, &f.Follower.CreatedAt)
+			&f.Id, &f.Archived, &f.Follower.Id, &f.Follower.Email, &f.Follower.Password, &f.Follower.FirstName, &f.Follower.LastName, &dateOfBirthFollowerStr, &f.Follower.ProfilePicture, &f.Follower.Nickname, &f.Follower.AboutMe, &f.Follower.Private, &f.Follower.CreatedAt)
 		if err != nil {
 			return nil, err
 		}
@@ -65,10 +67,10 @@ func (m *ConnDB) GetFollowers(userID int) ([]*Follow, error) {
 
 func (m *ConnDB) GetFollowed(userID int) ([]*Follow, error) {
 	query := `
-	SELECT f.id, u.*
+	SELECT f.id, f.archived, u.*
 	FROM users u
 	JOIN follows f ON u.id = f.id_followed
-	WHERE f.id_follower = ?
+	WHERE f.id_follower = ? AND f.archived = FALSE
 `
 
 	rows, err := m.DB.Query(query, userID)
@@ -85,7 +87,7 @@ func (m *ConnDB) GetFollowed(userID int) ([]*Follow, error) {
 		}
 		var dateOfBirthFollowedStr string
 		err := rows.Scan(
-			&f.Id, &f.Followed.Id, &f.Followed.Email, &f.Followed.Password, &f.Followed.FirstName, &f.Followed.LastName, &dateOfBirthFollowedStr, &f.Followed.ProfilePicture, &f.Followed.Nickname, &f.Followed.AboutMe, &f.Followed.Private, &f.Followed.CreatedAt)
+			&f.Id, &f.Archived, &f.Followed.Id, &f.Followed.Email, &f.Followed.Password, &f.Followed.FirstName, &f.Followed.LastName, &dateOfBirthFollowedStr, &f.Followed.ProfilePicture, &f.Followed.Nickname, &f.Followed.AboutMe, &f.Followed.Private, &f.Followed.CreatedAt)
 		if err != nil {
 			return nil, err
 		}
@@ -98,6 +100,18 @@ func (m *ConnDB) GetFollowed(userID int) ([]*Follow, error) {
 	return Followed, nil
 }
 
-func (m *ConnDB) DeleteFollowed() {
-
+func (m *ConnDB) ArchivedFollower(followerID, followedID int) error {
+	query := `
+		UPDATE follows
+		SET archived = TRUE
+		WHERE id_follower = ? AND id_followed = ?
+	`
+	_, err := m.DB.Exec(query, followerID, followedID)
+	if err != nil {
+		// Affichage de l'erreur pour le débogage
+		fmt.Println("Error executing query:", err)
+		return err
+	}
+	fmt.Println("Successfully archived")
+	return nil
 }

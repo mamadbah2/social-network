@@ -13,6 +13,7 @@ func (hand *Handler) Follows(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			fmt.Println("error when trying to get user id :", err)
 		}
+
 		err = hand.ConnDB.SetFollower(6, id)
 		if err != nil {
 			http.Error(w, "Cannot Set Follower", http.StatusBadRequest)
@@ -41,7 +42,16 @@ func (hand *Handler) Follows(w http.ResponseWriter, r *http.Request) {
 		} else {
 			http.Error(w, "invalid action parameter", http.StatusBadRequest)
 		}
+	case http.MethodPut:
+		id, err := strconv.Atoi(r.URL.Query().Get("id"))
+		if err != nil {
+			fmt.Println("error when trying to get user id :", err)
+		}
 
+		err = hand.ConnDB.ArchivedFollower(6, id)
+		if err != nil {
+			http.Error(w, "Cannot Set Follower", http.StatusBadRequest)
+		}
 	default:
 		http.Error(w, "Cannot Set Follower", http.StatusBadRequest)
 	}
