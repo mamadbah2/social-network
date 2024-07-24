@@ -97,3 +97,7 @@ func (m *ConnDB) GetFollowed(userID int) ([]*Follow, error) {
 	}
 	return Followed, nil
 }
+
+func (m *ConnDB) DeleteFollowed() {
+
+}
