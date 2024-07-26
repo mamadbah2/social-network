@@ -1,6 +1,8 @@
 package models
 
 import (
+	"database/sql"
+	"errors"
 	"fmt"
 	"time"
 )
@@ -12,21 +14,43 @@ type Follow struct {
 	Archived bool
 }
 
-func (m *ConnDB) SetFollower(followerID, followedID int) error {
-	query := `
-		INSERT INTO follows (id_follower, id_followed, created_at)
-		VALUES (?, ?, CURRENT_TIMESTAMP)`
-	fmt.Println("Inserting follower:", followerID, "followed:", followedID)
+var ErrSelfFollow = errors.New("un utilisateur ne peut pas se suivre lui-même")
 
-	// Exécution de la requête d'insertion
-	_, err := m.DB.Exec(query, followerID, followedID)
-	if err != nil {
-		// Affichage de l'erreur pour le débogage
-		fmt.Println("Error executing query:", err)
-		return err
+func (m *ConnDB) SetFollower(followerID, followedID int) error {
+	if followerID == followedID {
+		return ErrSelfFollow
+	}
+	// Vérifier d'abord si une relation archivée existe
+	query := `
+			SELECT id FROM follows
+			WHERE id_follower = ? AND id_followed = ?
+	`
+	var followID int
+	err := m.DB.QueryRow(query, followerID, followedID).Scan(&followID)
+
+	if err == nil {
+		updateQuery := `
+					UPDATE follows
+					SET archived = FALSE
+					WHERE id = ?
+			`
+		_, err = m.DB.Exec(updateQuery, followID)
+		if err != nil {
+			return fmt.Errorf("error reactivating follow: %w", err)
+		}
+		return nil
+	} else if err != sql.ErrNoRows {
+		return fmt.Errorf("error checking existing follow: %w", err)
 	}
 
-	fmt.Println("Successfully inserted follow relationship")
+	insertQuery := `
+			INSERT INTO follows (id_follower, id_followed, created_at, archived)
+			VALUES (?, ?, CURRENT_TIMESTAMP, FALSE)
+	`
+	_, err = m.DB.Exec(insertQuery, followerID, followedID)
+	if err != nil {
+		return fmt.Errorf("error creating new follow: %w", err)
+	}
 	return nil
 }
 
@@ -65,7 +89,7 @@ func (m *ConnDB) GetFollowers(userID int) ([]*Follow, error) {
 	return followers, nil
 }
 
-func (m *ConnDB) GetFollowed(userID int) ([]*Follow, error) {
+func (m *ConnDB) GetFollowing(userID int) ([]*Follow, error) {
 	query := `
 	SELECT f.id, f.archived, u.*
 	FROM users u
@@ -100,7 +124,10 @@ func (m *ConnDB) GetFollowed(userID int) ([]*Follow, error) {
 	return Followed, nil
 }
 
-func (m *ConnDB) ArchivedFollower(followerID, followedID int) error {
+func (m *ConnDB) ArchiveFollower(followerID, followedID int) error {
+	if followerID == followedID {
+		return ErrSelfFollow
+	}
 	query := `
 		UPDATE follows
 		SET archived = TRUE
@@ -109,9 +136,9 @@ func (m *ConnDB) ArchivedFollower(followerID, followedID int) error {
 	_, err := m.DB.Exec(query, followerID, followedID)
 	if err != nil {
 		// Affichage de l'erreur pour le débogage
-		fmt.Println("Error executing query:", err)
-		return err
+		return fmt.Errorf("error executing query: %w", err)
+
 	}
-	fmt.Println("Successfully archived")
+	fmt.Println("Successfully archive")
 	return nil
 }

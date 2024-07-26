@@ -1,59 +1,68 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 )
 
 func (hand *Handler) Follows(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(r.URL.Query().Get("id"))
+	if err != nil {
+		http.Error(w, "Invalid user ID", http.StatusBadRequest)
+		return
+	}
+
 	switch r.Method {
 	case http.MethodPost:
-		id, err := strconv.Atoi(r.URL.Query().Get("id"))
-		if err != nil {
-			fmt.Println("error when trying to get user id :", err)
-		}
-
-		err = hand.ConnDB.SetFollower(6, id)
-		if err != nil {
-			http.Error(w, "Cannot Set Follower", http.StatusBadRequest)
-		}
-	case http.MethodGet:
-		id, err := strconv.Atoi(r.URL.Query().Get("id"))
-		if err != nil {
-			fmt.Println("error when trying to get user id :", err)
-		}
-
 		action := r.URL.Query().Get("action")
-		if action == "followers" {
+		switch action {
+		case "follow":
+			err = hand.ConnDB.SetFollower(6, id)
+			if err != nil {
+				http.Error(w, "Cannot Set Follower", http.StatusBadRequest)
+				return
+			}
+
+		case "archive":
+			err = hand.ConnDB.ArchiveFollower(6, id)
+			if err != nil {
+				http.Error(w, "Cannot archive follower", http.StatusInternalServerError)
+				return
+			}
+
+		default:
+			http.Error(w, "invalid action parameter", http.StatusBadRequest)
+			return
+		}
+
+	case http.MethodGet:
+		action := r.URL.Query().Get("action")
+		switch action {
+		case "followers":
 			followers, err := hand.ConnDB.GetFollowers(id)
+
 			if err != nil {
 				hand.Helpers.ServerError(w, err)
+				return
 			}
 
 			hand.renderJSON(w, followers)
-		} else if action == "followed" {
-			followed, err := hand.ConnDB.GetFollowed(id)
+		case "following":
+			followed, err := hand.ConnDB.GetFollowing(id)
+
 			if err != nil {
 				hand.Helpers.ServerError(w, err)
+				return
 			}
+
 			hand.renderJSON(w, followed)
-
-		} else {
+		default:
 			http.Error(w, "invalid action parameter", http.StatusBadRequest)
-		}
-	case http.MethodPut:
-		id, err := strconv.Atoi(r.URL.Query().Get("id"))
-		if err != nil {
-			fmt.Println("error when trying to get user id :", err)
-		}
-
-		err = hand.ConnDB.ArchivedFollower(6, id)
-		if err != nil {
-			http.Error(w, "Cannot Set Follower", http.StatusBadRequest)
+			return
 		}
 	default:
-		http.Error(w, "Cannot Set Follower", http.StatusBadRequest)
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
 	}
 
 	// followersIDs := make([]int, len(followers))
