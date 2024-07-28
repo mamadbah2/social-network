@@ -32,8 +32,6 @@ You will have a Facebook-like social network
 - [**Sources**](#sources)
 - [**License**](#license)
 
-<hr style="background: #333">
-
 ## Description
 
 ###### [*Table of Content ⤴️*](#table-of-contents)
@@ -67,8 +65,6 @@ Click on badges to get to the code...
 [![MAC OS](https://img.shields.io/badge/mac%20os-000000?style=for-the-badge&logo=apple&logoColor=white)]()
 
 ###### [*Table of Content ⤴️*](#table-of-contents)
-
-<hr style="background: #333">
 
 ## Installation
 
@@ -202,8 +198,6 @@ go run .
 
 ###### [*Table of Content ⤴️*](#table-of-contents)
 
-<hr style="background: #333">
-
 ## Usage
 
 ```mermaid
@@ -221,6 +215,10 @@ classDiagram
         - profile_privacy: Boolean
         - created_at: Time
         + Set(): void
+        + Follow(user): void
+        + Unfollow(user): void
+        + IsFollowing(user): Boolean
+        + IsFollowedBy(user): Boolean
     }
 
     class Post {
@@ -253,16 +251,6 @@ classDiagram
         + Set(): void
     }
 
-    class Message {
-        ~ id: int
-        - id_sender: int
-        - id_receiver: int
-        - content: String
-        - message_type: String
-        - created_at: Time
-        + Set(): void
-    }
-
     class Group {
         ~ id: int
         - id_creator: int
@@ -282,82 +270,183 @@ classDiagram
         + Set(): void
     }
 
-    User -- Group
-    User -- Post
-    User -- Comment
-    User -- Reaction
-    User -- Message
-    User --> Event
+    class Message {
+        ~ id: int
+        - id_sender: int
+        - id_receiver: int
+        - content: String
+        - message_type: String
+        - created_at: Time
+        + Set(): void
+    }
 
-    Group *-- User
-    Group *-- Post
-    Group *-- Message
-    Group o-- Event
+    User "0..*" -- "0..*" User: Follows
+    User "1" -- "0..*" Post: Publishes
+    User "1" -- "0..*" Comment: Writes
+    Comment "0..*" ..> "1" Post: on
+    User "1" -- "0..*" Reaction: Sends
+    Reaction "0..*" ..> "1" Post: on
+    Post "0..*" --o "1" Group: in
 
-    Post -- Comment
-    Post -- Reaction
+    User "1" -- "0..*" Group: Creates
+    User "0..*" --o "0..*" Group: Joins
+    User "1" -- "0..*" Event: Creates
+    Event "0..*" ..> "1" Group: in
+
+    User "1" -- "0..*" Message: Sends
+    User "1..*" -- "0..*" Message: Receives
+    Message "0..*" --o "1" Group: in
 ```
+
+<hr style="background: #111">
 
 ### Register
 
+```mermaid
+sequenceDiagram
+    Participant User
+    Participant Client
+    Participant Server
+    Participant Database
+
+    User ->> User: FILL Form
+    User ->> Client: SUBMIT Form
+    Client ->> Client: CHECK Inputs Format
+    Client ->> Server: POST Form Values 
+    Server ->> Server: CHECK Request Method
+    Server ->> Server: GET Form Values
+    Server ->> Server: CHECK Values Format
+    Server ->> Database: INSERT INTO users
+    Database -->> Server: OK
+    Server -->> Client: Redirect to Login
+    Client -->> User: Login Form
+```
+
+<hr style="background: #111">
+
 ### Login
+
+```mermaid
+sequenceDiagram
+    Participant User
+    Participant Client
+    Participant Server
+    Participant Database
+
+    User ->> User: FILL Form
+    User ->> Client: SUBMIT Form
+    Client ->> Client: CHECK Inputs Format
+    Client ->> Server: POST Form Values
+    Server ->> Server: CHECK Request Method
+    Server ->> Server: GET Form Values
+    Server ->> Server: CHECK Values Format
+    Server ->> Database: SELECT * FROM users
+    Database -->> Server: SEND User
+    Server ->> Server: CHECK Password
+    Server -->> Client: Session
+    Client -->> User: Home
+```
+
+<hr style="background: #111">
+
+### Profile
+
 ```mermaid
 sequenceDiagram
     Participant Client
     Participant Server
     Participant Database
-
-    Client ->> Client: FILL Form
-    Note right of Client: <input name="identifier" placeholder="Email or Nickname">
-    Note right of Client: <input name="password" placeholder="Password">
-    Client ->> Client: CHECK Format
-    Client ->> Server: POST Form
-    Server ->> Server: CHECK Request Method
-    Server ->> Server: GET Form Value
-    Note right of Server: identifier := r.FormValue("identifier")
-    Note right of Server: password := r.FormValue("password")
-    Server ->> Server: CHECK Format
-    Server ->> Database: GET User
-    Database ->> Database: READ Table 'users'
-    Note right of Database: SELECT * FROM users
-    Note right of Database: WHERE email = identifier
-    Note right of Database: OR nickname = identifier
-    Database -->> Server: SEND User
-    Server ->> Server: CHECK Password
-    Server -->> Client: Session
 ```
 
-### Profile
+<hr style="background: #111">
 
 ### Post
 
+```mermaid
+sequenceDiagram
+    Participant Client
+    Participant Server
+    Participant Database
+```
+
+<hr style="background: #111">
+
 ### Comment
 
+```mermaid
+sequenceDiagram
+    Participant Client
+    Participant Server
+    Participant Database
+```
+
+<hr style="background: #111">
+
 ### Reaction
+
+```mermaid
+sequenceDiagram
+    Participant Client
+    Participant Server
+    Participant Database
+```
+
+<hr style="background: #111">
 
 ### Message
 
 ```mermaid
 sequenceDiagram
     Participant Sender
+    Participant WebSocket
     Participant Server
     Participant Database
     Participant Receiver
 
-    Sender ->> Server: GET Receiver ID
-    Server ->> Database: READ users Table
-    Database -->> Server: Receiver
-    Server ->> Database: READ follows Table
-    Database -->> Server: Sender followS Receiver
+    loop Initial Connection
+        Note left of Sender: 
+        Sender ->> WebSocket: Connect
+        WebSocket -->> Sender: Connected
+        Receiver ->> WebSocket: Connect
+        WebSocket -->> Receiver: Connected
+        Note right of Receiver: 
+    end
+
+    loop Sending...
+        Note left of Sender: 
+        Sender ->> WebSocket: SEND Message
+        WebSocket ->> Server: STORE Message
+        Server ->> Database: INSERT INTO messages
+        Database -->> Server: OK
+        Server -->> WebSocket: Message STORED
+        WebSocket ->> Receiver: GET Message
+        Note right of Receiver: 
+    end
 ```
+
+<hr style="background: #111">
 
 ### Follow
 
+```mermaid
+sequenceDiagram
+    Participant Client
+    Participant Server
+    Participant Database
+```
+
+<hr style="background: #111">
+
 ### Group
 
-###### [*Table of Content ⤴️*](#table-of-contents)
+```mermaid
+sequenceDiagram
+    Participant Client
+    Participant Server
+    Participant Database
+```
 
-<hr style="background: #333">
+###### [*Table of Content ⤴️*](#table-of-contents)
 
 ## Aknowlegments
 
@@ -388,12 +477,8 @@ sequenceDiagram
 
 ###### [*Table of Content ⤴️*](#table-of-contents)
 
-<hr style="background: #333">
-
 ## Sources
 
 ###### [*Table of Content ⤴️*](#table-of-contents)
-
-<hr style="background: #333">
 
 ## License
