@@ -406,24 +406,24 @@ sequenceDiagram
         Server ->> Server: upgrader.Upgrade(w, r, nil)
         Server -->> Sender: HTTP Response(101 Switching Protocols)
         Sender ->> Sender: socket.onopen
-        Server -->> Server: map[*websocket.Conn] = ""
+        Server -->> Server: map[conn] = ""
     and Receiver Connection
         Receiver ->> Server: HTTP Request (Upgrade: websocket)
         Server ->> Server: upgrader.Upgrade(w, r, nil)
         Server -->> Receiver: HTTP Response(101 Switching Protocols)
         Receiver ->> Receiver: socket.onopen
-        Server -->> Server: map[*websocket.Conn] = ""
+        Server -->> Server: map[conn] = ""
     end
 
     loop Sending...
         Note left of Sender: INPUT
         Sender ->> Sender: button.onclick
         Sender ->> Server: socket.send()
-       Server ->> Server: *websocket.Conn.ReadJSON(&models.Message)
-        Server ->> Server: map[*websocket.Conn] = msg.Sender
+       Server ->> Server: conn.ReadJSON(&msg)
+        Server ->> Server: map[conn] = msg.Sender
         Server ->> Database: INSERT INTO messages
         Database -->> Server: Stored
-        Server ->> Receiver: *websocket.Conn.WriteJSON(models.Message)
+        Server ->> Receiver: conn.WriteJSON(msg)
        Receiver ->> Receiver: socket.onmessage
         Note right of Receiver: OUPTPUT
     end
