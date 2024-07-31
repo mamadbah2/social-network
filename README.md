@@ -397,9 +397,9 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     Participant Sender
+    Participant Receiver
     Participant Server
     Participant Database
-    Participant Receiver
 
     par Sender Connection
         Sender ->> Server: HTTP Request (Upgrade: websocket)
