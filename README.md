@@ -21,7 +21,7 @@ You will have a Facebook-like social network
     - [Post](#post)
     - [Comment](#comment)
     - [Reaction](#reaction)
-    - [Message](#message)
+    - [Chat](#chat)
     - [Follow](#follow)
     - [Group](#group)
 - [**Aknowlegments**](#aknowlegments)
@@ -317,7 +317,7 @@ sequenceDiagram
     Server ->> Server: GET Form Values
     Server ->> Server: CHECK Values Format
     Server ->> Database: INSERT INTO users
-    Database -->> Server: OK
+    Database -->> Server: ADDED
     Server -->> Client: Redirect to Login
     Client -->> User: Login Form
 ```
@@ -341,7 +341,7 @@ sequenceDiagram
     Server ->> Server: GET Form Values
     Server ->> Server: CHECK Values Format
     Server ->> Database: SELECT * FROM users
-    Database -->> Server: SEND User
+    Database -->> Server: ROW: User
     Server ->> Server: CHECK Password
     Server -->> Client: Session
     Client -->> User: Home
@@ -393,7 +393,7 @@ sequenceDiagram
 
 <hr style="background: #111">
 
-### Message
+### Chat
 
 ```mermaid
 sequenceDiagram
@@ -403,24 +403,40 @@ sequenceDiagram
     Participant Database
     Participant Receiver
 
-    loop Initial Connection
-        Note left of Sender: 
-        Sender ->> WebSocket: Connect
-        WebSocket -->> Sender: Connected
-        Receiver ->> WebSocket: Connect
-        WebSocket -->> Receiver: Connected
-        Note right of Receiver: 
+    par Sender Connection
+        Sender ->> WebSocket: new Websocket(url)
+        WebSocket ->> WebSocket: upgrader.Upgrade(w, r)
+        WebSocket ->> Server: Conn
+        Server -->> Server: chatBox[Conn] = ""
+        WebSocket -->> Sender: 101 Switching Protocols
+        Sender -->> Sender: socket.onopen
+    and Receiver Connection
+        Receiver ->> WebSocket: new Websocket(url)
+        WebSocket ->> WebSocket: upgrader.Upgrade(w, r)
+        WebSocket ->> Server: Conn
+        Server -->> Server: chatBox[Conn] = ""
+        WebSocket -->> Receiver: 101 Switching Protocols
+        Receiver -->> Receiver: socket.onopen
     end
 
     loop Sending...
-        Note left of Sender: 
-        Sender ->> WebSocket: SEND Message
-        WebSocket ->> Server: STORE Message
+        Note left of Sender: INPUT
+        Sender ->> Sender: button.onclick
+        Sender ->> WebSocket: socket.send()
+        WebSocket ->> Server: conn.ReadJSON()
         Server ->> Database: INSERT INTO messages
-        Database -->> Server: OK
-        Server -->> WebSocket: Message STORED
-        WebSocket ->> Receiver: GET Message
-        Note right of Receiver: 
+        Database -->> Server: Stored
+        Server -->> WebSocket: conn.WriteJSON()
+        WebSocket ->> Receiver: socket.onmessage
+        Receiver -->> Receiver: div.innerHTML
+        Note right of Receiver: OUPTPUT
+    end
+
+    loop Receiving...
+        Receiver ->> WebSocket: SEEN
+        WebSocket ->> Server: FORWARD Message Status
+        Server ->> Database: UPDATE messages SET seen = TRUE
+        Database -->> Server: UPDATED
     end
 ```
 
