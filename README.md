@@ -1,40 +1,41 @@
 # social-network
+
 You will have a Facebook-like social network
 
 ## Table of Contents
 
 - [**Description**](#description)
 - [**Tech Stack**](#tech-stack)
-    - [Front-End](#front-end)
-    - [Back-End](#back-end)
-    - [Others](#others)
+  - [Front-End](#front-end)
+  - [Back-End](#back-end)
+  - [Others](#others)
 - [**Installation**](#installation)
-    - [Cloning](#cloning)
-    - [File System](#file-system)
-        - [backend/](#backend)
-        - [frontend/](#frontend)
-    - [Running](#running)
+  - [Cloning](#cloning)
+  - [File System](#file-system)
+    - [backend/](#backend)
+    - [frontend/](#frontend)
+  - [Running](#running)
 - [**Usage**](#usage)
-    - [Register](#register)
-    - [Login](#login)
-    - [Profile](#profile)
-    - [Post](#post)
-    - [Comment](#comment)
-    - [Reaction](#reaction)
-    - [Chat](#chat)
-    - [Follow](#follow)
-    - [Group](#group)
+  - [Register](#register)
+  - [Login](#login)
+  - [Profile](#profile)
+  - [Post](#post)
+  - [Comment](#comment)
+  - [Reaction](#reaction)
+  - [Chat](#chat)
+  - [Follow](#follow)
+  - [Group](#group)
 - [**Aknowlegments**](#aknowlegments)
-    - [Contributors](#contributors)
-    - [Peers](#peers)
-    - [Testers](#testers)
-    - [Auditors](#auditors)
+  - [Contributors](#contributors)
+  - [Peers](#peers)
+  - [Testers](#testers)
+  - [Auditors](#auditors)
 - [**Sources**](#sources)
 - [**License**](#license)
 
 ## Description
 
-###### [*Table of Content ⤴️*](#table-of-contents)
+###### [_Table of Content ⤴️_](#table-of-contents)
 
 ## Tech Stack
 
@@ -64,7 +65,7 @@ Click on badges to get to the code...
 [![TRELLO](https://img.shields.io/badge/Trello-0052CC?style=for-the-badge&logo=trello&logoColor=white)]()
 [![MAC OS](https://img.shields.io/badge/mac%20os-000000?style=for-the-badge&logo=apple&logoColor=white)]()
 
-###### [*Table of Content ⤴️*](#table-of-contents)
+###### [_Table of Content ⤴️_](#table-of-contents)
 
 ## Installation
 
@@ -93,7 +94,6 @@ cd social-network
     + -- docker-compose.yml
     + -- Makefile
     + -- README.md
-
 
 #### backend/
 
@@ -178,7 +178,6 @@ cd social-network
     + -- backend.Dockerfile
     + -- go.mod
     + -- go.sum
-    
 
 #### frontend/
 
@@ -196,7 +195,7 @@ cd social-network
 go run .
 ```
 
-###### [*Table of Content ⤴️*](#table-of-contents)
+###### [_Table of Content ⤴️_](#table-of-contents)
 
 ## Usage
 
@@ -312,7 +311,7 @@ sequenceDiagram
     User ->> User: FILL Form
     User ->> Client: SUBMIT Form
     Client ->> Client: CHECK Inputs Format
-    Client ->> Server: POST Form Values 
+    Client ->> Server: POST Form Values
     Server ->> Server: CHECK Request Method
     Server ->> Server: GET Form Values
     Server ->> Server: CHECK Values Format
@@ -398,43 +397,39 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     Participant Sender
-    Participant WebSocket
     Participant Server
     Participant Database
     Participant Receiver
 
     par Sender Connection
-        Sender ->> WebSocket: new Websocket(url)
-        WebSocket ->> WebSocket: upgrader.Upgrade(w, r)
-        WebSocket ->> Server: Conn
-        Server -->> Server: chatBox[Conn] = ""
-        WebSocket -->> Sender: 101 Switching Protocols
-        Sender -->> Sender: socket.onopen
+        Sender ->> Server: HTTP Request (Upgrade: websocket)
+        Server ->> Server: upgrader.Upgrade(w, r, nil)
+        Server -->> Sender: HTTP Response(101 Switching Protocols)
+        Sender ->> Sender: socket.onopen
+        Server -->> Server: map[*websocket.Conn] = ""
     and Receiver Connection
-        Receiver ->> WebSocket: new Websocket(url)
-        WebSocket ->> WebSocket: upgrader.Upgrade(w, r)
-        WebSocket ->> Server: Conn
-        Server -->> Server: chatBox[Conn] = ""
-        WebSocket -->> Receiver: 101 Switching Protocols
-        Receiver -->> Receiver: socket.onopen
+        Receiver ->> Server: HTTP Request (Upgrade: websocket)
+        Server ->> Server: upgrader.Upgrade(w, r, nil)
+        Server -->> Receiver: HTTP Response(101 Switching Protocols)
+        Receiver ->> Receiver: socket.onopen
+        Server -->> Server: map[*websocket.Conn] = ""
     end
 
     loop Sending...
         Note left of Sender: INPUT
         Sender ->> Sender: button.onclick
-        Sender ->> WebSocket: socket.send()
-        WebSocket ->> Server: conn.ReadJSON()
+        Sender ->> Server: socket.send()
+       Server ->> Server: *websocket.Conn.ReadJSON(&models.Message)
+        Server ->> Server: map[*websocket.Conn] = msg.Sender
         Server ->> Database: INSERT INTO messages
         Database -->> Server: Stored
-        Server -->> WebSocket: conn.WriteJSON()
-        WebSocket ->> Receiver: socket.onmessage
-        Receiver -->> Receiver: div.innerHTML
+        Server ->> Receiver: *websocket.Conn.WriteJSON(models.Message)
+       Receiver ->> Receiver: socket.onmessage
         Note right of Receiver: OUPTPUT
     end
 
     loop Receiving...
-        Receiver ->> WebSocket: SEEN
-        WebSocket ->> Server: FORWARD Message Status
+        Receiver ->> Server: Seen
         Server ->> Database: UPDATE messages SET seen = TRUE
         Database -->> Server: UPDATED
     end
@@ -462,7 +457,7 @@ sequenceDiagram
     Participant Database
 ```
 
-###### [*Table of Content ⤴️*](#table-of-contents)
+###### [_Table of Content ⤴️_](#table-of-contents)
 
 ## Aknowlegments
 
@@ -491,10 +486,10 @@ sequenceDiagram
 [![](https://img.shields.io/badge/Zone01-blue)]()
 [![](https://img.shields.io/badge/Zone01-blue)]()
 
-###### [*Table of Content ⤴️*](#table-of-contents)
+###### [_Table of Content ⤴️_](#table-of-contents)
 
 ## Sources
 
-###### [*Table of Content ⤴️*](#table-of-contents)
+###### [_Table of Content ⤴️_](#table-of-contents)
 
 ## License
