@@ -21,7 +21,7 @@ func (hand *Handler) UserLogoutPost(w http.ResponseWriter, r *http.Request) {
 	hand.SessionManager.DeleteSession(session.Id)
 	cookie := http.Cookie{
 		Name:     "session",
-		Value:    session.Id,
+		Value:    "",
 		MaxAge:   -1,
 		Path:     "/",
 		HttpOnly: true,

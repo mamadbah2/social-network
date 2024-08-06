@@ -32,7 +32,7 @@ func (m *Middleware) LoadAndSave(handler http.Handler) http.Handler {
 			}
 			cookie := http.Cookie{
 				Name:     "session",
-				Value:    session.Id,
+				Value:   "",
 				MaxAge:   -1,
 				Path:     "/",
 				HttpOnly: true,
@@ -64,7 +64,7 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 			}
 			cookie := http.Cookie{
 				Name:     "session",
-				Value:    session.Id,
+				Value:    "",
 				MaxAge:   -1,
 				Path:     "/",
 				HttpOnly: true,
@@ -98,7 +98,7 @@ func (m *Middleware) CheckSessionExpiration(next http.Handler) http.Handler {
 			}
 			cookie := http.Cookie{
 				Name:     "session",
-				Value:    session.Id,
+				Value:    "",
 				MaxAge:   -1,
 				Path:     "/",
 				HttpOnly: true,

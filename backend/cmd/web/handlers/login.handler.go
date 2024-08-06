@@ -56,7 +56,7 @@ func (hand *Handler) UserLoginPost(w http.ResponseWriter, r *http.Request) {
 		}
 		cookie := http.Cookie{
 			Name:     "session",
-			Value:    existingSession.Id,
+			Value:    "",
 			MaxAge:   -1,
 			Path:     "/",
 			HttpOnly: true,
