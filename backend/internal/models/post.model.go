@@ -1,6 +1,9 @@
 package models
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 type Post struct {
 	Id            int
@@ -45,19 +48,15 @@ func (db *ConnDB) SetPostViewer(postId, userId int) (int, error) {
 	return 1, nil
 }
 
-
-
 func (m *ConnDB) getPost(postId int) (*Post, error) {
 	statement := `SELECT id, title, content, privacy, created_at, id_author, id_group FROM posts WHERE id = ?`
 	row := m.DB.QueryRow(statement, postId)
 
 	p := &Post{}
-	var createdAt time.Time
-	err := row.Scan(&p.Id, &p.Title, &p.Content, &p.Privacy, &createdAt, &p.Author.Id, &p.Group.Id)
+	err := row.Scan(&p.Id, &p.Title, &p.Content, &p.Privacy, &p.CreatedAt, &p.Author.Id, &p.Group.Id)
 	if err != nil {
 		return nil, err
 	}
-	p.CreatedAt = createdAt
 	return p, nil
 }
 
@@ -65,21 +64,27 @@ func (m *ConnDB) GetAllPost() ([]*Post, error) {
 	statement := `SELECT id, title, content, privacy, created_at, id_author, id_group FROM posts ORDER BY created_at DESC`
 	rows, err := m.DB.Query(statement)
 	if err != nil {
+		fmt.Println("X")
 		return nil, err
 	}
 	defer rows.Close()
 
+
 	posts := []*Post{}
 	for rows.Next() {
-		p := &Post{}
-		var createdAt time.Time
-		err := rows.Scan(&p.Id, &p.Title, &p.Content, &p.Privacy, &createdAt, &p.Author.Id, &p.Group.Id)
+		p := &Post{
+			Author: &User{},
+			Group: &Group{},
+		}
+		err := rows.Scan(&p.Id, &p.Title, &p.Content, &p.Privacy, &p.CreatedAt, &p.Author.Id, &p.Group.Id)
+		fmt.Println(&p.Id)
+		fmt.Println(&p.CreatedAt)
 		if err != nil {
 			return nil, err
 		}
-		p.CreatedAt = createdAt
 		posts = append(posts, p)
 	}
+fmt.Println(posts)
 	return posts, nil
 }
 

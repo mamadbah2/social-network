@@ -6,7 +6,6 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"social-network/cmd/web/validators"
 	"strconv"
 	"strings"
 	"time"
@@ -16,18 +15,16 @@ type AllData struct {
 	BadRequestForm bool
 }
 
-func (hand *Handler) post(w http.ResponseWriter, r *http.Request) {
-	actualUser, err := hand.validSession(r)
-	if err != nil {
-		http.Redirect(w, r, "/logout", http.StatusSeeOther)
-		return
-	}
+func (hand *Handler) Post(w http.ResponseWriter, r *http.Request) {
+	actualUser := 1
 
 	switch r.Method {
 	case http.MethodGet:
-		data := &AllData{}
-		bad := r.URL.Query().Has("bad")
-		data.BadRequestForm = bad
+		data, err := hand.ConnDB.GetAllPost()
+		fmt.Println(data)
+		if err != nil {
+			hand.Helpers.ServerError(w, err)
+		}
 
 		hand.renderJSON(w, data)
 
@@ -41,7 +38,7 @@ func (hand *Handler) post(w http.ResponseWriter, r *http.Request) {
 		fileImg, fileHeaderImg, err := r.FormFile("imagePost")
 		var nameImg string
 		if err == nil {
-			if int(fileHeaderImg.Size) > 20000000 || !validators.ImageValidation(fileImg) {
+			if int(fileHeaderImg.Size) > 20000000 || !hand.ImageValidation(fileImg) {
 				hand.renderJSON(w, &AllData{BadRequestForm: true})
 				return
 			}
@@ -86,7 +83,7 @@ func (hand *Handler) post(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		lastPostId, err := hand.ConnDB.SetPost(title, escapedContent, nameImg, privacy, actualUser.ID, groupId)
+		lastPostId, err := hand.ConnDB.SetPost(title, escapedContent, nameImg, privacy, actualUser, groupId)
 		if err != nil {
 			hand.Helpers.ServerError(w, err)
 			return

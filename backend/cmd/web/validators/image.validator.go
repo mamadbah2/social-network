@@ -5,7 +5,7 @@ import (
 	"mime/multipart"
 )
 
-func ImageValidation(img multipart.File) bool {
+func (v *Validator) ImageValidation(img multipart.File) bool {
 	buf := make([]byte, 8)
 	if _, err := img.Read(buf); err != nil {
 		return false
