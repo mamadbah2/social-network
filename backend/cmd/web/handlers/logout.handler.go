@@ -2,19 +2,17 @@ package handlers
 
 import (
 	"net/http"
+	"social-network/cmd/web/middleware"
 	"social-network/cmd/web/sessionManager"
 )
 
-type contextKey string
-
-const sessionKey contextKey = "session"
 
 func (hand *Handler) UserLogoutPost(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		w.WriteHeader(405)
 		return
 	}
-	session, ok := r.Context().Value(sessionKey).(*sessionManager.Session)
+	session, ok := r.Context().Value(middleware.SessionKey).(*sessionManager.Session)
 	if !ok || session == nil {
 		return
 	}

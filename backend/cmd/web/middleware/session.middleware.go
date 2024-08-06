@@ -10,7 +10,7 @@ import (
 
 type contextKey string
 
-const sessionKey contextKey = "session"
+const SessionKey contextKey = "session"
 
 func (m *Middleware) LoadAndSave(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -44,14 +44,14 @@ func (m *Middleware) LoadAndSave(handler http.Handler) http.Handler {
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), sessionKey, session)
+		ctx := context.WithValue(r.Context(), SessionKey, session)
 		handler.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 
 func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		session, ok := r.Context().Value(sessionKey).(*sessionManager.Session)
+		session, ok := r.Context().Value(SessionKey).(*sessionManager.Session)
 		if !ok || session == nil {
 			http.Redirect(w, r, "/user/login", http.StatusSeeOther)
 			return
@@ -84,7 +84,7 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 
 func (m *Middleware) CheckSessionExpiration(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		session, ok := r.Context().Value(sessionKey).(*sessionManager.Session)
+		session, ok := r.Context().Value(SessionKey).(*sessionManager.Session)
 		if !ok || session == nil {
 			http.Redirect(w, r, "/user/login", http.StatusSeeOther)
 			return
