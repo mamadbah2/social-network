@@ -28,9 +28,7 @@ func (hand *Handler) UserLoginPost(w http.ResponseWriter, r *http.Request) {
 		EmailOrUsername: r.PostForm.Get("email_Nickname"),
 		Password:        r.PostForm.Get("password"),
 	}
-	// if (validator.Matches(formSignIn.EmailOrUsername, validator.EmailRX)) {
-
-	// }
+	
 	hand.CheckField(validators.NotBlank(formSignIn.EmailOrUsername), "email", "This field cannot be blank")
 	// formSignIn.CheckField(validator.Matches(formSignIn.EmailOrUsername, validator.EmailRX), "email", "This field must be a valid email address")
 	hand.CheckField(validators.NotBlank(formSignIn.Password), "password", "This field cannot be blank")
@@ -49,45 +47,34 @@ func (hand *Handler) UserLoginPost(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	// existingSession, _ := app.newsession.GetActiveSession(id)
-	// if existingSession != nil {
-	// 	err := app.newsession.DeleteSession(existingSession.SessionID)
-	// 	if err != nil {
-	// 		data := app.newTemplateData(r)
-	// 		w.WriteHeader(500)
-	// 		data.Error = repository.Err[500]
-	// 		json.NewEncoder(w).Encode(data) // Assurez-vous d'encoder la réponse en JSON
-	// 		return
-	// 	}
-	// 	cookie := http.Cookie{
-	// 		Name:     "session",
-	// 		Value:    existingSession.SessionID,
-	// 		MaxAge:   -1,
-	// 		Path:     "/",
-	// 		HttpOnly: true,
-	// 		Secure:   true,
-	// 	}
-	// 	http.SetCookie(w, &cookie)
-	// 	_, err2 := app.newsession.NewSession(w, id)
-	// 	if err2 != nil {
-	// 		data := app.newTemplateData(r)
-	// 		w.WriteHeader(500)
-	// 		data.Error = repository.Err[500]
-			
-	// 		json.NewEncoder(w).Encode(data) // Assurez-vous d'encoder la réponse en JSON
-	// 		return
-	// 	}
-	// } else {
-	// 	_, err2 := app.newsession.NewSession(w, id)
-	// 	if err2 != nil {
-	// 		data := app.newTemplateData(r)
-	// 		w.WriteHeader(500)
-	// 		data.Error = repository.Err[500]
-	// 		json.NewEncoder(w).Encode(data) // Assurez-vous d'encoder la réponse en JSON
-	// 		return
-	// 	}
-	// }
+	existingSession, _ :=  hand.SessionManager.GetActiveSession(id)
+	if existingSession != nil {
+		err := hand.SessionManager.DeleteSession(existingSession.Id)
+		if err != nil {
+			w.WriteHeader(500)
+			return
+		}
+		cookie := http.Cookie{
+			Name:     "session",
+			Value:    "",
+			MaxAge:   -1,
+			Path:     "/",
+			HttpOnly: true,
+			Secure:   true,
+		}
+		http.SetCookie(w, &cookie)
+		_, err2 := hand.SessionManager.NewSession(w, id)
+		if err2 != nil {
+			w.WriteHeader(500)
+			return
+		}
+	} else {
+		_, err2 := hand.SessionManager.NewSession(w, id)
+		if err2 != nil {
+			w.WriteHeader(500)
+			return
+		}
+	}
 	hand.renderJSON(w, id)
-
  
 }

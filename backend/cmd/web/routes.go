@@ -10,8 +10,9 @@ func (app *Application) routes() http.Handler {
 	// Ici toutes les routes
 	router.HandleFunc("/", app.Handlers.Home)
 	router.HandleFunc("/users", app.Handlers.Users)
-	router.HandleFunc("/register", app.Handlers.UserRegister)
-	router.HandleFunc("/login", app.Handlers.UserLoginPost)
+	router.HandleFunc("/user/register", app.Handlers.UserRegister)
+	router.HandleFunc("/user/login", app.Handlers.UserLoginPost)
+	router.HandleFunc("/user/logout", app.Handlers.UserLogoutPost)
 	//             -//- -//-
 
 	return app.Middleware.PanicRecover(app.Middleware.LogRequest(router))
