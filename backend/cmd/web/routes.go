@@ -10,9 +10,9 @@ func (app *Application) routes() http.Handler {
 	// Ici toutes les routes
 	router.HandleFunc("/", app.Handlers.Home)
 	router.HandleFunc("/users", app.Handlers.Users)
-	router.HandleFunc("/user/register", app.Handlers.UserRegister)
-	router.HandleFunc("/user/login", app.Handlers.UserLoginPost)
-	router.HandleFunc("/user/logout", app.Handlers.UserLogoutPost)
+	router.HandleFunc("/register", app.Handlers.UserRegister)
+	router.HandleFunc("/login", app.Handlers.UserLoginPost)
+	router.HandleFunc("/logout", app.Handlers.UserLogoutPost)
 	router.HandleFunc("/follows", app.Handlers.Follows)
 	//             -//- -//-
 

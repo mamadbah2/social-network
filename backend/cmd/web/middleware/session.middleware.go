@@ -40,7 +40,7 @@ func (m *Middleware) LoadAndSave(handler http.Handler) http.Handler {
 			}
 
 			http.SetCookie(w, &cookie)
-			http.Redirect(w, r, "/user/login", http.StatusSeeOther)
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
 			return
 		}
 
@@ -53,7 +53,7 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		session, ok := r.Context().Value(SessionKey).(*sessionManager.Session)
 		if !ok || session == nil {
-			http.Redirect(w, r, "/user/login", http.StatusSeeOther)
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
 			return
 		}
 		if time.Now().After(session.Expired_at) {
@@ -72,7 +72,7 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 			}
 
 			http.SetCookie(w, &cookie)
-			http.Redirect(w, r, "/user/login", http.StatusSeeOther)
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
 			return
 		}
 		session.Expired_at = time.Now().Add(30 * time.Minute)
@@ -86,7 +86,7 @@ func (m *Middleware) CheckSessionExpiration(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		session, ok := r.Context().Value(SessionKey).(*sessionManager.Session)
 		if !ok || session == nil {
-			http.Redirect(w, r, "/user/login", http.StatusSeeOther)
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
 			return
 		}
 
@@ -107,7 +107,7 @@ func (m *Middleware) CheckSessionExpiration(next http.Handler) http.Handler {
 
 			http.SetCookie(w, &cookie)
 
-			http.Redirect(w, r, "/user/login", http.StatusSeeOther)
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
 			return
 		}
 
