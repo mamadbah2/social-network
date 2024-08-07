@@ -7,9 +7,9 @@ import (
 	"social-network/cmd/web/validators"
 )
 
-type userLoginForm struct{
+type userLoginForm struct {
 	EmailOrUsername string
-	Password string
+	Password        string
 }
 
 func (hand *Handler) UserLoginPost(w http.ResponseWriter, r *http.Request) {
@@ -28,7 +28,7 @@ func (hand *Handler) UserLoginPost(w http.ResponseWriter, r *http.Request) {
 		EmailOrUsername: r.PostForm.Get("email_Nickname"),
 		Password:        r.PostForm.Get("password"),
 	}
-	
+
 	hand.CheckField(validators.NotBlank(formSignIn.EmailOrUsername), "email", "This field cannot be blank")
 	// formSignIn.CheckField(validator.Matches(formSignIn.EmailOrUsername, validator.EmailRX), "email", "This field must be a valid email address")
 	hand.CheckField(validators.NotBlank(formSignIn.Password), "password", "This field cannot be blank")
@@ -47,7 +47,7 @@ func (hand *Handler) UserLoginPost(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	existingSession, _ :=  hand.SessionManager.GetActiveSession(id)
+	existingSession, _ := hand.SessionManager.GetActiveSession(id)
 	if existingSession != nil {
 		err := hand.SessionManager.DeleteSession(existingSession.Id)
 		if err != nil {
@@ -76,5 +76,5 @@ func (hand *Handler) UserLoginPost(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	hand.renderJSON(w, id)
- 
+
 }

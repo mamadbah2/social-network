@@ -17,9 +17,19 @@ type Handler struct {
 	*validators.Validator
 }
 
+type FrontData struct {
+	datas interface{}
+	errors map[string]string
+}
+
 func (hand *Handler) renderJSON(w http.ResponseWriter, data interface{}) {
+	frontData := &FrontData{
+		datas: data,
+		errors: hand.FieldErrors,
+	}
+
 	// Transformation de toutes les données en json
-	dataByte, err := json.Marshal(data)
+	dataByte, err := json.MarshalIndent(frontData, "", "	")
 	if err != nil {
 		hand.Helpers.ServerError(w, err)
 		return
