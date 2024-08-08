@@ -41,23 +41,19 @@ func main() {
 		help.ErrorLog.Fatalln("Open DB error\t", err.Error())
 		return
 	}
-
-	newsession := &sessionManager.SessionManager{
-		Sessions: make(map[string]*sessionManager.Session),
-		Db:       db,
-	}
 	// On appelle ça dans le jargon injection des dépendances si j'ne m'abuse
 
 	app := &Application{
 		ConnDB: &models.ConnDB{DB: db},
 		Middleware: &middleware.Middleware{
 			Helpers: help,
-			SessionManager: newsession,
 		},
 		Handlers: &handlers.Handler{
 			Helpers: help,
 			ConnDB : &models.ConnDB{DB: db},
-			SessionManager:newsession,
+			SessionManager:&sessionManager.SessionManager{
+				ConnDB: &models.ConnDB{DB: db},
+			},
 		},
 		Validators: &validators.Validator{
 			Helpers: help,

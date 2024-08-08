@@ -47,9 +47,9 @@ func (hand *Handler) UserLoginPost(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	existingSession, _ := hand.SessionManager.GetActiveSession(id)
+	existingSession, _ := hand.ConnDB.GetActiveSession(id)
 	if existingSession != nil {
-		err := hand.SessionManager.DeleteSession(existingSession.Id)
+		err := hand.ConnDB.DeleteSession(existingSession.Id)
 		if err != nil {
 			w.WriteHeader(500)
 			return

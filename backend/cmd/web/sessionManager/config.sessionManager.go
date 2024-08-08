@@ -1,12 +1,11 @@
 package sessionManager
 
 import (
-	"database/sql"
+	"social-network/internal/models"
 	"sync"
 )
 
 type SessionManager struct {
-	Sessions map[string]*Session
-	Db       *sql.DB
-	mu       sync.RWMutex
+	mu     sync.RWMutex
+	ConnDB *models.ConnDB
 }
