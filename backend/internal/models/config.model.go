@@ -36,13 +36,13 @@ func (m *ConnDB) Get(query string, pieceOfData ...interface{}) (map[string]inter
 		return nil, err
 	}
 	defer rows.Close()
-
+	
 	// Get Table Header Values
 	columns, err := rows.Columns()
 	if err != nil {
 		return nil, err
 	}
-
+	
 	// Prepare Slice to be Scan for Result
 	values := make([]interface{}, len(columns))
 	for i := range values {
@@ -58,6 +58,12 @@ func (m *ConnDB) Get(query string, pieceOfData ...interface{}) (map[string]inter
 		// Asserting that it is a pointer of interface{}
 		data[col] = *(values[i].(*interface{}))
 	}
-
+	
 	return data, nil
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// func (m *ConnDB) GetAll(query string, pieceOfData ...interface{}) ([]map[string]interface{}, error) {
+//	...
+//}
