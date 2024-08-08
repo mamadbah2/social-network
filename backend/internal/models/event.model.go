@@ -10,7 +10,3 @@ type Event struct {
 	Creator     *User
 	Group       *Group
 }
-
-func (m *ConnDB) GetEvent(eventID int) (*Event, error) {
-	return nil, nil
-}

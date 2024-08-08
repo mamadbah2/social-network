@@ -18,8 +18,3 @@ type Post struct {
 	Comments      []*Comment
 	Viewers       []*User
 }
-
-
-func (m *ConnDB) GetPost(postID int) (*Post, error) {
-	return nil, nil
-}
