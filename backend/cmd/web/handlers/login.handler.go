@@ -5,12 +5,10 @@ import (
 	"fmt"
 	"net/http"
 	"social-network/cmd/web/validators"
+	"social-network/internal/models"
 )
 
-type userLoginForm struct{
-	EmailOrUsername string
-	Password string
-}
+
 
 func (hand *Handler) UserLoginPost(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
@@ -24,7 +22,7 @@ func (hand *Handler) UserLoginPost(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(400)
 		return
 	}
-	formSignIn := userLoginForm{
+	formSignIn := &models.UserLoginForm{
 		EmailOrUsername: r.PostForm.Get("email_Nickname"),
 		Password:        r.PostForm.Get("password"),
 	}

@@ -31,6 +31,11 @@ type User struct {
 	Posts          []*Post
 }
 
+type UserLoginForm struct{
+	EmailOrUsername string
+	Password string
+}
+
 func (m *ConnDB) getFollowers(userID int) ([]*User, error) {
 	query := `
         SELECT u.*

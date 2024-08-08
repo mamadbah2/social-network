@@ -32,7 +32,7 @@ func (v *Validator) CheckField(ok bool, key, message string) {
 	if !ok {
 		v.AddFieldError(key, message)
 	}
-}
+};
 
 func (v *Validator) CheckUsernameExists(username string) (bool, error) {
 	var exists bool
