@@ -1,12 +1,10 @@
 package models
 
-import "time"
-
 type Message struct {
-	Id       int
-	Comment  string
-	Message_type string
-	Date     time.Time
-	Sender   *User
-	Receiver *User
+	Id         int
+	Content    string `json:"content"`
+	Type       string `json:"type"`
+	SenderID   int    `json:"senderID"`
+	ReceiverID int    `json:"receiverID"`
+	Date       string `json:"date"`
 }
