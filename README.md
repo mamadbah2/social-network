@@ -128,7 +128,7 @@ cd social-network
     |
     + -- database/
     |       |
-    |       + -- datas/
+    |       + -- data/
     |       |       + -- follows.data.sql
     |       |       + -- groups.data.sql
     |       |       + -- posts.data.sql
