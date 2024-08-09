@@ -21,17 +21,63 @@ type Post struct {
 	Viewers       []*User
 }
 
-func (m *ConnDB) SetPost(title, content, imageName, privacy string, userId, groupId int) (int, error) {
+func (m *ConnDB) SetPost(title, content, imageName, privacy string, userId, groupId int, selectedFollowers []int) (int, error) {
+	// Insert the post into the posts table
 	statement := `INSERT INTO posts (title, content, image_name, privacy, created_at, id_author, id_group) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, ?, ?)`
 	result, err := m.DB.Exec(statement, title, content, imageName, privacy, userId, groupId)
 	if err != nil {
 		return 0, err
 	}
-	id, err := result.LastInsertId()
+	
+	postId, err := result.LastInsertId()
 	if err != nil {
 		return 0, err
 	}
-	return int(id), nil
+
+	switch privacy {
+	case "public":
+		users, err := m.GetAllUsers()
+		if err != nil {
+			return int(postId), err
+		}
+		for _, user := range users {
+			_, err := m.SetPostViewer(int(postId), user.Id)
+			if err != nil {
+				return int(postId), err
+			}
+		}
+	case "private":
+		user, err := m.GetUser(userId)
+		if err != nil {
+			return int(postId), err
+		}
+		for _, follower := range user.Followers {
+			_, err := m.SetPostViewer(int(postId), follower.Id)
+			if err != nil {
+				return int(postId), err
+			}
+		}
+	case "group":
+		groups, err := m.GetGroup(groupId)
+		if err != nil {
+			return int(postId), err
+		}
+		for _, members := range groups.Members {
+			_, err := m.SetPostViewer(int(postId), members.Id)
+			if err != nil {
+				return int(postId), err
+			}
+		}
+	case "almost private":
+		for _, followerId := range selectedFollowers {
+			_, err := m.SetPostViewer(int(postId), followerId)
+			if err != nil {
+				return int(postId), err
+			}
+		}
+	}
+
+	return int(postId), nil
 }
 
 func (db *ConnDB) SetPostViewer(postId, userId int) (int, error) {
@@ -67,12 +113,11 @@ func (m *ConnDB) GetAllPost() ([]*Post, error) {
 	}
 	defer rows.Close()
 
-
 	posts := []*Post{}
 	for rows.Next() {
 		p := &Post{
 			Author: &User{},
-			Group: &Group{},
+			Group:  &Group{},
 		}
 		err := rows.Scan(&p.Id, &p.Title, &p.Content, &p.Privacy, &p.CreatedAt, &p.Author.Id, &p.Group.Id)
 		if err != nil {
@@ -82,28 +127,3 @@ func (m *ConnDB) GetAllPost() ([]*Post, error) {
 	}
 	return posts, nil
 }
-
-// func (m *ConnDB) getPostWithDetails(postId int) (*Post, error) {
-// 	post, err := m.getPost(postId)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	// Récupérer les détails de l'auteur
-// 	author, err := m.getUser(post.Author.Id)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	post.Author = author
-
-// 	// Récupérer les détails du groupe
-// 	if post.Group.Id != 0 {
-// 		group, err := m.getGroup(post.Group.Id)
-// 		if err != nil {
-// 			return nil, err
-// 		}
-// 		post.Group = group
-// 	}
-
-// 	return post, nil
-// }

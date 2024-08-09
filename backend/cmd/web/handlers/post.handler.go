@@ -11,21 +11,23 @@ import (
 	"time"
 )
 
-type AllData struct {
-	BadRequestForm bool
-}
-
 func (hand *Handler) Post(w http.ResponseWriter, r *http.Request) {
-	actualUser := 1
+	session, err := hand.SessionManager.GetSession(r)
+	if err != nil || session == nil || !session.IsActive {
+		hand.Helpers.ClientError(w, http.StatusUnauthorized)
+		return
+	}
+
+	actualUser := session.UserId
+
+	data, err := hand.ConnDB.GetAllPost()
+	if err != nil {
+		hand.Helpers.ServerError(w, err)
+		return
+	}
 
 	switch r.Method {
 	case http.MethodGet:
-		data, err := hand.ConnDB.GetAllPost()
-		fmt.Println(data)
-		if err != nil {
-			hand.Helpers.ServerError(w, err)
-		}
-
 		hand.renderJSON(w, data)
 
 	case http.MethodPost:
@@ -39,7 +41,7 @@ func (hand *Handler) Post(w http.ResponseWriter, r *http.Request) {
 		var nameImg string
 		if err == nil {
 			if int(fileHeaderImg.Size) > 20000000 || !hand.ImageValidation(fileImg) {
-				hand.renderJSON(w, &AllData{BadRequestForm: true})
+				hand.Helpers.ClientError(w, http.StatusBadRequest)
 				return
 			}
 			if _, err := fileImg.Seek(0, io.SeekStart); err != nil {
@@ -70,7 +72,7 @@ func (hand *Handler) Post(w http.ResponseWriter, r *http.Request) {
 		escapedContent := html.EscapeString(content)
 
 		if strings.TrimSpace(escapedContent) == "" || strings.TrimSpace(title) == "" || strings.TrimSpace(privacy) == "" {
-			hand.renderJSON(w, &AllData{BadRequestForm: true})
+			http.Error(w, "Title, content, and privacy fields must not be empty.", http.StatusBadRequest)
 			return
 		}
 
@@ -83,12 +85,7 @@ func (hand *Handler) Post(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		lastPostId, err := hand.ConnDB.SetPost(title, escapedContent, nameImg, privacy, actualUser, groupId)
-		if err != nil {
-			hand.Helpers.ServerError(w, err)
-			return
-		}
-
+		selectedFollowers := []int{}
 		if privacy == "almost private" {
 			followers := r.Form["followers"]
 			for _, followerId := range followers {
@@ -97,15 +94,17 @@ func (hand *Handler) Post(w http.ResponseWriter, r *http.Request) {
 					hand.Helpers.ClientError(w, http.StatusBadRequest)
 					return
 				}
-				_, err = hand.ConnDB.SetPostViewer(lastPostId, fId)
-				if err != nil {
-					hand.Helpers.ServerError(w, err)
-					return
-				}
+				selectedFollowers = append(selectedFollowers, fId)
 			}
 		}
 
-		hand.renderJSON(w, &AllData{BadRequestForm: false})
+		_, err = hand.ConnDB.SetPost(title, escapedContent, nameImg, privacy, actualUser, groupId, selectedFollowers)
+		if err != nil {
+			hand.Helpers.ServerError(w, err)
+			return
+		}
+
+		hand.renderJSON(w, data)
 
 	default:
 		hand.Helpers.ClientError(w, http.StatusMethodNotAllowed)
