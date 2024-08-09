@@ -8,6 +8,6 @@ CREATE TABLE users (
     profile_picture TEXT,
     nickname VARCHAR(255) UNIQUE,
     about_me VARCHAR(255),
-    profile_privacy BOOLEAN DEFAULT FALSE,
+    profile_privacy BOOLEAN DEFAULT FALSE CHECK (type IN ('public', 'private')),
     created_at DATETIME NOT NULL
 );
