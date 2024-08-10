@@ -6,12 +6,12 @@ import (
 )
 
 func (hand *Handler) Follows(w http.ResponseWriter, r *http.Request) {
+
 	id, err := strconv.Atoi(r.URL.Query().Get("id"))
 	if err != nil {
 		http.Error(w, "Invalid user ID", http.StatusBadRequest)
 		return
 	}
-
 	switch r.Method {
 	case http.MethodPost:
 		action := r.URL.Query().Get("action")

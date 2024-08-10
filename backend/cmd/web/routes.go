@@ -14,5 +14,7 @@ func (app *Application) routes() http.Handler {
 	router.HandleFunc("/user/login", app.Handlers.UserLoginPost)
 	router.HandleFunc("/user/logout", app.Handlers.UserLogoutPost)
 	router.HandleFunc("/follows", app.Handlers.Follows)
-	return app.Middleware.PanicRecover(app.Middleware.LogRequest(router))
+	router.HandleFunc("/LikeReaction", app.Handlers.LikeReaction)
+	router.HandleFunc("/DislikeReaction", app.Handlers.DislikeReaction)
+	return app.Middleware.PanicRecover((router))
 }
