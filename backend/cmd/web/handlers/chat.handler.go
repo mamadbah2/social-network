@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"log"
 	"net/http"
 	"social-network/internal/models"
 	"strconv"
@@ -10,7 +9,7 @@ import (
 )
 
 // / This chat box will be used to store online users
-var chatBox = make(map[*websocket.Conn]int)
+var chatbox = make(map[int]*websocket.Conn)
 
 var socket = websocket.Upgrader{
 	ReadBufferSize:  1024,
@@ -20,33 +19,39 @@ var socket = websocket.Upgrader{
 	},
 }
 
-// var sessionKey interface{} // TODO: Find the Source...
-
-// / The Chat handler is responsible for:
-// / Retrieving the messages exchange with a user from the database.
-// / Upgrading HTTP protocol to websocket protocol.
-// / Adding connections to the chat box.
-// / Receiving incoming messages from a sender in the chat box connection in real-time.
-// / Inserting incoming messages in the database messages table.
-// / Sending messages to a receiver in the chat box connection in real-time.
+// / Chat Handler's responsibilities:
+// / Retrieve and Send all messages exchanged with the selected user from the database.
+// / Upgrade HTTP protocol to websocket protocol.
+// / Add connections to the chatbox.
+// / Get messages sent by the current user (Sender) in real-time.
+// / Insert the messages in the database's messages table.
+// / Find the targeted user (Receiver) in the chat box connection.
+// / Send messages to the receiver in real-time.
 func (h *Handler) Chat(w http.ResponseWriter, r *http.Request) {
-	// Get the receiver from the client.
+	// Get the sender's ID from the sender's session.
+	session, ok := r.Context().Value("session").(*sessionManager.Session)
+	if !ok {
+		h.Helpers.ClientError(w, http.StatusForbidden)
+	}
+	senderID := session.UserId
+
+	// Get the receiver's ID from the request's URL.
 	receiverID, err := strconv.Atoi(r.URL.Query().Get("id"))
 	if err != nil {
 		h.Helpers.ClientError(w, http.StatusNotFound)
 	}
 
-	// Get the sender from the session.
-	// Ici logique get user de la session
-	session, err := h.ConnDB.GetSession(r)
+	// Switching Protocol...
+	senderConn, err := socket.Upgrade(w, r, nil)
 	if err != nil {
 		h.Helpers.ServerError(w, err)
-		return
 	}
+	defer senderConn.Close()
 
-	// Get the conversion's messages from the database.
-	senderID := session.UserId
-	messages, err := h.ConnDB.Get(
+	chatbox[senderID] = senderConn // Add sender's connection in the chat box.
+
+	// Get the message history from the database.
+	oldMessages, err := h.ConnDB.Get(
 		`SELECT * FROM messages
 		WHERE id_sender = ? AND id_receiver = ?
 		OR id_receiver = ? AND id_sender = ?`,
@@ -55,42 +60,40 @@ func (h *Handler) Chat(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		h.Helpers.ServerError(w, err)
 	}
-	h.renderJSON(w, messages) // Send back to the client
 
-	//////////////////////
-	/// Real-Time Chat ///
-	//////////////////////
-
-	conn, err := socket.Upgrade(w, r, nil) // Upgrading...
-	if err != nil {
+	// Send the message history to the sender.
+	if err = senderConn.WriteJSON(oldMessages); err != nil {
 		h.Helpers.ServerError(w, err)
+		return
 	}
-	defer conn.Close()
 
-	chatBox[conn] = senderID // Adding...
+	//////////////////////
+	/// REAL-TIME CHAT ///
+	//////////////////////
 
 	for {
-		var msg models.Message
-		if err := conn.ReadJSON(&msg); err != nil { // Receiving...
-			log.Println("ERROR -> ", err)
-			delete(chatBox, conn)
+		// Receive new messages from the sender.
+		var newMessage models.Message
+		if err := senderConn.ReadJSON(&newMessage); err != nil {
+			senderConn.Close()
+			delete(chatbox, senderID)
 			break
 		}
 
-		h.ConnDB.Set( // Inserting...
+		// Insert the new messages in the database.
+		h.ConnDB.Set(
 			`INSERT INTO messages (id_sender, id_receiver, content, message_type, created_at)
 			VALUES (?, ?, ?, ?, ?)`,
-			msg.SenderID, msg.ReceiverID, msg.Content, msg.Type, msg.Date,
+			newMessage.SenderID, newMessage.ReceiverID, newMessage.Content, newMessage.Type, newMessage.Date,
 		)
 
-		for conn, id := range chatBox { // Find the receiver in the chat box.
-			if id == msg.ReceiverID {
-				err = conn.WriteJSON(msg) // Sending...
-				if err != nil {
-					conn.Close()
-					delete(chatBox, conn)
-					break
-				}
+		// Send the new messages to the receiver
+		// if the receiver has a connection in the chat box.
+		if receiverConn, exists := chatbox[receiverID]; exists {
+			if err = receiverConn.WriteJSON(newMessage); err != nil {
+				receiverConn.Close()
+				delete(chatbox, receiverID)
+				break
 			}
 		}
 	}

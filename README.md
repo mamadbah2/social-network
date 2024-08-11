@@ -397,27 +397,37 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     Participant Sender
-    Participant Receiver
     Participant Server
     Participant Database
+    Participant Receiver
 
-    Sender ->> Server: HTTP Request (Upgrade: websocket)
-    Server ->> Server: upgrader.Upgrade(w, r, nil)
+    Sender ->> Server: r == HTTP Request { Upgrade: websocket }
+    Server ->> Server: r.Context().Value("session") ---> id_sender
+    Server ->> Server: r.URL.Query().Get("id") ---> id_receiver
+    Server ->> Server: upgrader.Upgrade(w, r, nil) ---> conn_sender
     Server -->> Sender: HTTP Response(101 Switching Protocols)
     Sender ->> Sender: socket.onopen
-    Server -->> Server: map[conn] = ""
+    Server ->> Server: chatbox[id_sender] = conn_sender
+
+    Server ->> Database: ConnDB.Get(...)
+    Database ->> Database: SELECT * FROM messages...
+    Database -->> Server: old_messages <--- *sql.Rows
+    Server ->> Sender: conn_sender.WriteJSON(old_messages)
 
     loop Sending...
         Note left of Sender: INPUT
         Sender ->> Sender: button.onclick
-        Sender ->> Server: socket.send()
-       Server ->> Server: conn.ReadJSON(&msg)
-        Server ->> Server: map[conn] = msg.Sender
-        Server ->> Database: INSERT INTO messages
-        Database -->> Server: Stored
-        Server ->> Receiver: conn.WriteJSON(msg)
-       Receiver ->> Receiver: socket.onmessage
-        Note right of Receiver: OUPTPUT
+        Sender ->> Server: socket.send() ---> new_message
+        Server ->> Server: conn_sender.ReadJSON(&new_message)
+        Server ->> Database: ConnDB.Set(new_message)
+        Database ->> Database: INSERT INTO messages...
+        Database -->> Server: sql.Result
+        Server ->> Server: chatbox[id_receiver] exists ?
+        opt true
+            Server ->> Receiver: conn_receiver.WriteJSON(new_message)
+            Receiver ->> Receiver: socket.onmessage
+            Note right of Receiver: OUPTPUT
+        end
     end
 ```
 
