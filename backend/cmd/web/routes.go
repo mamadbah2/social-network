@@ -15,6 +15,7 @@ func (app *Application) routes() http.Handler {
 	router.HandleFunc("/logout", app.Handlers.UserLogoutPost)
 	router.HandleFunc("/follows", app.Handlers.Follows)
 	router.HandleFunc("/groups", app.Handlers.GroupsHandle)
+	router.HandleFunc("/chat", app.Handlers.Chat)
 	//             -//- -//-
 
 	return app.Middleware.PanicRecover(app.Middleware.LogRequest(router))
