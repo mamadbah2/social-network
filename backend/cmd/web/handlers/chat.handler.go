@@ -29,9 +29,10 @@ var socket = websocket.Upgrader{
 // / Send messages to the receiver in real-time.
 func (h *Handler) Chat(w http.ResponseWriter, r *http.Request) {
 	// Get the sender's ID from the sender's session.
-	session, ok := r.Context().Value("session").(*sessionManager.Session)
-	if !ok {
-		h.Helpers.ClientError(w, http.StatusForbidden)
+	session, err := h.ConnDB.GetSession(r)
+	if err != nil {
+		h.Helpers.ServerError(w, err)
+		return
 	}
 	senderID := session.UserId
 
