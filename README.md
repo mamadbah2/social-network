@@ -350,45 +350,17 @@ sequenceDiagram
 
 ### Profile
 
-```mermaid
-sequenceDiagram
-    Participant Client
-    Participant Server
-    Participant Database
-```
-
 <hr style="background: #111">
 
 ### Post
-
-```mermaid
-sequenceDiagram
-    Participant Client
-    Participant Server
-    Participant Database
-```
 
 <hr style="background: #111">
 
 ### Comment
 
-```mermaid
-sequenceDiagram
-    Participant Client
-    Participant Server
-    Participant Database
-```
-
 <hr style="background: #111">
 
 ### Reaction
-
-```mermaid
-sequenceDiagram
-    Participant Client
-    Participant Server
-    Participant Database
-```
 
 <hr style="background: #111">
 
@@ -435,23 +407,9 @@ sequenceDiagram
 
 ### Follow
 
-```mermaid
-sequenceDiagram
-    Participant Client
-    Participant Server
-    Participant Database
-```
-
 <hr style="background: #111">
 
 ### Group
-
-```mermaid
-sequenceDiagram
-    Participant Client
-    Participant Server
-    Participant Database
-```
 
 ###### [_Table of Content ⤴️_](#table-of-contents)
 
