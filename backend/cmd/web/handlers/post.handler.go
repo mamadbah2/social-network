@@ -38,7 +38,7 @@ func (hand *Handler) Post(w http.ResponseWriter, r *http.Request) {
 		fileImg, fileHeaderImg, err := r.FormFile("imagePost")
 		var nameImg string
 		if err == nil {
-			if int(fileHeaderImg.Size) > 20000000 || !hand.ImageValidation(fileImg) {
+			if int(fileHeaderImg.Size) > 20000000 || !hand.Valid.ImageValidation(fileImg) {
 				hand.renderJSON(w, &AllData{BadRequestForm: true})
 				return
 			}

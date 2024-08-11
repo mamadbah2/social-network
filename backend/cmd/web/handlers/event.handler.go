@@ -24,14 +24,14 @@ func (hand *Handler) Events(w http.ResponseWriter, r *http.Request) {
 	// Ce handler n'est fetchable qu'en methode Get vu le register
 	switch r.Method {
 	case http.MethodGet:
-		if err != nil {
+		/* if err != nil {
 			hand.Helpers.ServerError(w, err)
 			return
-		}
+		} */
 
 		query := r.URL.Query()
 		if len(query) == 0 {
-			events, err := hand.ConnDB.GetAllEvents(actualUser.Id)
+			events, err := hand.ConnDB.GetAllEvents()
 			if err != nil {
 				hand.Helpers.ServerError(w, err)
 				return
@@ -63,10 +63,10 @@ func (hand *Handler) Events(w http.ResponseWriter, r *http.Request) {
 		}
 
 		title := r.PostForm.Get("title")
-		hand.CheckField(validators.NotBlank(title), "title", "This field cannot be blank")
+		hand.Valid.CheckField(validators.NotBlank(title), "title", "This field cannot be blank")
 
 		description := r.PostForm.Get("description")
-		hand.CheckField(validators.NotBlank(description), "description", "This field cannot be blank")
+		hand.Valid.CheckField(validators.NotBlank(description), "description", "This field cannot be blank")
 
 		event := &models.Event{
 			Title:       title,

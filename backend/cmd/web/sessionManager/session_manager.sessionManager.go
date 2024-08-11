@@ -19,13 +19,7 @@ func GenerateSessionID() string {
 	return u2.String()
 }
 
-/* func (sess *SessionManager) ClearSessions() {
-	sess.Sessions = make(map[string]*Session)
-} */
-
 func (sess *SessionManager) NewSession(w http.ResponseWriter, iduser int) (*models.Session, error) {
-	sess.mu.RLock()         // Lock the map for reading
-	defer sess.mu.RUnlock() // Defer the unlocking of the map
 	sessionId := GenerateSessionID()
 
 	session := &models.Session{
@@ -34,7 +28,7 @@ func (sess *SessionManager) NewSession(w http.ResponseWriter, iduser int) (*mode
 		IsActive:   true,
 		Data:       make(map[string]interface{}),
 		Expired_at: time.Now().Add(120 * time.Minute),
-		Cookie: http.Cookie{
+		Cookie: &http.Cookie{
 			Name:     "session",
 			Value:    sessionId,
 			Expires:  time.Now().Add(120 * time.Minute),
@@ -51,9 +45,7 @@ func (sess *SessionManager) NewSession(w http.ResponseWriter, iduser int) (*mode
 		return nil, err
 	}
 
-	// sess.Sessions[sessionId] = session
-
-	http.SetCookie(w, &session.Cookie)
+	http.SetCookie(w, session.Cookie)
 
 	return session, nil
 }

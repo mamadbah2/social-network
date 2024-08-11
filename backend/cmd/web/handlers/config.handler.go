@@ -11,25 +11,27 @@ import (
 )
 
 type Handler struct {
-	Helpers *helpers.Helpers
-	ConnDB  *models.ConnDB
+	Helpers        *helpers.Helpers
+	ConnDB         *models.ConnDB
 	SessionManager *sessionManager.SessionManager
-	*validators.Validator
+	Valid          *validators.Validator
 }
 
 type FrontData struct {
-	datas interface{}
-	errors map[string]string
+	Datas  interface{}
+	Errors map[string]string
 }
 
 func (hand *Handler) renderJSON(w http.ResponseWriter, data interface{}) {
 	frontData := &FrontData{
-		datas: data,
-		errors: hand.FieldErrors,
+		Datas:  data,
+		Errors: hand.Valid.FieldErrors,
 	}
 
+	
+	
 	// Transformation de toutes les données en json
-	dataByte, err := json.MarshalIndent(frontData, "", "	")
+	dataByte, err := json.Marshal(frontData)
 	if err != nil {
 		hand.Helpers.ServerError(w, err)
 		return

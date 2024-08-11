@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 	"time"
 )
@@ -15,29 +14,24 @@ type Session struct {
 	Data       map[string]interface{}
 	Expired_at time.Time
 	IsActive   bool
-	Cookie     http.Cookie
+	Cookie     *http.Cookie
 }
 
 func (m *ConnDB) DeleteSession(sessionID string) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	stmt := `DELETE FROM session WHERE id = ?`
+	stmt := `DELETE FROM sessions WHERE id = ?`
 	_, err := m.DB.Exec(stmt, sessionID)
 	return err
 }
 
 func (sess *ConnDB) GetActiveSession(userID int) (*Session, error) {
-	sess.mu.Lock()         // Lock the map for writing
-	defer sess.mu.Unlock() // Defer the unlocking of the map
-	stmt := `SELECT id FROM session WHERE userId = ? AND isactive = true`
+	stmt := `SELECT id FROM sessions WHERE userId = ? AND isactive = true`
 	row := sess.DB.QueryRow(stmt, userID)
 
 	s := &Session{}
 	err := row.Scan(&s.Id)
 	if err != nil {
-
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, errors.New("models: no matching record found")
+			return nil, nil
 		} else {
 			return nil, err
 		}
@@ -47,7 +41,7 @@ func (sess *ConnDB) GetActiveSession(userID int) (*Session, error) {
 }
 
 func (u *ConnDB) GetSessions(IdUser int) (bool, error) {
-	stmt := `SELECT id FROM session WHERE userId = ?`
+	stmt := `SELECT id FROM sessions WHERE userId = ?`
 	s := &Session{}
 	err := u.DB.QueryRow(stmt, IdUser).Scan(&s.Id)
 	if err != nil {
@@ -61,26 +55,19 @@ func (u *ConnDB) GetSessions(IdUser int) (bool, error) {
 	return true, nil
 }
 
-func (sess *ConnDB) GetSession(r *http.Request) (*Session, error) {
-	sess.mu.Lock()         // Lock the map for writing
-	fmt.Println("*********** *********")
-	defer sess.mu.Unlock() // Defer the unlocking of the map
+func (m *ConnDB) GetSession(r *http.Request) (*Session, error) {
 	cookie, err := r.Cookie("session")
 	if err != nil {
-		if err == http.ErrNoCookie {
-			return nil, nil
-		}
 		return nil, err
 	}
 
-	sessionID := cookie.Value
-	// session, ok := sess.Sessions[sessionID]
-	// if !ok {
-	row := sess.DB.QueryRow("SELECT userId, data, expired_at FROM session WHERE id = ?", sessionID)
+	stmt := `
+		SELECT userId, expired_at, data FROM sessions WHERE id = ?
+	`
+	row := m.DB.QueryRow(stmt, cookie.Value)
+	s := &Session{}
 	dataBytes := []byte{}
-	expires := time.Time{}
-	var iduser int
-	err = row.Scan(&iduser, &dataBytes, &expires)
+	err = row.Scan(&s.UserId, &s.Expired_at, &dataBytes)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
@@ -88,26 +75,17 @@ func (sess *ConnDB) GetSession(r *http.Request) (*Session, error) {
 		return nil, err
 	}
 
-	decodedData, err := DecodeSessionData(dataBytes)
+	s.Data, err = DecodeSessionData(dataBytes)
 	if err != nil {
 		return nil, err
 	}
 
-	if time.Now().After(expires) {
-		sess.DeleteSession(sessionID)
+	if time.Now().After(s.Expired_at) {
+		m.DeleteSession(cookie.Value)
 		return nil, nil
 	}
 
-	session := &Session{
-		Id:         sessionID,
-		UserId:     iduser,
-		Data:       decodedData,
-		Expired_at: expires,
-		Cookie:     *cookie,
-	}
-	// }
-
-	return session, nil
+	return s, nil
 }
 
 func DecodeSessionData(dataBytes []byte) (map[string]interface{}, error) {
@@ -121,14 +99,15 @@ func EncodeSessionData(data map[string]interface{}) ([]byte, error) {
 }
 
 func (m *ConnDB) SetSession(s *Session) (int, error) {
-	statement := `INSERT INTO session (id, userId, data, expired_at, isactive)
-					 VALUES (?, ?, ?, ?,true)
-					`
+	stmt := `
+		INSERT INTO sessions (id, userId, data, expired_at, isactive)
+		VALUES (?, ?, ?, ?,true)
+	`
 	encodedData, err := EncodeSessionData(s.Data)
 	if err != nil {
 		return 0, err
 	}
-	result, err := m.DB.Exec(statement, s.Id, s.UserId, encodedData, s.Expired_at)
+	result, err := m.DB.Exec(stmt, s.Id, s.UserId, encodedData, s.Expired_at)
 	if err != nil {
 		return 0, err
 	}

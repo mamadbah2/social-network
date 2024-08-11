@@ -47,6 +47,7 @@ func main() {
 		ConnDB: &models.ConnDB{DB: db},
 		Middleware: &middleware.Middleware{
 			Helpers: help,
+			ConnDB : &models.ConnDB{DB: db},
 		},
 		Handlers: &handlers.Handler{
 			Helpers: help,
@@ -54,11 +55,13 @@ func main() {
 			SessionManager:&sessionManager.SessionManager{
 				ConnDB: &models.ConnDB{DB: db},
 			},
+			Valid: &validators.Validator{
+				Helpers: help,
+				DB: db,
+				FieldErrors: make(map[string]string),
+			},
 		},
-		Validators: &validators.Validator{
-			Helpers: help,
-			DB: db,
-		},
+		
 	}
 
 	srv := &http.Server{

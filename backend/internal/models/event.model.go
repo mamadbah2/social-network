@@ -18,8 +18,8 @@ func (m *ConnDB) GetEvent(eventID int) (*Event, error) {
 		SELECT e.id, e.title, e.description, e.event_date, u.id, u.email,
 		 u.password, u.first_name, u.last_name, u.date_of_birth, 
 		 u.profile_picture, u.nickname, u.about_me, u.profile_privacy,
-		 u.created_at, g.id, g.name, g.description, p.created_at
-		FROM event e
+		 u.created_at, g.id, g.name, g.description, g.created_at
+		FROM events e
 		JOIN users u ON u.id = e.id_creator
 		JOIN groups g ON g.id = e.id_group
 		WHERE e.id = ?
@@ -32,41 +32,40 @@ func (m *ConnDB) GetEvent(eventID int) (*Event, error) {
 		Group:   &Group{},
 	}
 
-	var dateOfBirthStr string
+	// var dateOfBirthStr string
 
 	err := row.Scan(
 		&e.Id, &e.Title, &e.Description, &e.Date,
 		&e.Creator.Id, &e.Creator.Email, &e.Creator.Password, &e.Creator.FirstName, &e.Creator.LastName,
-		&dateOfBirthStr, &e.Creator.ProfilePicture, &e.Creator.Nickname,
-		e.Creator.AboutMe, &e.Creator.Private, &e.Creator.CreatedAt,
+		&e.Creator.DateOfBirth, &e.Creator.ProfilePicture, &e.Creator.Nickname,
+		&e.Creator.AboutMe, &e.Creator.Private, &e.Creator.CreatedAt,
 		&e.Group.Id, &e.Group.Name, &e.Group.Description, &e.Group.CreatedAt,
 	)
 	if err != nil {
 		return nil, err
 	}
 
-	e.Creator.DateOfBirth, err = time.Parse("2006-01-02", dateOfBirthStr)
+	/* e.Creator.DateOfBirth, err = time.Parse("2006-01-02", dateOfBirthStr)
 	if err != nil {
 		return nil, err
-	}
+	} */
 
 	return e, nil
 
 }
 
-func (m *ConnDB) GetAllEvents(userID int) ([]*Event, error) {
+func (m *ConnDB) GetAllEvents() ([]*Event, error) {
 	statement := `
 		SELECT e.id, e.title, e.description, e.event_date, u.id, u.email,
 		 u.password, u.first_name, u.last_name, u.date_of_birth, 
 		 u.profile_picture, u.nickname, u.about_me, u.profile_privacy,
-		 u.created_at, g.id, g.name, g.description, p.created_at
-		FROM event e
+		 u.created_at, g.id, g.name, g.description, g.created_at
+		FROM events e
 		JOIN users u ON u.id = e.id_creator
 		JOIN groups g ON g.id = e.id_group
-		WHERE u.id = ?
 	`
 
-	rows, err := m.DB.Query(statement, userID)
+	rows, err := m.DB.Query(statement)
 	if err != nil {
 		return nil, err
 	}
@@ -80,23 +79,23 @@ func (m *ConnDB) GetAllEvents(userID int) ([]*Event, error) {
 			Group:   &Group{},
 		}
 
-		var dateOfBirthStr string
+		// var dateOfBirthStr string
 
 		err := rows.Scan(
 			&e.Id, &e.Title, &e.Description, &e.Date,
 			&e.Creator.Id, &e.Creator.Email, &e.Creator.Password, &e.Creator.FirstName, &e.Creator.LastName,
-			&dateOfBirthStr, &e.Creator.ProfilePicture, &e.Creator.Nickname,
-			e.Creator.AboutMe, &e.Creator.Private, &e.Creator.CreatedAt,
+			&e.Creator.DateOfBirth, &e.Creator.ProfilePicture, &e.Creator.Nickname,
+			&e.Creator.AboutMe, &e.Creator.Private, &e.Creator.CreatedAt,
 			&e.Group.Id, &e.Group.Name, &e.Group.Description, &e.Group.CreatedAt,
 		)
 		if err != nil {
 			return nil, err
 		}
 
-		e.Creator.DateOfBirth, err = time.Parse("2006-01-02", dateOfBirthStr)
+		/* e.Creator.DateOfBirth, err = time.Parse("2006-01-02", dateOfBirthStr)
 		if err != nil {
 			return nil, err
-		}
+		} */
 
 		events = append(events, e)
 	}
