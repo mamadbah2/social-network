@@ -114,7 +114,7 @@ func (hand *Handler) Post(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	hand.renderJSON(w, data)
+	// hand.renderJSON(w, data)
 
 	default:
 		hand.Helpers.ClientError(w, http.StatusMethodNotAllowed)

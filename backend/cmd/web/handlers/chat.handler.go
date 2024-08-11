@@ -3,7 +3,6 @@ package handlers
 import (
 	"log"
 	"net/http"
-	"social-network/cmd/web/sessionManager"
 	"social-network/internal/models"
 	"strconv"
 
@@ -21,7 +20,7 @@ var socket = websocket.Upgrader{
 	},
 }
 
-var sessionKey interface{} // TODO: Find the Source...
+// var sessionKey interface{} // TODO: Find the Source...
 
 // / The Chat handler is responsible for:
 // / Retrieving the messages exchange with a user from the database.
@@ -38,9 +37,11 @@ func (h *Handler) Chat(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get the sender from the session.
-	session, ok := r.Context().Value(sessionKey).(*sessionManager.Session)
-	if !ok {
-		h.Helpers.ClientError(w, http.StatusForbidden)
+	// Ici logique get user de la session
+	session, err := h.ConnDB.GetSession(r)
+	if err != nil {
+		h.Helpers.ServerError(w, err)
+		return
 	}
 
 	// Get the conversion's messages from the database.

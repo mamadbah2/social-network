@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-func (hand *Handler) GroupsHandle(w http.ResponseWriter, r *http.Request) {
+func (hand *Handler) Groups(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == http.MethodGet {
 		GroupIdStr := r.URL.Query().Get("id")
