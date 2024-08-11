@@ -62,7 +62,9 @@ func (m *ConnDB) getFollowers(userID int) ([]*User, error) {
 
 func (m *ConnDB) getGroups(userID int) ([]*Group, error) {
 	query := `
-		SELECT g.*, u.*
+		SELECT g.id, g.name, g.description, g.created_at, g.id_creator,
+		 u.email, u.first_name, u.last_name, u.nickname, u.date_of_birth, u.profile_picture,
+		 u.about_me, u.profile_privacy
 		FROM groups g
 		JOIN users u ON g.id_creator = u.id
 		JOIN groups_members gm ON g.id = gm.id_group
@@ -202,33 +204,34 @@ func (m *ConnDB) GetUser(userID int) (*User, error) {
 
 	err := row.Scan(&u.Id, &u.Email, &u.Password, &u.FirstName, &u.LastName, &dateOfBirthStr, &u.ProfilePicture, &u.Nickname, &u.AboutMe, &u.Private, &u.CreatedAt)
 	if err != nil {
+		fmt.Println("bobo choked")
 		return nil, err
 	}
-
 	// Convertir la chaîne de caractères en time.Time
 	u.DateOfBirth, err = time.Parse("2006-01-02", dateOfBirthStr)
 	if err != nil {
 		return nil, err
 	}
-
+	
 	followers, err := m.getFollowers(u.Id)
 	if err != nil {
 		return nil, err
 	}
 	u.Followers = followers
-
+	
 	groups, err := m.getGroups(u.Id)
 	if err != nil {
 		return nil, err
 	}
 	u.Groups = groups
-
+	
 	posts, err := m.getPosts(u.Id)
 	if err != nil {
+		
 		return nil, err
 	}
 	u.Posts = posts
-
+	
 	return u, nil
 }
 

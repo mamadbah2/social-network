@@ -56,6 +56,11 @@ func (m *ConnDB) GetAllComment(postID int) ([]*Comment, error) {
 			return nil, err
 		}
 
+		c.Post, err = m.getPost(AuthorId)
+		if err != nil {
+			return nil, err
+		}
+
 		AllComments = append(AllComments, c)
 	}
 

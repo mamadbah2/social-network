@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -48,12 +49,14 @@ func (db *ConnDB) SetPostViewer(postId, userId int) (int, error) {
 }
 
 func (m *ConnDB) getPost(postId int) (*Post, error) {
-	statement := `SELECT id, title, content, privacy, created_at, id_author, id_group FROM posts WHERE id = ?`
+	statement := `SELECT id, title, content, privacy, created_at FROM posts WHERE id = ?`
 	row := m.DB.QueryRow(statement, postId)
-
+	
 	p := &Post{}
-	err := row.Scan(&p.Id, &p.Title, &p.Content, &p.Privacy, &p.CreatedAt, &p.Author.Id, &p.Group.Id)
+	fmt.Println("entered")
+	err := row.Scan(&p.Id, &p.Title, &p.Content, &p.Privacy, &p.CreatedAt)
 	if err != nil {
+		
 		return nil, err
 	}
 	return p, nil
@@ -67,12 +70,11 @@ func (m *ConnDB) GetAllPost() ([]*Post, error) {
 	}
 	defer rows.Close()
 
-
 	posts := []*Post{}
 	for rows.Next() {
 		p := &Post{
 			Author: &User{},
-			Group: &Group{},
+			Group:  &Group{},
 		}
 		err := rows.Scan(&p.Id, &p.Title, &p.Content, &p.Privacy, &p.CreatedAt, &p.Author.Id, &p.Group.Id)
 		if err != nil {
