@@ -402,7 +402,7 @@ sequenceDiagram
     Participant Receiver
 
     Sender ->> Server: r == HTTP Request { Upgrade: websocket }
-    Server ->> Server: r.Context().Value("session") ---> id_sender
+    Server ->> Server: ConnDb.GetSession(r) ---> id_sender
     Server ->> Server: r.URL.Query().Get("id") ---> id_receiver
     Server ->> Server: upgrader.Upgrade(w, r, nil) ---> conn_sender
     Server -->> Sender: HTTP Response(101 Switching Protocols)
