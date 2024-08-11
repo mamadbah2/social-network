@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"net/http"
-	"social-network/cmd/web/sessionManager"
 	"social-network/internal/models"
 	"strconv"
 
