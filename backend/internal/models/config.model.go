@@ -33,7 +33,7 @@ func (m *ConnDB) Set(query string, dataRow ...interface{}) error {
 // / The Get method on the other hand is used to handle the retrieval of any number of rows of data
 // / from any table in the Database, given a SELECT query as argument.
 func (m *ConnDB) Get(query string, pieceOfData ...interface{}) (table []DataRow, err error) {
-	rows, err := m.DB.Query(query, pieceOfData) // Retrieve all rows in the table even.
+	rows, err := m.DB.Query(query, pieceOfData) // Retrieve all rows in the table.
 	if err != nil {
 		return nil, err
 	}
