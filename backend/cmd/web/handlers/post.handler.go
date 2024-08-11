@@ -16,8 +16,18 @@ type AllData struct {
 }
 
 func (hand *Handler) Post(w http.ResponseWriter, r *http.Request) {
-	actualUser := 1
+	// Ici logique get user de la session
+	session, err := hand.ConnDB.GetSession(r)
+	if err != nil {
+		hand.Helpers.ServerError(w, err)
+		return
+	}
 
+	actualUser, err := hand.ConnDB.GetUser(session.UserId)
+	if err != nil {
+		hand.Helpers.ServerError(w, err)
+		return
+	}
 	switch r.Method {
 	case http.MethodGet:
 		data, err := hand.ConnDB.GetAllPost()
@@ -83,7 +93,7 @@ func (hand *Handler) Post(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		lastPostId, err := hand.ConnDB.SetPost(title, escapedContent, nameImg, privacy, actualUser, groupId)
+		lastPostId, err := hand.ConnDB.SetPost(title, escapedContent, nameImg, privacy, actualUser.Id, groupId)
 		if err != nil {
 			hand.Helpers.ServerError(w, err)
 			return

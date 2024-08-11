@@ -15,6 +15,7 @@ func (app *Application) routes() http.Handler {
 	router.HandleFunc("/login", app.Handlers.Login)
 	router.HandleFunc("/logout", app.Middleware.Authenticate(http.HandlerFunc(app.Handlers.UserLogoutPost)).ServeHTTP)
 	router.HandleFunc("/follows", app.Middleware.Authenticate(http.HandlerFunc(app.Handlers.Follows)).ServeHTTP)
+	router.HandleFunc("/posts", app.Middleware.Authenticate(http.HandlerFunc(app.Handlers.Post)).ServeHTTP)
 	//             -//- -//-
 
 	return app.Middleware.PanicRecover(app.Middleware.LogRequest(router))
