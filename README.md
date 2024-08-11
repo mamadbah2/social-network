@@ -80,18 +80,15 @@ cd social-network
 
     |
     + -- backend/
-    |       |
-    |       + --- cmd/web/
-    |       |
-    |       + -- database/
-    |       |
-    |       + -- internal/
     |
-    + -- frontend/static/upload/
+    + -- frontend/
     |
     + -- .dockerignore
     + -- .gitignore
+    + -- audit.todo
     + -- docker-compose.yml
+    + -- gitify.sh
+    + -- LICENSE
     + -- Makefile
     + -- README.md
 
@@ -186,6 +183,9 @@ cd social-network
     |       |
     |       + -- upload/
     |               + -- ...
+    |
+    + -- templates/
+    |       + -- index.html
     |
     + -- frontend.Dockerfile
 
@@ -401,19 +401,11 @@ sequenceDiagram
     Participant Server
     Participant Database
 
-    par Sender Connection
-        Sender ->> Server: HTTP Request (Upgrade: websocket)
-        Server ->> Server: upgrader.Upgrade(w, r, nil)
-        Server -->> Sender: HTTP Response(101 Switching Protocols)
-        Sender ->> Sender: socket.onopen
-        Server -->> Server: map[conn] = ""
-    and Receiver Connection
-        Receiver ->> Server: HTTP Request (Upgrade: websocket)
-        Server ->> Server: upgrader.Upgrade(w, r, nil)
-        Server -->> Receiver: HTTP Response(101 Switching Protocols)
-        Receiver ->> Receiver: socket.onopen
-        Server -->> Server: map[conn] = ""
-    end
+    Sender ->> Server: HTTP Request (Upgrade: websocket)
+    Server ->> Server: upgrader.Upgrade(w, r, nil)
+    Server -->> Sender: HTTP Response(101 Switching Protocols)
+    Sender ->> Sender: socket.onopen
+    Server -->> Server: map[conn] = ""
 
     loop Sending...
         Note left of Sender: INPUT
@@ -426,12 +418,6 @@ sequenceDiagram
         Server ->> Receiver: conn.WriteJSON(msg)
        Receiver ->> Receiver: socket.onmessage
         Note right of Receiver: OUPTPUT
-    end
-
-    loop Receiving...
-        Receiver ->> Server: Seen
-        Server ->> Database: UPDATE messages SET seen = TRUE
-        Database -->> Server: UPDATED
     end
 ```
 
@@ -463,28 +449,29 @@ sequenceDiagram
 
 ### Contributors
 
-[![muciss](https://img.shields.io/badge/Zone01-muciss-blue)]()
-[![cnzale](https://img.shields.io/badge/Zone01-cnzale-blue)]()
-[![mamadbah2](https://img.shields.io/badge/Zone01-mamadbah2-blue)]()
-[![belhadjs](https://img.shields.io/badge/Zone01-belhadjs-blue)]()
-[![adiane](https://img.shields.io/badge/Zone01-adiane-blue)]()
-[![jefaye](https://img.shields.io/badge/Zone01-jefaye-blue)]()
+[![muciss](https://img.shields.io/badge/Zone01-muciss-yellow)](http://learn.zone01dakar.sn/git/muciss)
+[![cnzale](https://img.shields.io/badge/Zone01-cnzale-yellow)](http://learn.zone01dakar.sn/git/cnzale)
+[![mamadbah2](https://img.shields.io/badge/Zone01-mamadbah2-yellow)](http://learn.zone01dakar.sn/git/mamadbah2)
+[![belhadjs](https://img.shields.io/badge/Zone01-belhadjs-yellow)](http://learn.zone01dakar.sn/git/belhadjs)
+[![adiane](https://img.shields.io/badge/Zone01-adiane-yellow)](http://learn.zone01dakar.sn/git/adiane)
+[![jefaye](https://img.shields.io/badge/Zone01-jefaye-yellow)](http://learn.zone01dakar.sn/git/jefaye)
 
 ### Peers
 
-[![](https://img.shields.io/badge/Zone01-blue)]()
+[![](https://img.shields.io/badge/Zone01-blue)](http://learn.zone01dakar.sn/git/)
 
 ### Testers
 
-[![](https://img.shields.io/badge/Zone01-blue)]()
+[![mandaw](https://img.shields.io/badge/Zone01-mandaw-red)](http://learn.zone01dakar.sn/git/mandaw)
+[![bindoye](https://img.shields.io/badge/Zone01-bindoye-red)](http://learn.zone01dakar.sn/git/bindoye)
 
 ### Auditors
 
-[![](https://img.shields.io/badge/Zone01-blue)]()
-[![](https://img.shields.io/badge/Zone01-blue)]()
-[![](https://img.shields.io/badge/Zone01-blue)]()
-[![](https://img.shields.io/badge/Zone01-blue)]()
-[![](https://img.shields.io/badge/Zone01-blue)]()
+[![](https://img.shields.io/badge/Zone01-green)](http://learn.zone01dakar.sn/git/)
+[![](https://img.shields.io/badge/Zone01-green)](http://learn.zone01dakar.sn/git/)
+[![](https://img.shields.io/badge/Zone01-green)](http://learn.zone01dakar.sn/git/)
+[![](https://img.shields.io/badge/Zone01-green)](http://learn.zone01dakar.sn/git/)
+[![](https://img.shields.io/badge/Zone01-green)](http://learn.zone01dakar.sn/git/)
 
 ###### [_Table of Content ⤴️_](#table-of-contents)
 

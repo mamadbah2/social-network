@@ -8,62 +8,60 @@ type ConnDB struct {
 	DB *sql.DB
 }
 
-func (m *ConnDB) Set(query string, data ...interface{}) error {
-	// Always Prepare Query before Execution.
-	// Prevents SQL injections.
-	// Can improve performance.
-	stmt, err := m.DB.Prepare(query)
-	if err != nil {
+type DataRow map[string]interface{}
+
+// / The Set method is used on the database connection structure
+// / to handle all entries/modification in any table of database
+// / by taking a suitable query (INSERT, UPDATE, DELETE).
+func (m *ConnDB) Set(query string, dataRow ...interface{}) error {
+	stmt, err := m.DB.Prepare(query) // Preparing queries before execution prevents SQL injections.
+	if err != nil {                  // It can also improve performance.
 		return err
 	}
+	defer stmt.Close()
 
-	// Execute the Statement of Prepared Query.
-	if _, err := stmt.Exec(data...); err != nil {
+	if _, err := stmt.Exec(dataRow...); err != nil { // Execute the statement of prepared query.
 		return err
 	}
 
 	return nil
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////
+//______________________________________________________________________________________________________________________________________
+//
 
-func (m *ConnDB) Get(query string, pieceOfData ...interface{}) (map[string]interface{}, error) {
-	// Represents a Row of Data
-	data := make(map[string]interface{})
-
-	rows, err := m.DB.Query(query, pieceOfData)
+// / The Get method on the other hand is used to handle the retrieval of any row of data
+// / from any table in the Database, given a SELECT query as argument.
+func (m *ConnDB) Get(query string, pieceOfData ...interface{}) (table []DataRow, err error) {
+	rows, err := m.DB.Query(query, pieceOfData) // Retrieve all rows in the table even if it's one row.
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	
-	// Get Table Header Values
-	columns, err := rows.Columns()
+
+	columns, err := rows.Columns() // Get Table Columns Headers (ex: id, id_user, email, password...)
 	if err != nil {
 		return nil, err
 	}
-	
-	// Prepare Slice to be Scan for Result
-	values := make([]interface{}, len(columns))
-	for i := range values {
-		values[i] = new(interface{})
+
+	values := make([]interface{}, len(columns)) // Initialize a slice with interfaces pointers.
+	for i := range values {                     // Important to correctly populate the data row map later.
+		values[i] = new(interface{}) // should match the database table columns order.
 	}
 
-	if err = rows.Scan(values...); err != nil {
-		return nil, err
+	for rows.Next() {
+		row := make(DataRow) // Used to store a Row of Data
+
+		if err = rows.Scan(values...); err != nil { // Scan pointers slice in the order that matches the database tables
+			return nil, err
+		}
+
+		for i, col := range columns { // Populate data row map.
+			row[col] = *(values[i].(*interface{})) // Asserting that it is a pointer of interface{}
+		}
+
+		table = append(table, row) // Add row to table
 	}
 
-	for i, col := range columns {
-		// Populate Data Map
-		// Asserting that it is a pointer of interface{}
-		data[col] = *(values[i].(*interface{}))
-	}
-	
-	return data, nil
+	return
 }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// func (m *ConnDB) GetAll(query string, pieceOfData ...interface{}) ([]map[string]interface{}, error) {
-//	...
-//}
