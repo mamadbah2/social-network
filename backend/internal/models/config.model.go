@@ -30,10 +30,10 @@ func (m *ConnDB) Set(query string, dataRow ...interface{}) error {
 //______________________________________________________________________________________________________________________________________
 //
 
-// / The Get method on the other hand is used to handle the retrieval of any row of data
+// / The Get method on the other hand is used to handle the retrieval of any number of rows of data
 // / from any table in the Database, given a SELECT query as argument.
 func (m *ConnDB) Get(query string, pieceOfData ...interface{}) (table []DataRow, err error) {
-	rows, err := m.DB.Query(query, pieceOfData) // Retrieve all rows in the table even if it's one row.
+	rows, err := m.DB.Query(query, pieceOfData) // Retrieve all rows in the table even.
 	if err != nil {
 		return nil, err
 	}
@@ -44,23 +44,22 @@ func (m *ConnDB) Get(query string, pieceOfData ...interface{}) (table []DataRow,
 		return nil, err
 	}
 
-	values := make([]interface{}, len(columns)) // Initialize a slice with interfaces pointers.
-	for i := range values {                     // Important to correctly populate the data row map later.
-		values[i] = new(interface{}) // should match the database table columns order.
-	}
-
 	for rows.Next() {
-		row := make(DataRow) // Used to store a Row of Data
-
+		values := make([]interface{}, len(columns)) // Initialize a slice with interfaces pointers for each row.
+		for i := range values {                     // Important to correctly populate the data row map later.
+			values[i] = new(interface{}) // Should match the database table columns order.
+		}
+		
 		if err = rows.Scan(values...); err != nil { // Scan pointers slice in the order that matches the database tables
 			return nil, err
 		}
-
+		
+		row := make(DataRow) // Used to store a Row of Data
 		for i, col := range columns { // Populate data row map.
 			row[col] = *(values[i].(*interface{})) // Asserting that it is a pointer of interface{}
 		}
 
-		table = append(table, row) // Add row to table
+		table = append(table, row) // Add row to the server 'table'.
 	}
 
 	return
