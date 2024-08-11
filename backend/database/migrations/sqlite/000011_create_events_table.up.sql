@@ -6,4 +6,5 @@ CREATE TABLE events (
     description TEXT,
     event_date DATETIME NOT NULL,
     FOREIGN KEY (id_creator) REFERENCES users(id)
+    FOREIGN KEY (id_group) REFERENCES groups(id)
 );

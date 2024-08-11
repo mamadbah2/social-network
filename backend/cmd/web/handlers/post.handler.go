@@ -11,24 +11,32 @@ import (
 	"time"
 )
 
+type AllData struct {
+	BadRequestForm bool
+}
+
 func (hand *Handler) Post(w http.ResponseWriter, r *http.Request) {
-	session, err := hand.SessionManager.GetSession(r)
-	if err != nil || session == nil || !session.IsActive {
-		hand.Helpers.ClientError(w, http.StatusUnauthorized)
-		return
-	}
-
-	actualUser := session.UserId
-
-	data, err := hand.ConnDB.GetAllPost()
+	// Ici logique get user de la session
+	session, err := hand.ConnDB.GetSession(r)
 	if err != nil {
 		hand.Helpers.ServerError(w, err)
 		return
 	}
 
+	actualUser, err := hand.ConnDB.GetUser(session.UserId)
+	if err != nil {
+		hand.Helpers.ServerError(w, err)
+		return
+	}
 	switch r.Method {
 	case http.MethodGet:
+		data, err := hand.ConnDB.GetAllPost()
+		if err != nil {
+			hand.Helpers.ServerError(w, err)
+		}
+
 		hand.renderJSON(w, data)
+
 
 	case http.MethodPost:
 		err := r.ParseForm()
@@ -40,7 +48,9 @@ func (hand *Handler) Post(w http.ResponseWriter, r *http.Request) {
 		fileImg, fileHeaderImg, err := r.FormFile("imagePost")
 		var nameImg string
 		if err == nil {
-			if int(fileHeaderImg.Size) > 20000000 || !hand.ImageValidation(fileImg) {
+			if int(fileHeaderImg.Size) > 20000000 || !hand.Valid.ImageValidation(fileImg) {
+				hand.renderJSON(w, &AllData{BadRequestForm: true})
+			if int(fileHeaderImg.Size) > 20000000 || !hand.Valid.ImageValidation(fileImg) {
 				hand.Helpers.ClientError(w, http.StatusBadRequest)
 				return
 			}
@@ -98,13 +108,13 @@ func (hand *Handler) Post(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		_, err = hand.ConnDB.SetPost(title, escapedContent, nameImg, privacy, actualUser, groupId, selectedFollowers)
+		_, err = hand.ConnDB.SetPost(title, escapedContent, nameImg, privacy, actualUser.Id, groupId, selectedFollowers)
 		if err != nil {
 			hand.Helpers.ServerError(w, err)
 			return
 		}
-
-		hand.renderJSON(w, data)
+	}
+	hand.renderJSON(w, data)
 
 	default:
 		hand.Helpers.ClientError(w, http.StatusMethodNotAllowed)
