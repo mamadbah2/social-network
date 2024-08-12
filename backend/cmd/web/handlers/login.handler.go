@@ -14,12 +14,12 @@ import (
 */
 func (hand *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
-	
+
 	if r.Method != "POST" {
 		w.WriteHeader(405)
 		return
 	}
-	
+
 	err := r.ParseMultipartForm(20 << 20)
 	if err != nil {
 		hand.Helpers.ServerError(w, err)
@@ -36,7 +36,6 @@ func (hand *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	Password := r.PostForm.Get("password")
 
 	hand.Valid.CheckField(validators.NotBlank(EmailOrUsername), "email", "This field cannot be blank")
-	hand.Valid.CheckField(validators.Matches(EmailOrUsername, validators.EmailRX), "email", "This field must be a valid email address")
 	hand.Valid.CheckField(validators.NotBlank(Password), "password", "This field cannot be blank")
 	if !hand.Valid.Valid() {
 		hand.Helpers.ErrorLog.Println(hand.Valid.FieldErrors)
