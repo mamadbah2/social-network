@@ -11,10 +11,6 @@ import (
 	"time"
 )
 
-type AllData struct {
-	BadRequestForm bool
-}
-
 func (hand *Handler) Post(w http.ResponseWriter, r *http.Request) {
 	// Ici logique get user de la session
 	session, err := hand.ConnDB.GetSession(r)
@@ -28,6 +24,13 @@ func (hand *Handler) Post(w http.ResponseWriter, r *http.Request) {
 		hand.Helpers.ServerError(w, err)
 		return
 	}
+
+	data, err := hand.ConnDB.GetAllPost()
+	if err != nil {
+		hand.Helpers.ServerError(w, err)
+		return
+	}
+
 	switch r.Method {
 	case http.MethodGet:
 		data, err := hand.ConnDB.GetAllPost()
@@ -49,7 +52,7 @@ func (hand *Handler) Post(w http.ResponseWriter, r *http.Request) {
 		var nameImg string
 		if err == nil {
 			if int(fileHeaderImg.Size) > 20000000 || !hand.Valid.ImageValidation(fileImg) {
-				hand.renderJSON(w, &AllData{BadRequestForm: true})
+				hand.renderJSON(w, &data)
 			if int(fileHeaderImg.Size) > 20000000 || !hand.Valid.ImageValidation(fileImg) {
 				hand.Helpers.ClientError(w, http.StatusBadRequest)
 				return
@@ -114,7 +117,7 @@ func (hand *Handler) Post(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	// hand.renderJSON(w, data)
+	hand.renderJSON(w, data)
 
 	default:
 		hand.Helpers.ClientError(w, http.StatusMethodNotAllowed)
