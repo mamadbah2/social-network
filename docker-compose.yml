@@ -7,7 +7,7 @@ services:
       context: frontend/
       dockerfile: frontend.Dockerfile
     ports:
-      - 5500:5500
+      - 3000:3000
     depends_on:
       - backend
 #-------------------------------------
@@ -16,6 +16,6 @@ services:
       context: backend/
       dockerfile: backend.Dockerfile
     ports:
-      - 8080:8080
+      - 4000:4000
     volumes:
       - ./backend/database:database/
