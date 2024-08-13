@@ -131,7 +131,7 @@ func (m *ConnDB) getPost(postId int) (*Post, error) {
 	p.Viewers = viewers
 
 	// Calculate likes, dislikes, and comments count
-	p.NumberLike, p.NumberDislike, err = m.getPostLikesDislikes(p.Id)
+	p.NumberLike, p.NumberDislike, err = m.getCountReactionEntity(p.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -185,7 +185,7 @@ func (m *ConnDB) GetAllPost() ([]*Post, error) {
 		p.Viewers = viewers
 
 		// Calculate likes, dislikes, and comments count
-		p.NumberLike, p.NumberDislike, err = m.getPostLikesDislikes(p.Id)
+		p.NumberLike, p.NumberDislike, err = m.getCountReactionEntity(p.Id)
 		if err != nil {
 			return nil, err
 		}
@@ -198,14 +198,12 @@ func (m *ConnDB) GetAllPost() ([]*Post, error) {
 	return posts, nil
 }
 
-
-
 func (m *ConnDB) getViewersByPostId(postId int) ([]*User, error) {
 	statement := `
 		SELECT u.id, u.email, u.first_name, u.last_name, u.nickname, u.profile_picture, u.about_me
 		FROM post_visibility v
-		JOIN users u ON v.user_id = u.id
-		WHERE v.post_id = ?
+		JOIN users u ON v.id_viewer = u.id
+		WHERE v.id_post = ?
 	`
 	rows, err := m.DB.Query(statement, postId)
 	if err != nil {
@@ -226,14 +224,15 @@ func (m *ConnDB) getViewersByPostId(postId int) ([]*User, error) {
 	return viewers, nil
 }
 
-func (m *ConnDB) getPostLikesDislikes(postId int) (int, int, error) {
+func (m *ConnDB) getCountReactionEntity(postId int) (int, int, error) {
 	// SQL statement to count likes and dislikes for the post
 	statement := `
 		SELECT 
-			COUNT(CASE WHEN reaction = 'like' THEN 1 END) AS like_count,
-			COUNT(CASE WHEN reaction = 'dislike' THEN 1 END) AS dislike_count
+			COUNT(CASE WHEN liked = TRUE THEN 1 END) AS like_count,
+			COUNT(CASE WHEN disliked = TRUE THEN 1 END) AS dislike_count
 		FROM reactions
-		WHERE post_id = ?
+		WHERE id_entity = ?
+
 	`
 
 	row := m.DB.QueryRow(statement, postId)

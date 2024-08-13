@@ -307,3 +307,14 @@ func (m *ConnDB) CheckNickname(nickname string) (bool, error) {
 	}
 	return record == 0, nil
 }
+
+func (m *ConnDB) CheckEmail(email string) (bool, error) {
+	var record int
+	// Prepare a query to check if the username exists
+	stmt := `SELECT count(*) FROM users WHERE email = ?`
+	err := m.DB.QueryRow(stmt, email).Scan(&record)
+	if err != nil {
+		return false, err
+	}
+	return record == 0, nil
+}

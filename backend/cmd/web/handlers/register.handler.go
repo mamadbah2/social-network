@@ -10,24 +10,29 @@ import (
 )
 
 func (hand *Handler) Register(w http.ResponseWriter, r *http.Request) {
-	
-
+	if r.Method != "POST" {
+		hand.Helpers.ClientError(w, http.StatusMethodNotAllowed)
+		return
+	}
 	defer r.Body.Close()
+
+	//Parsing Formulaire
 	err := r.ParseMultipartForm(20 << 20)
 	if err != nil {
 		hand.Helpers.ClientError(w, 400)
 		return
 	}
-	if r.Method != "POST" {
-		hand.Helpers.ClientError(w, 405)
-		return
-	}
+
+
 	user := &models.User{}
-	file, _, _ := r.FormFile("profilPicture")
+	//Recuperation du fichier image
+	file, _, _:= r.FormFile("profilPicture")
 	var tempFile *os.File
 	if file != nil {
 		tempFile, _ = hand.Helpers.Getfile(file)
 	}
+
+	// Gestion de la date anniversaire, conversion time.Time
 	dateStr := r.PostForm.Get("dateOfBirth")
 	date, err := time.Parse("2006-01-02", dateStr)
 	if err != nil {
@@ -49,7 +54,7 @@ func (hand *Handler) Register(w http.ResponseWriter, r *http.Request) {
 		user.Private = true
 	}
 
-	// Verifications
+	// Verifications de l'unicité du nickname et email
 	exist, err := hand.ConnDB.CheckNickname(user.Nickname)
 	if err != nil {
 		hand.Helpers.ServerError(w, err)
@@ -58,6 +63,16 @@ func (hand *Handler) Register(w http.ResponseWriter, r *http.Request) {
 	if !exist {
 		hand.Valid.CheckField(false, "Nickname", "Nickname already taken")
 	}
+
+	exist, err = hand.ConnDB.CheckEmail(user.Email)
+	if err != nil {
+		hand.Helpers.ServerError(w, err)
+		return
+	}
+	if !exist {
+		hand.Valid.CheckField(false, "Email", "Email already taken")
+	}
+
 
 	if tempFile != nil {
 		user.ProfilePicture = tempFile.Name()

@@ -6,12 +6,7 @@ import (
 	"social-network/cmd/web/validators"
 )
 
-/*
-	 type userLoginForm struct {
-		EmailOrUsername string
-		Password        string
-	}
-*/
+
 func (hand *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
@@ -20,13 +15,7 @@ func (hand *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := r.ParseMultipartForm(20 << 20)
-	if err != nil {
-		hand.Helpers.ServerError(w, err)
-		return
-	}
-
-	err = r.ParseForm()
+	err := r.ParseForm()
 	if err != nil {
 		w.WriteHeader(400)
 		return

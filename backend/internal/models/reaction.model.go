@@ -36,6 +36,22 @@ func (r *ConnDB) UpdateReaction(id_entity, UserID int, reaction_type string, lik
 	return nil
 }
 
+func (r *ConnDB) CheckReaction(id_entity, UserID int, reaction_type string) (*Reaction, error) {
+	stmt := `SELECT id FROM reactions WHERE id_entity = ? AND id_user = ? AND reaction_type = ?`
+	row := r.DB.QueryRow(stmt, id_entity, UserID, reaction_type)
+	reaction := &Reaction{}
+	err := row.Scan(&reaction.Liked)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ErrNoRecord
+		} else {
+
+			return nil, err
+		}
+	}
+	return reaction, nil
+}
+
 func (r *ConnDB) CheckLikeReaction(id_entity, UserID int, reaction_type string) (*Reaction, error) {
 	stmt := `SELECT liked FROM reactions WHERE id_entity = ? AND id_user = ? AND reaction_type = ?`
 	row := r.DB.QueryRow(stmt, id_entity, UserID, reaction_type)
