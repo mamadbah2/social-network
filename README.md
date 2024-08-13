@@ -1,7 +1,5 @@
 # social-network
 
-You will have a Facebook-like social network
-
 ## Table of Contents
 
 - [**Description**](#description)
@@ -14,12 +12,14 @@ You will have a Facebook-like social network
   - [File System](#file-system)
     - [backend/](#backend)
     - [frontend/](#frontend)
+- [**Usage**](#usage)
   - [Client](#client)
     - [Getting started](#getting-started)
     - [Learn more](#learn-more)
     - [Deploy on Vercel](#deploy-on-vercel)
   - [Server](#server)
-- [**Usage**](#usage)
+- [**Blueprints**](#blueprints)
+  - [Models](#models)
   - [Register](#register)
   - [Login](#login)
   - [Profile](#profile)
@@ -50,8 +50,12 @@ Click on badges to get to the code...
 [![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)]()
 [![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)]()
 [![JAVASCRIPT](https://img.shields.io/badge/JavaScript-323330?style=for-the-badge&logo=javascript&logoColor=F7DF1E)]()
+[![TYPESCRIPT](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)]()  
+[![TAILWINDCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)]()
 [![REACT](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)]()
 [![NEXT.js](https://img.shields.io/badge/next%20js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)]()
+[![DOCKER](https://img.shields.io/badge/Docker-2CA5E0?style=for-the-badge&logo=docker&logoColor=white)]()
+
 
 ### Back-End
 
@@ -59,15 +63,22 @@ Click on badges to get to the code...
 
 [![GO](https://img.shields.io/badge/Go-00ADD8?style=for-the-badge&logo=go&logoColor=white)]()
 [![SQLITE](https://img.shields.io/badge/Sqlite-003B57?style=for-the-badge&logo=sqlite&logoColor=white)]()
+[![DOCKER](https://img.shields.io/badge/Docker-2CA5E0?style=for-the-badge&logo=docker&logoColor=white)]()
+
+### Development
+
+[![NPM](https://img.shields.io/badge/npm-CB3837?style=for-the-badge&logo=npm&logoColor=white)]()
+[![SHELL SCRIPT](https://img.shields.io/badge/Shell_Script-121011?style=for-the-badge&logo=gnu-bash&logoColor=white)]()
+[![GITHUB](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)]()
+
+### Office
+[![TRELLO](https://img.shields.io/badge/Trello-0052CC?style=for-the-badge&logo=trello&logoColor=white)]()
+[![FIGMA](https://img.shields.io/badge/Figma-F24E1E?style=for-the-badge&logo=figma&logoColor=white)]()
+[![WARP](https://img.shields.io/badge/warp-01A4FF?style=for-the-badge&logo=warp&logoColor=white)]()
 
 ### Others
 
-[![SHELL SCRIPT](https://img.shields.io/badge/Shell_Script-121011?style=for-the-badge&logo=gnu-bash&logoColor=white)]()
-[![WARP](https://img.shields.io/badge/warp-01A4FF?style=for-the-badge&logo=warp&logoColor=white)]()
 [![MARKDOWN](https://img.shields.io/badge/Markdown-000000?style=for-the-badge&logo=markdown&logoColor=white)](#table-of-contents)
-[![GITHUB](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)]()
-[![TRELLO](https://img.shields.io/badge/Trello-0052CC?style=for-the-badge&logo=trello&logoColor=white)]()
-[![MAC OS](https://img.shields.io/badge/mac%20os-000000?style=for-the-badge&logo=apple&logoColor=white)]()
 
 ###### [_Table of Content ⤴️_](#table-of-contents)
 
@@ -209,6 +220,10 @@ cd social-network
     + -- tailwind.config.ts
     + -- tsconfig.json
 
+###### [_Table of Content ⤴️_](#table-of-contents)
+
+## Usage
+
 ### Client
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
@@ -248,17 +263,19 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
 
-
 ### Server
 
 ```shell
+cd backend
 go run ./cmd/web/.
 INFO	16:54:48.394607 server on http://localhost:4000
 ```
 
 ###### [_Table of Content ⤴️_](#table-of-contents)
 
-## Usage
+## Blueprints
+
+### Models
 
 ```mermaid
 classDiagram
