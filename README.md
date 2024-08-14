@@ -13,11 +13,15 @@
     - [backend/](#backend)
     - [frontend/](#frontend)
 - [**Usage**](#usage)
-  - [Client](#client)
+  - [Next.js](#nextjs)
     - [Getting started](#getting-started)
     - [Learn more](#learn-more)
     - [Deploy on Vercel](#deploy-on-vercel)
-  - [Server](#server)
+  - [Go](#go)
+  - [Docker Compose](#docker-compose)
+    - [Building and running your application](#building-and-running-your-application)
+    - [Deploying your application to the cloud](#deploying-your-application-to-the-cloud)
+    - [References](#references)
 - [**Blueprints**](#blueprints)
   - [Models](#models)
   - [Register](#register)
@@ -56,7 +60,6 @@ Click on badges to get to the code...
 [![NEXT.js](https://img.shields.io/badge/next%20js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)]()
 [![DOCKER](https://img.shields.io/badge/Docker-2CA5E0?style=for-the-badge&logo=docker&logoColor=white)]()
 
-
 ### Back-End
 
 Click on badges to get to the code...
@@ -72,6 +75,7 @@ Click on badges to get to the code...
 [![GITHUB](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)]()
 
 ### Office
+
 [![TRELLO](https://img.shields.io/badge/Trello-0052CC?style=for-the-badge&logo=trello&logoColor=white)]()
 [![FIGMA](https://img.shields.io/badge/Figma-F24E1E?style=for-the-badge&logo=figma&logoColor=white)]()
 [![WARP](https://img.shields.io/badge/warp-01A4FF?style=for-the-badge&logo=warp&logoColor=white)]()
@@ -224,7 +228,7 @@ cd social-network
 
 ## Usage
 
-### Client
+### Next.js
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
@@ -263,13 +267,54 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
 
-### Server
+### Go
 
 ```shell
 cd backend
 go run ./cmd/web/.
 INFO	16:54:48.394607 server on http://localhost:4000
 ```
+
+### Docker Compose
+
+#### Building and running your application
+
+When you're ready, start your application by running:
+
+```shell
+docker compose up --build
+```
+
+Your application will be available at http://localhost:3000.
+
+#### Deploying your application to the cloud
+
+First, build your image, e.g.:
+
+```shell
+docker build -t myapp .
+```
+
+If your cloud uses a different CPU architecture than your development
+machine (e.g., you are on a Mac M1 and your cloud provider is amd64),
+you'll want to build the image for that platform, e.g.:
+
+```shell
+docker build --platform=linux/amd64 -t myapp .
+```
+
+Then, push it to your registry, e.g.
+
+```shell
+docker push myregistry.com/myapp
+```
+
+Consult Docker's [getting started](https://docs.docker.com/go/get-started-sharing/)
+docs for more detail on building and pushing.
+
+#### References
+
+- [Docker's Node.js guide](https://docs.docker.com/language/nodejs/)
 
 ###### [_Table of Content ⤴️_](#table-of-contents)
 
