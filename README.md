@@ -102,7 +102,6 @@ cd social-network
     |
     + -- frontend/
     |
-    + -- .dockerignore
     + -- .gitignore
     + -- audit.todo
     + -- docker-compose.yml
@@ -191,6 +190,7 @@ cd social-network
     |       + -- utils/
     |               + -- db.manager.go
     |
+    + -- .dockerignore
     + -- backend.Dockerfile
     + -- go.mod
     + -- go.sum
