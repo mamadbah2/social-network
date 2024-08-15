@@ -93,7 +93,7 @@ func (db *ConnDB) SetPostViewer(postId, userId int) (int, error) {
 	return 1, nil
 }
 
-func (m *ConnDB) getPost(postId int) (*Post, error) {
+func (m *ConnDB) GetPost(postId int) (*Post, error) {
 	statement := `
 		SELECT p.id, p.title, p.content, p.privacy, p.created_at, 
 		       u.id, u.email, u.first_name, u.last_name, u.nickname, u.profile_picture, u.about_me,

@@ -57,7 +57,7 @@ func (m *ConnDB) GetGroup(id int) (*Group, error) {
 
 	for rows.Next() {
 		rows.Scan(&postID, &userId, &EventID)
-		Post, err := m.getPost(postID)
+		Post, err := m.GetPost(postID)
 		if err != nil {
 			return nil, err
 		}
