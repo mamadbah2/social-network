@@ -210,9 +210,9 @@ func (m *ConnDB) GetUser(userID int) (*User, error) {
 
 	err := row.Scan(&u.Id, &u.Email, &u.Password, &u.FirstName, &u.LastName, &u.DateOfBirth, &u.ProfilePicture, &u.Nickname, &u.AboutMe, &u.Private, &u.CreatedAt)
 	if err != nil {
+		fmt.Println("bobo choked")
 		return nil, err
 	}
-
 	// Convertir la chaîne de caractères en time.Time
 	/* u.DateOfBirth, err = time.Parse("2006-01-02 15:04:05-07:00", dateOfBirthStr)
 	if err != nil {
@@ -224,19 +224,20 @@ func (m *ConnDB) GetUser(userID int) (*User, error) {
 		return nil, err
 	}
 	u.Followers = followers
-
+	
 	groups, err := m.getGroups(u.Id)
 	if err != nil {
 		return nil, err
 	}
 	u.Groups = groups
-
+	
 	posts, err := m.getPosts(u.Id)
 	if err != nil {
+		
 		return nil, err
 	}
 	u.Posts = posts
-
+	
 	return u, nil
 }
 

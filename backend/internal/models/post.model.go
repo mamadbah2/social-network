@@ -133,6 +133,7 @@ func (m *ConnDB) GetPost(postId int) (*Post, error) {
 	// Calculate likes, dislikes, and comments count
 	p.NumberLike, p.NumberDislike, err = m.getCountReactionEntity(p.Id)
 	if err != nil {
+
 		return nil, err
 	}
 

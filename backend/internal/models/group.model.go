@@ -19,16 +19,14 @@ type Group struct {
 // Read let's go, chap 4.6: Executing SQL statements
 func (m *ConnDB) GetGroup(id int) (*Group, error) {
 
-	stmt := `SELECT * FROM groups
-    WHERE Id = ?`
+	stmt := `SELECT * FROM groups WHERE id = ?`
 
 	row := m.DB.QueryRow(stmt, id)
 
 	g := &Group{}
 	var CreatorId int
 
-	err := row.Scan(&g.Id, &CreatorId, &g.Name, &g.Description,
-		&g.CreatedAt)
+	err := row.Scan(&g.Id, &CreatorId, &g.Name, &g.Description, &g.CreatedAt)
 	if err != nil {
 		return nil, err
 	}
@@ -37,11 +35,10 @@ func (m *ConnDB) GetGroup(id int) (*Group, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	//Posts, Members and Events
-
+	
 	var postID, userId, EventID int
-
+	
 	stmt = `
 	SELECT p.id, m.id_member, e.id
 	FROM posts p
@@ -54,19 +51,19 @@ func (m *ConnDB) GetGroup(id int) (*Group, error) {
 		fmt.Println(errRows.Error())
 		return nil, errRows
 	}
-
+	
 	for rows.Next() {
 		rows.Scan(&postID, &userId, &EventID)
 		Post, err := m.GetPost(postID)
 		if err != nil {
 			return nil, err
 		}
-
+		
 		Member, err := m.GetUser(userId)
 		if err != nil {
 			return nil, err
 		}
-
+		
 		// Event, err := m.GetEvent(EventID)
 		// if err != nil {
 		// 	return nil, err

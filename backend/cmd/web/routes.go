@@ -16,10 +16,11 @@ func (app *Application) routes() http.Handler {
 	router.HandleFunc("/logout", app.Middleware.Authenticate(http.HandlerFunc(app.Handlers.UserLogoutPost)).ServeHTTP)
 	router.HandleFunc("/follows", app.Middleware.Authenticate(http.HandlerFunc(app.Handlers.Follows)).ServeHTTP)
 	router.HandleFunc("/posts", app.Middleware.Authenticate(http.HandlerFunc(app.Handlers.Post)).ServeHTTP)
-	router.HandleFunc("/groups", app.Middleware.Authenticate(http.HandlerFunc(app.Handlers.Groups)).ServeHTTP)
+	router.HandleFunc("/groups", app.Middleware.Authenticate(http.HandlerFunc(app.Handlers.GroupsHandle)).ServeHTTP)
 	router.HandleFunc("/chat", app.Middleware.Authenticate(http.HandlerFunc(app.Handlers.Chat)).ServeHTTP)
 	router.HandleFunc("/like", app.Middleware.Authenticate(http.HandlerFunc(app.Handlers.LikeReaction)).ServeHTTP)
 	router.HandleFunc("/dislike", app.Middleware.Authenticate(http.HandlerFunc(app.Handlers.DislikeReaction)).ServeHTTP)
+	router.HandleFunc("/groupMembers", app.Handlers.GroupMembersHandle)
 	//             -//- -//-
 
 	return app.Middleware.PanicRecover(app.Middleware.LogRequest(router))
