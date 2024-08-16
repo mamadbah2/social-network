@@ -27,8 +27,8 @@ func (hand *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	hand.Valid.CheckField(validators.NotBlank(EmailOrUsername), "email", "This field cannot be blank")
 	hand.Valid.CheckField(validators.NotBlank(Password), "password", "This field cannot be blank")
 	if !hand.Valid.Valid() {
-		hand.Helpers.ErrorLog.Println(hand.Valid.FieldErrors)
 		hand.renderJSON(w, nil)
+		return
 	}
 
 	id, err := hand.ConnDB.Authenticate(EmailOrUsername, Password)

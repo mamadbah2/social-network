@@ -54,6 +54,7 @@ func (hand *Handler) Events(w http.ResponseWriter, r *http.Request) {
 		err := r.ParseForm()
 		if err != nil {
 			hand.Helpers.ClientError(w, http.StatusBadRequest)
+			return
 		}
 
 		gID := r.PostForm.Get("group_id")

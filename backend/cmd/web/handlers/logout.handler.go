@@ -6,8 +6,8 @@ import (
 
 
 func (hand *Handler) UserLogoutPost(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
-		w.WriteHeader(405)
+	if r.Method != "GET" {
+		hand.Helpers.ClientError(w, http.StatusMethodNotAllowed)
 		return
 	}
 	session, err := hand.ConnDB.GetSession(r)

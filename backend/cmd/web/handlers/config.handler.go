@@ -44,4 +44,7 @@ func (hand *Handler) renderJSON(w http.ResponseWriter, data interface{}) {
 		hand.Helpers.ServerError(w, err)
 		return
 	}
+
+	// On remove les erreurs du field error
+	hand.Valid.FieldErrors = make(map[string]string)
 }
