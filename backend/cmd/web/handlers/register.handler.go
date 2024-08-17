@@ -95,6 +95,7 @@ func (hand *Handler) Register(w http.ResponseWriter, r *http.Request) {
 	hand.Valid.CheckField(validators.MaxChars(user.AboutMe, 100), "AboutMe", "This field cannot be more than 100 characters long")
 	
 	if !hand.Valid.Valid() || !exist {
+		hand.renderJSON(w, nil)
 		hand.Helpers.ClientError(w, http.StatusBadRequest)
 		return
 	}
@@ -103,8 +104,10 @@ func (hand *Handler) Register(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		if errors.Is(err, errors.New("models: duplicate email")) {
 			hand.Valid.AddFieldError("email", "This field already exits")
+			hand.renderJSON(w, nil)
 			return
 		} else {
+			hand.renderJSON(w, nil)
 			hand.Helpers.ClientError(w, 400)
 			return
 		}
