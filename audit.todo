@@ -172,3 +172,42 @@ Bonus:
 ☐ Is there other notification apart from the ones explicit on the subject?
 ⭘ Does the project present a script to build the images and containers? (using a script to simplify the build) @started(24-07-31 13:18)
 ☐ Do you think in general this project is well done?
+
+
+
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+.yarn/install-state.gz
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+*.DS_Store*
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# local env files
+.env*.local
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
