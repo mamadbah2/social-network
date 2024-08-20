@@ -40,11 +40,11 @@ func (m *ConnDB) GetGroup(id int) (*Group, error) {
 	var postID, userId, EventID int
 	
 	stmt = `
-	SELECT p.id, m.id_member, e.id
+	SELECT p.id, m.id_member, m.state, e.id
 	FROM posts p
 	JOIN groups_members m ON p.id_group = m.id_group
 	JOIN events e ON p.id_group = e.id_group
-	WHERE p.id_group = ?;
+	WHERE p.id_group = ? AND m.state = 'approved';
 	`
 	rows, errRows := m.DB.Query(stmt, id)
 	if errRows != nil {
@@ -64,14 +64,14 @@ func (m *ConnDB) GetGroup(id int) (*Group, error) {
 			return nil, err
 		}
 		
-		// Event, err := m.GetEvent(EventID)
-		// if err != nil {
-		// 	return nil, err
-		// }
+		Event, err := m.GetEvent(EventID)
+		if err != nil {
+			return nil, err
+		}
 
 		g.Posts = append(g.Posts, Post)
 		g.Members = append(g.Members, Member)
-		// g.Events = append(g.Events, Event)
+		g.Events = append(g.Events, Event)
 	}
 
 	return g, nil

@@ -9,7 +9,7 @@ import (
 func (hand *Handler) GroupsHandle(w http.ResponseWriter, r *http.Request) {
 	session, ok := hand.ConnDB.GetSession(r)
 	if ok != nil {
-		http.Error(w, "session error", 500)
+		hand.Helpers.ServerError(w, ok)
 		return
 	}
 	if r.Method == http.MethodGet {
@@ -18,7 +18,7 @@ func (hand *Handler) GroupsHandle(w http.ResponseWriter, r *http.Request) {
 		if GroupIdStr == "" {
 			Allg, err := hand.ConnDB.GetAllGroups()
 			if err != nil {
-				http.Error(w, err.Error(), 400)
+				hand.Helpers.ClientError(w, http.StatusBadRequest)
 				return
 			}
 			hand.renderJSON(w, Allg)
@@ -27,7 +27,7 @@ func (hand *Handler) GroupsHandle(w http.ResponseWriter, r *http.Request) {
 
 		GroupId, err := strconv.Atoi(GroupIdStr)
 		if (err != nil) || GroupId < 1 {
-			http.NotFound(w, r)
+			hand.Helpers.ClientError(w, http.StatusNotFound)
 			return
 		}
 
@@ -41,6 +41,20 @@ func (hand *Handler) GroupsHandle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if r.Method == http.MethodPost {
+		groupIdStr := r.FormValue("GroupId")
+		if groupIdStr != "" {
+			//for asking to join a group
+			groupId, idErr := strconv.Atoi(groupIdStr)
+			if idErr != nil {
+				hand.Helpers.ServerError(w, idErr)
+				return
+			}
+			err := hand.ConnDB.SetGroupMember(session.UserId, groupId, "pending")
+			if err != nil {
+				http.Error(w, "Error Creating Member", 400)
+				return
+			}
+		}
 		g := &models.Group{}
 		//need Sessions here to take the userID
 		g.Name = r.FormValue("GroupName")
@@ -48,7 +62,7 @@ func (hand *Handler) GroupsHandle(w http.ResponseWriter, r *http.Request) {
 		g.Creator.Id = session.UserId
 		err := hand.ConnDB.SetGroup(g)
 		if err != nil {
-			w.WriteHeader(500)
+			hand.Helpers.ServerError(w, err)
 			return
 		}
 	}
@@ -59,13 +73,13 @@ func (hand *Handler) GroupMembersHandle(w http.ResponseWriter, r *http.Request) 
 	if r.Method == http.MethodPost {
 		GroupIdStr := r.URL.Query().Get("id")
 		if GroupIdStr == "" {
-			http.Error(w, "Bad Request", 400)
+			hand.Helpers.ClientError(w, http.StatusBadRequest)
 			return
 		}
 
 		GroupId, err := strconv.Atoi(GroupIdStr)
 		if (err != nil) || GroupId < 1 {
-			http.NotFound(w, r)
+			hand.Helpers.ClientError(w, http.StatusNotFound)
 			return
 		}
 
@@ -81,7 +95,7 @@ func (hand *Handler) GroupMembersHandle(w http.ResponseWriter, r *http.Request) 
 				http.Error(w, "Not Found", 404)
 				return
 			}
-			err = hand.ConnDB.SetGroupMember(MemId, GroupId)
+			err = hand.ConnDB.SetGroupMember(MemId, GroupId, "approved")
 			if err != nil {
 				http.Error(w, "Error Creating Member", 400)
 				return
