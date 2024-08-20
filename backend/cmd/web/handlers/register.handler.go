@@ -23,15 +23,15 @@ func (hand *Handler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-
+	
 	user := &models.User{}
 	//Recuperation du fichier image
-	file, _, _:= r.FormFile("profilPicture")
+	file, _, _ := r.FormFile("profilPicture")
 	var tempFile *os.File
 	if file != nil {
 		tempFile, _ = hand.Helpers.Getfile(file)
 	}
-
+	
 	// Gestion de la date anniversaire, conversion time.Time
 	dateStr := r.PostForm.Get("dateOfBirth")
 	date, err := time.Parse("2006-01-02", dateStr)
@@ -40,15 +40,17 @@ func (hand *Handler) Register(w http.ResponseWriter, r *http.Request) {
 		hand.Helpers.ServerError(w, err)
 		return
 	}
-
+	
+	hand.Helpers.InfoLog.Println("****", r.PostForm)
+	
 	user.Email = r.PostForm.Get("email")
 	user.Password = r.PostForm.Get("password")
 	user.FirstName = r.PostForm.Get("firstname")
 	user.LastName = r.PostForm.Get("lastname")
 	user.Nickname = r.PostForm.Get("nickname")
 	user.DateOfBirth = date
-	user.AboutMe = r.PostForm.Get("about_me")
-	if r.PostForm.Get("private") == "public" {
+	user.AboutMe = r.PostForm.Get("aboutMe")
+	if r.PostForm.Get("privacy") == "public" {
 		user.Private = false
 	} else {
 		user.Private = true
@@ -73,7 +75,6 @@ func (hand *Handler) Register(w http.ResponseWriter, r *http.Request) {
 		hand.Valid.CheckField(false, "Email", "Email already taken")
 	}
 
-
 	if tempFile != nil {
 		user.ProfilePicture = tempFile.Name()
 		hand.Valid.CheckField(validators.VerifyImg(user.ProfilePicture), "profilPicture", "choose a valid image")
@@ -93,7 +94,7 @@ func (hand *Handler) Register(w http.ResponseWriter, r *http.Request) {
 	hand.Valid.CheckField(validators.NotBlankInt(user.DateOfBirth.Day()), "DateOfBirth", "This field cannot be blank")
 	hand.Valid.CheckField(validators.NotBlank(user.AboutMe), "AboutMe", "This field cannot be blank")
 	hand.Valid.CheckField(validators.MaxChars(user.AboutMe, 100), "AboutMe", "This field cannot be more than 100 characters long")
-	
+
 	if !hand.Valid.Valid() || !exist {
 		hand.renderJSON(w, nil)
 		hand.Helpers.ClientError(w, http.StatusBadRequest)

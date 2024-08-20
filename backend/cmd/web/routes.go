@@ -24,5 +24,5 @@ func (app *Application) routes() http.Handler {
 	router.HandleFunc("/groupMembers", app.Handlers.GroupMembersHandle)
 	//             -//- -//-
 
-	return app.Middleware.PanicRecover(app.Middleware.LogRequest(router))
+	return app.Middleware.PanicRecover(app.Middleware.LogRequest(app.Middleware.CORS(router)))
 }
