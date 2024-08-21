@@ -41,8 +41,6 @@ func (hand *Handler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	
-	hand.Helpers.InfoLog.Println("****", r.PostForm)
-	
 	user.Email = r.PostForm.Get("email")
 	user.Password = r.PostForm.Get("password")
 	user.FirstName = r.PostForm.Get("firstname")
@@ -92,12 +90,11 @@ func (hand *Handler) Register(w http.ResponseWriter, r *http.Request) {
 	hand.Valid.CheckField(validators.NotBlank(user.Password), "Password", "This field cannot be blank")
 	hand.Valid.CheckField(validators.MinChars(user.Password, 8), "password", "This field must be at least 8 characters long")
 	hand.Valid.CheckField(validators.NotBlankInt(user.DateOfBirth.Day()), "DateOfBirth", "This field cannot be blank")
-	hand.Valid.CheckField(validators.NotBlank(user.AboutMe), "AboutMe", "This field cannot be blank")
-	hand.Valid.CheckField(validators.MaxChars(user.AboutMe, 100), "AboutMe", "This field cannot be more than 100 characters long")
+	// hand.Valid.CheckField(validators.NotBlank(user.AboutMe), "AboutMe", "This field cannot be blank")
+	// hand.Valid.CheckField(validators.MaxChars(user.AboutMe, 100), "AboutMe", "This field cannot be more than 100 characters long")
 
 	if !hand.Valid.Valid() || !exist {
 		hand.renderJSON(w, nil)
-		hand.Helpers.ClientError(w, http.StatusBadRequest)
 		return
 	}
 

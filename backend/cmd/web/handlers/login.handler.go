@@ -1,11 +1,9 @@
 package handlers
 
 import (
-	"errors"
 	"net/http"
 	"social-network/cmd/web/validators"
 )
-
 
 func (hand *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
@@ -20,10 +18,9 @@ func (hand *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(400)
 		return
 	}
-
-	EmailOrUsername := r.PostForm.Get("email_nickname")
-	Password := r.PostForm.Get("password")
-
+	EmailOrUsername := r.PostForm.Get("emailNickname")
+	Password := r.PostForm.Get("password")	
+	
 	hand.Valid.CheckField(validators.NotBlank(EmailOrUsername), "email", "This field cannot be blank")
 	hand.Valid.CheckField(validators.NotBlank(Password), "password", "This field cannot be blank")
 	if !hand.Valid.Valid() {
@@ -33,11 +30,12 @@ func (hand *Handler) Login(w http.ResponseWriter, r *http.Request) {
 
 	id, err := hand.ConnDB.Authenticate(EmailOrUsername, Password)
 	if err != nil {
-		if errors.Is(err, errors.New("models: invalid credentials")) {
-			hand.Valid.AddNonFieldError("credentials is incorrect")
+		if err.Error() == "models: invalid credentials" {
+			hand.Valid.AddFieldError("email/password", "credentials is incorrect")
+			hand.renderJSON(w, nil)
 			return
 		} else {
-			w.WriteHeader(500)
+			hand.Helpers.ServerError(w, err)
 			return
 		}
 	}
@@ -52,10 +50,10 @@ func (hand *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	if existingSession != nil {
 		err := hand.ConnDB.DeleteSession(existingSession.Id)
 		if err != nil {
-			w.WriteHeader(500)
+			hand.Helpers.ServerError(w, err)
 			return
 		}
-		cookie := http.Cookie{
+		/* cookie := http.Cookie{
 			Name:     "session",
 			Value:    "",
 			MaxAge:   -1,
@@ -63,14 +61,15 @@ func (hand *Handler) Login(w http.ResponseWriter, r *http.Request) {
 			HttpOnly: true,
 			Secure:   true,
 		}
-		http.SetCookie(w, &cookie)
+		hand.renderJSON(w, cookie)
+		return */
 	}
 
-	_, err = hand.SessionManager.NewSession(w, id)
+	session, err := hand.SessionManager.NewSession(w, id)
 	if err != nil {
 		hand.Helpers.ServerError(w, err)
 		return
 	}
-
-	hand.renderJSON(w, id)
+	http.SetCookie(w, session.Cookie)
+	hand.renderJSON(w, session.Cookie)
 }
