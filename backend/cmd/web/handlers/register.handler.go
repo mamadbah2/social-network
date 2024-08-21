@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"os"
 	"social-network/cmd/web/validators"
@@ -10,95 +9,111 @@ import (
 	"time"
 )
 
-
-func (hand *Handler) UserRegister(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	errMultiparseform := r.ParseMultipartForm(20 << 20)
-	if errMultiparseform != nil {
-
-		w.WriteHeader(400)
-		return
-	}
+func (hand *Handler) Register(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
-		w.WriteHeader(405)
+		hand.Helpers.ClientError(w, http.StatusMethodNotAllowed)
 		return
 	}
+	defer r.Body.Close()
+
+	//Parsing Formulaire
+	err := r.ParseMultipartForm(20 << 20)
+	if err != nil {
+		hand.Helpers.ClientError(w, 400)
+		return
+	}
+
+	
 	user := &models.User{}
+	//Recuperation du fichier image
 	file, _, _ := r.FormFile("profilPicture")
 	var tempFile *os.File
 	if file != nil {
 		tempFile, _ = hand.Helpers.Getfile(file)
 	}
+	
+	// Gestion de la date anniversaire, conversion time.Time
 	dateStr := r.PostForm.Get("dateOfBirth")
-	layout := "01-02-2006"
-	date, err := time.Parse(layout, dateStr)
+	date, err := time.Parse("2006-01-02", dateStr)
 	if err != nil {
-		fmt.Println("Erreur lors de la conversion de la date:", err)
+		hand.Helpers.InfoLog.Println(r.PostForm.Get("lastname"))
+		hand.Helpers.ServerError(w, err)
 		return
 	}
+	
+	hand.Helpers.InfoLog.Println("****", r.PostForm)
 	
 	user.Email = r.PostForm.Get("email")
 	user.Password = r.PostForm.Get("password")
 	user.FirstName = r.PostForm.Get("firstname")
-	user.LastName =  r.PostForm.Get("lastname")
+	user.LastName = r.PostForm.Get("lastname")
 	user.Nickname = r.PostForm.Get("nickname")
 	user.DateOfBirth = date
-	user.AboutMe = r.PostForm.Get("about_me")
-	if (r.PostForm.Get("private") == "public"){
+	user.AboutMe = r.PostForm.Get("aboutMe")
+	if r.PostForm.Get("privacy") == "public" {
 		user.Private = false
-	}else if (r.PostForm.Get("private") == "private"){
+	} else {
 		user.Private = true
 	}
-	
-	exist, err := hand.CheckUsernameExists(user.Nickname)
+
+	// Verifications de l'unicité du nickname et email
+	exist, err := hand.ConnDB.CheckNickname(user.Nickname)
 	if err != nil {
-		fmt.Println("error occur")
+		hand.Helpers.ServerError(w, err)
+		return
 	}
-	if exist {
-		hand.CheckField(false, "Nickname", "Nickname already taken")
+	if !exist {
+		hand.Valid.CheckField(false, "Nickname", "Nickname already taken")
+	}
+
+	exist, err = hand.ConnDB.CheckEmail(user.Email)
+	if err != nil {
+		hand.Helpers.ServerError(w, err)
+		return
+	}
+	if !exist {
+		hand.Valid.CheckField(false, "Email", "Email already taken")
 	}
 
 	if tempFile != nil {
 		user.ProfilePicture = tempFile.Name()
-		hand.CheckField(validators.VerifyImg(user.ProfilePicture), "profilPicture", "choose a valid image")
-		hand.CheckField(validators.CheckFileSize(user.ProfilePicture), "profilPicture", "max size image should be 20 mb")
-	} else {
-		fmt.Println("here")
-		user.ProfilePicture = ""
+		hand.Valid.CheckField(validators.VerifyImg(user.ProfilePicture), "profilPicture", "choose a valid image")
+		hand.Valid.CheckField(validators.CheckFileSize(user.ProfilePicture), "profilPicture", "max size image should be 20 mb")
 	}
 
-	hand.CheckField(validators.NotBlank(user.FirstName), "FirstName", "This field cannot be blank")
-	hand.CheckField(validators.MaxChars(user.FirstName, 20), "FirstName", "This field cannot be more than 20 characters long")
-	hand.CheckField(validators.NotBlank(user.LastName), "LastName", "This field cannot be blank")
-	hand.CheckField(validators.MaxChars(user.LastName, 20), "LastName", "This field cannot be more than 20 characters long")
-	hand.CheckField(validators.NotBlank(user.Nickname), "Nickname", "This field cannot be blank")
-	hand.CheckField(validators.MaxChars(user.Nickname, 20), "Nickname", "This field cannot be more than 20 characters long")
-	hand.CheckField(validators.NotBlank(user.Email), "Email", "This field cannot be blank")
-	hand.CheckField(validators.Matches(user.Email, validators.EmailRX), "email", "This field must be a valid email address")
-	hand.CheckField(validators.NotBlank(user.Password), "Password", "This field cannot be blank")
-	hand.CheckField(validators.MinChars(user.Password, 8), "password", "This field must be at least 8 characters long")
-	hand.CheckField(validators.NotBlankInt(user.DateOfBirth.Day()), "DateOfBirth", "This field cannot be blank")
-	hand.CheckField(validators.NotBlank(user.AboutMe), "AboutMe", "This field cannot be blank")
-	hand.CheckField(validators.MaxChars(user.AboutMe, 100), "AboutMe", "This field cannot be more than 100 characters long")
+	hand.Valid.CheckField(validators.NotBlank(user.FirstName), "FirstName", "This field cannot be blank")
+	hand.Valid.CheckField(validators.MaxChars(user.FirstName, 20), "FirstName", "This field cannot be more than 20 characters long")
+	hand.Valid.CheckField(validators.NotBlank(user.LastName), "LastName", "This field cannot be blank")
+	hand.Valid.CheckField(validators.MaxChars(user.LastName, 20), "LastName", "This field cannot be more than 20 characters long")
+	hand.Valid.CheckField(validators.NotBlank(user.Nickname), "Nickname", "This field cannot be blank")
+	hand.Valid.CheckField(validators.MaxChars(user.Nickname, 20), "Nickname", "This field cannot be more than 20 characters long")
+	hand.Valid.CheckField(validators.NotBlank(user.Email), "Email", "This field cannot be blank")
+	hand.Valid.CheckField(validators.Matches(user.Email, validators.EmailRX), "email", "This field must be a valid email address")
+	hand.Valid.CheckField(validators.NotBlank(user.Password), "Password", "This field cannot be blank")
+	hand.Valid.CheckField(validators.MinChars(user.Password, 8), "password", "This field must be at least 8 characters long")
+	hand.Valid.CheckField(validators.NotBlankInt(user.DateOfBirth.Day()), "DateOfBirth", "This field cannot be blank")
+	hand.Valid.CheckField(validators.NotBlank(user.AboutMe), "AboutMe", "This field cannot be blank")
+	hand.Valid.CheckField(validators.MaxChars(user.AboutMe, 100), "AboutMe", "This field cannot be more than 100 characters long")
 
-	if !hand.Valid() || exist {
-		
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	if !hand.Valid.Valid() || !exist {
+		hand.renderJSON(w, nil)
+		hand.Helpers.ClientError(w, http.StatusBadRequest)
 		return
 	}
 
-	err2 := hand.ConnDB.InsertUser(*user)
-	if err2 != nil {
-		if errors.Is(err2, errors.New("models: duplicate email")) {
-			fmt.Println("error")
+	err = hand.ConnDB.SetUser(user)
+	if err != nil {
+		if errors.Is(err, errors.New("models: duplicate email")) {
+			hand.Valid.AddFieldError("email", "This field already exits")
+			hand.renderJSON(w, nil)
+			return
 		} else {
-			w.WriteHeader(400)
+			hand.renderJSON(w, nil)
+			hand.Helpers.ClientError(w, 400)
 			return
 		}
-
-		return
 	}
-	fmt.Println("hello")
+
 	hand.renderJSON(w, user)
 
 }

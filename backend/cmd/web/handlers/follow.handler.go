@@ -1,30 +1,74 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 )
 
 func (hand *Handler) Follows(w http.ResponseWriter, r *http.Request) {
-
-	id, err := strconv.Atoi(r.URL.Query().Get("id"))
+	// Ici logique get user de la session
+	session, err := hand.ConnDB.GetSession(r)
 	if err != nil {
-		http.Error(w, "Invalid user ID", http.StatusBadRequest)
+		hand.Helpers.ServerError(w, err)
 		return
 	}
+
+	actualUser := session.UserId
+
 	switch r.Method {
 	case http.MethodPost:
-		action := r.URL.Query().Get("action")
+		err := r.ParseForm()
+		if err != nil {
+			fmt.Println("yooo")
+			hand.Helpers.ClientError(w, http.StatusMethodNotAllowed)
+			return
+		}
+
+		followedID, err := strconv.Atoi(r.PostForm.Get("id"))
+		if err != nil {
+			hand.Helpers.ServerError(w, err)
+			return
+		}
+
+		action := r.PostForm.Get("action")
+		fmt.Println(r.PostForm.Get("action"))
+		followed, err := hand.ConnDB.GetUser(followedID)
+		if err != nil {
+			hand.Helpers.ServerError(w, err)
+			return
+		}
+
 		switch action {
 		case "follow":
-			err = hand.ConnDB.SetFollower(6, id)
+			if followed.Private {
+				err = hand.ConnDB.SetFollower(actualUser, followedID, "pending")
+				if err != nil {
+					http.Error(w, "Cannot Set Follower", http.StatusBadRequest)
+					return
+				}
+			} else {
+				err = hand.ConnDB.SetFollower(actualUser, followedID, "follow")
+				if err != nil {
+					http.Error(w, "Cannot Set Follower", http.StatusBadRequest)
+					return
+				}
+			}
+		case "acceptRequest":
+			err = hand.ConnDB.SetFollower(followedID, actualUser, "follow")
 			if err != nil {
 				http.Error(w, "Cannot Set Follower", http.StatusBadRequest)
 				return
 			}
+		case "refuseRequest":
+			err = hand.ConnDB.SetFollower(followedID, actualUser, "unfollow")
+			if err != nil {
+				http.Error(w, "Cannot archive follower", http.StatusInternalServerError)
+				return
+			}
 
 		case "archive":
-			err = hand.ConnDB.ArchiveFollower(6, id)
+			err = hand.ConnDB.SetFollower(actualUser, followedID, "unfollow")
 			if err != nil {
 				http.Error(w, "Cannot archive follower", http.StatusInternalServerError)
 				return
@@ -39,7 +83,7 @@ func (hand *Handler) Follows(w http.ResponseWriter, r *http.Request) {
 		action := r.URL.Query().Get("action")
 		switch action {
 		case "followers":
-			followers, err := hand.ConnDB.GetFollowers(id)
+			followers, err := hand.ConnDB.GetFollowers(actualUser)
 
 			if err != nil {
 				hand.Helpers.ServerError(w, err)
@@ -48,7 +92,7 @@ func (hand *Handler) Follows(w http.ResponseWriter, r *http.Request) {
 
 			hand.renderJSON(w, followers)
 		case "following":
-			followed, err := hand.ConnDB.GetFollowing(id)
+			followed, err := hand.ConnDB.GetFollowing(actualUser)
 
 			if err != nil {
 				hand.Helpers.ServerError(w, err)
@@ -64,12 +108,5 @@ func (hand *Handler) Follows(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-
-	// followersIDs := make([]int, len(followers))
-	// followedIDs := make([]int, len(followers))
-	// for i, follower := range followers {
-	// 	followersIDs[i] = follower.Follower.Id
-	// 	followedIDs[i] = follower.Followed.Id
-	// }
 
 }

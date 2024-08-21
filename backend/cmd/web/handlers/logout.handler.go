@@ -2,21 +2,20 @@ package handlers
 
 import (
 	"net/http"
-	"social-network/cmd/web/middleware"
-	"social-network/cmd/web/sessionManager"
 )
 
 
 func (hand *Handler) UserLogoutPost(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
-		w.WriteHeader(405)
+	if r.Method != "GET" {
+		hand.Helpers.ClientError(w, http.StatusMethodNotAllowed)
 		return
 	}
-	session, ok := r.Context().Value(middleware.SessionKey).(*sessionManager.Session)
-	if !ok || session == nil {
+	session, err := hand.ConnDB.GetSession(r)
+	if err != nil {
+		hand.Helpers.ServerError(w, err)
 		return
 	}
-	hand.SessionManager.DeleteSession(session.Id)
+	hand.ConnDB.DeleteSession(session.Id)
 	cookie := http.Cookie{
 		Name:     "session",
 		Value:    "",

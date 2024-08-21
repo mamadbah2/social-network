@@ -1,8 +1,6 @@
 package validators
 
 import (
-	"database/sql"
-	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -11,52 +9,10 @@ import (
 	"unicode/utf8"
 )
 
-
-func (v *Validator) Valid() bool {
-	return len(v.FieldErrors) == 0 && len(v.NonFieldErrors) == 0
-}
-
-func (v *Validator) AddFieldError(key, message string) {
-	if v.FieldErrors == nil {
-		v.FieldErrors = make(map[string]string)
-	}
-	if _, exists := v.FieldErrors[key]; !exists {
-		v.FieldErrors[key] = message
-	}
-}
-func (v *Validator) AddNonFieldError(message string) {
-	v.NonFieldErrors = append(v.NonFieldErrors, message)
-}
-
-func (v *Validator) CheckField(ok bool, key, message string) {
-	if !ok {
-		v.AddFieldError(key, message)
-	}
-}
-
-func (v *Validator) CheckUsernameExists(username string) (bool, error) {
-	var exists bool
-	if v.DB == nil {
-		return false, fmt.Errorf("database connection is not initialized")
-	}
-	// Prepare a query to check if the username exists
-	stmt := `SELECT EXISTS(SELECT 1 FROM user WHERE nickname =? LIMIT 1)`
-	err := v.DB.QueryRow(stmt, username).Scan(&exists)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			// No rows were returned, which means the username does not exist
-			return false, nil
-		} else{
-			// An error occurred
-			return false, err
-		}
-	}
-	return exists, nil
-}
-
 func NotBlank(value string) bool {
 	return strings.TrimSpace(value) != ""
 }
+
 func NotBlankInt(value int) bool {
 	return value != 0
 }

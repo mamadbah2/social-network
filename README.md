@@ -1,7 +1,5 @@
 # social-network
 
-You will have a Facebook-like social network
-
 ## Table of Contents
 
 - [**Description**](#description)
@@ -14,8 +12,18 @@ You will have a Facebook-like social network
   - [File System](#file-system)
     - [backend/](#backend)
     - [frontend/](#frontend)
-  - [Running](#running)
 - [**Usage**](#usage)
+  - [Next.js](#nextjs)
+    - [Getting started](#getting-started)
+    - [Learn more](#learn-more)
+    - [Deploy on Vercel](#deploy-on-vercel)
+  - [Go](#go)
+  - [Docker Compose](#docker-compose)
+    - [Building and running your application](#building-and-running-your-application)
+    - [Deploying your application to the cloud](#deploying-your-application-to-the-cloud)
+    - [References](#references)
+- [**Blueprints**](#blueprints)
+  - [Models](#models)
   - [Register](#register)
   - [Login](#login)
   - [Profile](#profile)
@@ -46,8 +54,11 @@ Click on badges to get to the code...
 [![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)]()
 [![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)]()
 [![JAVASCRIPT](https://img.shields.io/badge/JavaScript-323330?style=for-the-badge&logo=javascript&logoColor=F7DF1E)]()
+[![TYPESCRIPT](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)]()  
+[![TAILWINDCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)]()
 [![REACT](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)]()
 [![NEXT.js](https://img.shields.io/badge/next%20js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)]()
+[![DOCKER](https://img.shields.io/badge/Docker-2CA5E0?style=for-the-badge&logo=docker&logoColor=white)]()
 
 ### Back-End
 
@@ -55,15 +66,23 @@ Click on badges to get to the code...
 
 [![GO](https://img.shields.io/badge/Go-00ADD8?style=for-the-badge&logo=go&logoColor=white)]()
 [![SQLITE](https://img.shields.io/badge/Sqlite-003B57?style=for-the-badge&logo=sqlite&logoColor=white)]()
+[![DOCKER](https://img.shields.io/badge/Docker-2CA5E0?style=for-the-badge&logo=docker&logoColor=white)]()
+
+### Development
+
+[![NPM](https://img.shields.io/badge/npm-CB3837?style=for-the-badge&logo=npm&logoColor=white)]()
+[![SHELL SCRIPT](https://img.shields.io/badge/Shell_Script-121011?style=for-the-badge&logo=gnu-bash&logoColor=white)]()
+[![GITHUB](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)]()
+
+### Office
+
+[![TRELLO](https://img.shields.io/badge/Trello-0052CC?style=for-the-badge&logo=trello&logoColor=white)]()
+[![FIGMA](https://img.shields.io/badge/Figma-F24E1E?style=for-the-badge&logo=figma&logoColor=white)]()
+[![WARP](https://img.shields.io/badge/warp-01A4FF?style=for-the-badge&logo=warp&logoColor=white)]()
 
 ### Others
 
-[![SHELL SCRIPT](https://img.shields.io/badge/Shell_Script-121011?style=for-the-badge&logo=gnu-bash&logoColor=white)]()
-[![WARP](https://img.shields.io/badge/warp-01A4FF?style=for-the-badge&logo=warp&logoColor=white)]()
 [![MARKDOWN](https://img.shields.io/badge/Markdown-000000?style=for-the-badge&logo=markdown&logoColor=white)](#table-of-contents)
-[![GITHUB](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)]()
-[![TRELLO](https://img.shields.io/badge/Trello-0052CC?style=for-the-badge&logo=trello&logoColor=white)]()
-[![MAC OS](https://img.shields.io/badge/mac%20os-000000?style=for-the-badge&logo=apple&logoColor=white)]()
 
 ###### [_Table of Content ⤴️_](#table-of-contents)
 
@@ -80,18 +99,15 @@ cd social-network
 
     |
     + -- backend/
-    |       |
-    |       + --- cmd/web/
-    |       |
-    |       + -- database/
-    |       |
-    |       + -- internal/
     |
-    + -- frontend/static/upload/
+    + -- frontend/
     |
     + -- .dockerignore
     + -- .gitignore
+    + -- audit.todo
     + -- docker-compose.yml
+    + -- gitify.sh
+    + -- LICENSE
     + -- Makefile
     + -- README.md
 
@@ -128,7 +144,7 @@ cd social-network
     |
     + -- database/
     |       |
-    |       + -- datas/
+    |       + -- data/
     |       |       + -- follows.data.sql
     |       |       + -- groups.data.sql
     |       |       + -- posts.data.sql
@@ -182,22 +198,129 @@ cd social-network
 #### frontend/
 
     |
-    + -- static/
+    + --- app/
+    |       + -- favicon.ico
+    |       + -- global.css
+    |       + -- layout.tsx
+    |       + -- page.tsx
+    |
+    + -- components/
+    |       + -- button.tsx
+    |
+    + -- public/
     |       |
     |       + -- upload/
-    |               + -- ...
+    |       |       + -- ...
+    |       |
+    |       + -- next.svg
+    |       + -- vercel.svg
     |
+    + -- .eslintrc.json
     + -- frontend.Dockerfile
-
-### Running
-
-```shell
-go run .
-```
+    + -- next.config.mjs
+    + -- package-lock.json
+    + -- package.json
+    + -- postcss.config.mjs
+    + -- tailwind.config.ts
+    + -- tsconfig.json
 
 ###### [_Table of Content ⤴️_](#table-of-contents)
 
 ## Usage
+
+### Next.js
+
+This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+
+#### Getting Started
+
+First, run the development server:
+
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+
+This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+
+#### Learn More
+
+To learn more about Next.js, take a look at the following resources:
+
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+
+#### Deploy on Vercel
+
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+
+### Go
+
+```shell
+cd backend
+go run ./cmd/web/.
+INFO	16:54:48.394607 server on http://localhost:4000
+```
+
+### Docker Compose
+
+#### Building and running your application
+
+When you're ready, start your application by running:
+
+```shell
+docker compose up --build
+```
+
+Your application will be available at http://localhost:3000.
+
+#### Deploying your application to the cloud
+
+First, build your image, e.g.:
+
+```shell
+docker build -t myapp .
+```
+
+If your cloud uses a different CPU architecture than your development
+machine (e.g., you are on a Mac M1 and your cloud provider is amd64),
+you'll want to build the image for that platform, e.g.:
+
+```shell
+docker build --platform=linux/amd64 -t myapp .
+```
+
+Then, push it to your registry, e.g.
+
+```shell
+docker push myregistry.com/myapp
+```
+
+Consult Docker's [getting started](https://docs.docker.com/go/get-started-sharing/)
+docs for more detail on building and pushing.
+
+#### References
+
+- [Docker's Node.js guide](https://docs.docker.com/language/nodejs/)
+
+###### [_Table of Content ⤴️_](#table-of-contents)
+
+## Blueprints
+
+### Models
 
 ```mermaid
 classDiagram
@@ -350,45 +473,17 @@ sequenceDiagram
 
 ### Profile
 
-```mermaid
-sequenceDiagram
-    Participant Client
-    Participant Server
-    Participant Database
-```
-
 <hr style="background: #111">
 
 ### Post
-
-```mermaid
-sequenceDiagram
-    Participant Client
-    Participant Server
-    Participant Database
-```
 
 <hr style="background: #111">
 
 ### Comment
 
-```mermaid
-sequenceDiagram
-    Participant Client
-    Participant Server
-    Participant Database
-```
-
 <hr style="background: #111">
 
 ### Reaction
-
-```mermaid
-sequenceDiagram
-    Participant Client
-    Participant Server
-    Participant Database
-```
 
 <hr style="background: #111">
 
@@ -397,41 +492,37 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     Participant Sender
-    Participant Receiver
     Participant Server
     Participant Database
+    Participant Receiver
 
-    par Sender Connection
-        Sender ->> Server: HTTP Request (Upgrade: websocket)
-        Server ->> Server: upgrader.Upgrade(w, r, nil)
-        Server -->> Sender: HTTP Response(101 Switching Protocols)
-        Sender ->> Sender: socket.onopen
-        Server -->> Server: map[conn] = ""
-    and Receiver Connection
-        Receiver ->> Server: HTTP Request (Upgrade: websocket)
-        Server ->> Server: upgrader.Upgrade(w, r, nil)
-        Server -->> Receiver: HTTP Response(101 Switching Protocols)
-        Receiver ->> Receiver: socket.onopen
-        Server -->> Server: map[conn] = ""
-    end
+    Sender ->> Server: r == HTTP Request { Upgrade: websocket }
+    Server ->> Server: ConnDb.GetSession(r) ---> id_sender
+    Server ->> Server: r.URL.Query().Get("id") ---> id_receiver
+    Server ->> Server: upgrader.Upgrade(w, r, nil) ---> conn_sender
+    Server -->> Sender: HTTP Response(101 Switching Protocols)
+    Sender ->> Sender: socket.onopen
+    Server ->> Server: chatbox[id_sender] = conn_sender
+
+    Server ->> Database: ConnDB.Get(...)
+    Database ->> Database: SELECT * FROM messages...
+    Database -->> Server: old_messages <--- *sql.Rows
+    Server ->> Sender: conn_sender.WriteJSON(old_messages)
 
     loop Sending...
         Note left of Sender: INPUT
         Sender ->> Sender: button.onclick
-        Sender ->> Server: socket.send()
-       Server ->> Server: conn.ReadJSON(&msg)
-        Server ->> Server: map[conn] = msg.Sender
-        Server ->> Database: INSERT INTO messages
-        Database -->> Server: Stored
-        Server ->> Receiver: conn.WriteJSON(msg)
-       Receiver ->> Receiver: socket.onmessage
-        Note right of Receiver: OUPTPUT
-    end
-
-    loop Receiving...
-        Receiver ->> Server: Seen
-        Server ->> Database: UPDATE messages SET seen = TRUE
-        Database -->> Server: UPDATED
+        Sender ->> Server: socket.send() ---> new_message
+        Server ->> Server: conn_sender.ReadJSON(&new_message)
+        Server ->> Database: ConnDB.Set(new_message)
+        Database ->> Database: INSERT INTO messages...
+        Database -->> Server: sql.Result
+        Server ->> Server: chatbox[id_receiver] exists ?
+        opt true
+            Server ->> Receiver: conn_receiver.WriteJSON(new_message)
+            Receiver ->> Receiver: socket.onmessage
+            Note right of Receiver: OUPTPUT
+        end
     end
 ```
 
@@ -439,23 +530,9 @@ sequenceDiagram
 
 ### Follow
 
-```mermaid
-sequenceDiagram
-    Participant Client
-    Participant Server
-    Participant Database
-```
-
 <hr style="background: #111">
 
 ### Group
-
-```mermaid
-sequenceDiagram
-    Participant Client
-    Participant Server
-    Participant Database
-```
 
 ###### [_Table of Content ⤴️_](#table-of-contents)
 
@@ -463,28 +540,29 @@ sequenceDiagram
 
 ### Contributors
 
-[![muciss](https://img.shields.io/badge/Zone01-muciss-blue)]()
-[![cnzale](https://img.shields.io/badge/Zone01-cnzale-blue)]()
-[![mamadbah2](https://img.shields.io/badge/Zone01-mamadbah2-blue)]()
-[![belhadjs](https://img.shields.io/badge/Zone01-belhadjs-blue)]()
-[![adiane](https://img.shields.io/badge/Zone01-adiane-blue)]()
-[![jefaye](https://img.shields.io/badge/Zone01-jefaye-blue)]()
+[![muciss](https://img.shields.io/badge/Zone01-muciss-yellow)](http://learn.zone01dakar.sn/git/muciss)
+[![cnzale](https://img.shields.io/badge/Zone01-cnzale-yellow)](http://learn.zone01dakar.sn/git/cnzale)
+[![mamadbah2](https://img.shields.io/badge/Zone01-mamadbah2-yellow)](http://learn.zone01dakar.sn/git/mamadbah2)
+[![belhadjs](https://img.shields.io/badge/Zone01-belhadjs-yellow)](http://learn.zone01dakar.sn/git/belhadjs)
+[![adiane](https://img.shields.io/badge/Zone01-adiane-yellow)](http://learn.zone01dakar.sn/git/adiane)
+[![jefaye](https://img.shields.io/badge/Zone01-jefaye-yellow)](http://learn.zone01dakar.sn/git/jefaye)
 
 ### Peers
 
-[![](https://img.shields.io/badge/Zone01-blue)]()
+[![](https://img.shields.io/badge/Zone01-blue)](http://learn.zone01dakar.sn/git/)
 
 ### Testers
 
-[![](https://img.shields.io/badge/Zone01-blue)]()
+[![mandaw](https://img.shields.io/badge/Zone01-mandaw-red)](http://learn.zone01dakar.sn/git/mandaw)
+[![bindoye](https://img.shields.io/badge/Zone01-bindoye-red)](http://learn.zone01dakar.sn/git/bindoye)
 
 ### Auditors
 
-[![](https://img.shields.io/badge/Zone01-blue)]()
-[![](https://img.shields.io/badge/Zone01-blue)]()
-[![](https://img.shields.io/badge/Zone01-blue)]()
-[![](https://img.shields.io/badge/Zone01-blue)]()
-[![](https://img.shields.io/badge/Zone01-blue)]()
+[![](https://img.shields.io/badge/Zone01-green)](http://learn.zone01dakar.sn/git/)
+[![](https://img.shields.io/badge/Zone01-green)](http://learn.zone01dakar.sn/git/)
+[![](https://img.shields.io/badge/Zone01-green)](http://learn.zone01dakar.sn/git/)
+[![](https://img.shields.io/badge/Zone01-green)](http://learn.zone01dakar.sn/git/)
+[![](https://img.shields.io/badge/Zone01-green)](http://learn.zone01dakar.sn/git/)
 
 ###### [_Table of Content ⤴️_](#table-of-contents)
 

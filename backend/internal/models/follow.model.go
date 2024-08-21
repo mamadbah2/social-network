@@ -11,12 +11,12 @@ type Follow struct {
 	Id       int
 	Followed *User
 	Follower *User
-	Archived bool
+	State    string
 }
 
 var ErrSelfFollow = errors.New("un utilisateur ne peut pas se suivre lui-même")
 
-func (m *ConnDB) SetFollower(followerID, followedID int) error {
+func (m *ConnDB) SetFollower(followerID, followedID int, state string) error {
 	if followerID == followedID {
 		return ErrSelfFollow
 	}
@@ -29,12 +29,11 @@ func (m *ConnDB) SetFollower(followerID, followedID int) error {
 	err := m.DB.QueryRow(query, followerID, followedID).Scan(&followID)
 
 	if err == nil {
-		updateQuery := `
-					UPDATE follows
-					SET archived = FALSE
+		updateQuery := `UPDATE follows
+					SET state = ?
 					WHERE id = ?
 			`
-		_, err = m.DB.Exec(updateQuery, followID)
+		_, err = m.DB.Exec(updateQuery, state, followID)
 		if err != nil {
 			return fmt.Errorf("error reactivating follow: %w", err)
 		}
@@ -44,10 +43,10 @@ func (m *ConnDB) SetFollower(followerID, followedID int) error {
 	}
 
 	insertQuery := `
-			INSERT INTO follows (id_follower, id_followed, created_at, archived)
-			VALUES (?, ?, CURRENT_TIMESTAMP, FALSE)
+			INSERT INTO follows (id_follower, id_followed, created_at, state)
+			VALUES (?, ?, CURRENT_TIMESTAMP, ?)
 	`
-	_, err = m.DB.Exec(insertQuery, followerID, followedID)
+	_, err = m.DB.Exec(insertQuery, followerID, followedID, state)
 	if err != nil {
 		return fmt.Errorf("error creating new follow: %w", err)
 	}
@@ -56,13 +55,13 @@ func (m *ConnDB) SetFollower(followerID, followedID int) error {
 
 func (m *ConnDB) GetFollowers(userID int) ([]*Follow, error) {
 	query := `
-	SELECT f.id, f.archived, u.*
+	SELECT f.id, u.*
 	FROM users u
 	JOIN follows f ON u.id = f.id_follower
-	WHERE f.id_followed = ? AND f.archived = FALSE
+	WHERE f.id_followed = ? AND f.state = ?
 `
 
-	rows, err := m.DB.Query(query, userID)
+	rows, err := m.DB.Query(query, userID, "follow")
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +75,7 @@ func (m *ConnDB) GetFollowers(userID int) ([]*Follow, error) {
 		}
 		var dateOfBirthFollowerStr string
 		err := rows.Scan(
-			&f.Id, &f.Archived, &f.Follower.Id, &f.Follower.Email, &f.Follower.Password, &f.Follower.FirstName, &f.Follower.LastName, &dateOfBirthFollowerStr, &f.Follower.ProfilePicture, &f.Follower.Nickname, &f.Follower.AboutMe, &f.Follower.Private, &f.Follower.CreatedAt)
+			&f.Id, &f.Follower.Id, &f.Follower.Email, &f.Follower.Password, &f.Follower.FirstName, &f.Follower.LastName, &dateOfBirthFollowerStr, &f.Follower.ProfilePicture, &f.Follower.Nickname, &f.Follower.AboutMe, &f.Follower.Private, &f.Follower.CreatedAt)
 		if err != nil {
 			return nil, err
 		}
@@ -91,13 +90,13 @@ func (m *ConnDB) GetFollowers(userID int) ([]*Follow, error) {
 
 func (m *ConnDB) GetFollowing(userID int) ([]*Follow, error) {
 	query := `
-	SELECT f.id, f.archived, u.*
+	SELECT f.id, u.*
 	FROM users u
 	JOIN follows f ON u.id = f.id_followed
-	WHERE f.id_follower = ? AND f.archived = FALSE
+	WHERE f.id_follower = ? AND f.state = ?
 `
 
-	rows, err := m.DB.Query(query, userID)
+	rows, err := m.DB.Query(query, userID, "follow")
 	if err != nil {
 		return nil, err
 	}
@@ -109,36 +108,36 @@ func (m *ConnDB) GetFollowing(userID int) ([]*Follow, error) {
 		f := &Follow{
 			Followed: &User{},
 		}
-		var dateOfBirthFollowedStr string
 		err := rows.Scan(
-			&f.Id, &f.Archived, &f.Followed.Id, &f.Followed.Email, &f.Followed.Password, &f.Followed.FirstName, &f.Followed.LastName, &dateOfBirthFollowedStr, &f.Followed.ProfilePicture, &f.Followed.Nickname, &f.Followed.AboutMe, &f.Followed.Private, &f.Followed.CreatedAt)
+			&f.Id, &f.Followed.Id, &f.Followed.Email, &f.Followed.Password, &f.Followed.FirstName, &f.Followed.LastName, &f.Followed.DateOfBirth, &f.Followed.ProfilePicture, &f.Followed.Nickname, &f.Followed.AboutMe, &f.Followed.Private, &f.Followed.CreatedAt,
+		)
 		if err != nil {
 			return nil, err
 		}
-		f.Followed.DateOfBirth, err = time.Parse("2006-01-02", dateOfBirthFollowedStr)
+		/* f.Followed.DateOfBirth, err = time.Parse("2006-01-02", dateOfBirthFollowedStr)
 		if err != nil {
 			return nil, err
-		}
+		} */
 		Followed = append(Followed, f)
 	}
 	return Followed, nil
 }
 
-func (m *ConnDB) ArchiveFollower(followerID, followedID int) error {
-	if followerID == followedID {
-		return ErrSelfFollow
-	}
-	query := `
-		UPDATE follows
-		SET archived = TRUE
-		WHERE id_follower = ? AND id_followed = ?
-	`
-	_, err := m.DB.Exec(query, followerID, followedID)
-	if err != nil {
-		// Affichage de l'erreur pour le débogage
-		return fmt.Errorf("error executing query: %w", err)
+// func (m *ConnDB) ArchiveFollower(followerID, followedID int) error {
+// 	if followerID == followedID {
+// 		return ErrSelfFollow
+// 	}
+// 	query := `
+// 		UPDATE follows
+// 		SET state = unfollow
+// 		WHERE id_follower = ? AND id_followed = ?
+// 	`
+// 	_, err := m.DB.Exec(query, followerID, followedID)
+// 	if err != nil {
+// 		// Affichage de l'erreur pour le débogage
+// 		return fmt.Errorf("error executing query: %w", err)
 
-	}
-	fmt.Println("Successfully archive")
-	return nil
-}
+// 	}
+// 	fmt.Println("Successfully archive")
+// 	return nil
+// }

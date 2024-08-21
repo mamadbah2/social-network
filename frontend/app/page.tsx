@@ -1,14 +1,14 @@
-// import {} from "@/components/button"
-import { NavBar } from "@/components/NavBar";
-import { MiddleContainer } from "@/components/middleContainer";
-import { ThirdContainer } from "@/components/thirdContainer";
+import NavigationBar from "@/components/NavigationBar";
+import SideBarList from "@/components/SideBarList";
+import PostCard from "@/components/SocialMediaPost";
+import SocialMediaLayout from "./socialMediaLayout";
 
 export default function Home() {
   return (
-    <div className="flex justify-center items-center w-full h-screen">
-      <NavBar />
-      <MiddleContainer />
-      <ThirdContainer />
-    </div>
+    <SocialMediaLayout
+      header={<NavigationBar />}
+      aside={<SideBarList />}
+      section={<PostCard />}
+    />
   );
 }

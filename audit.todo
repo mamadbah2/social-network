@@ -21,7 +21,7 @@ Database:
 ✔ Is that migration file system well organized? (like the example from the subject) @done(24-07-31 13:17)
 
 Start the social network application, then enter the database using the command "sqlite3 <database_name.db>".
-☐ Are the migrations being applied by the migration system?
+! Are the migrations being applied by the migration system? @blocked(24-08-10 11:59)
 
 Authentication:
 
