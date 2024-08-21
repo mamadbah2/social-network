@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import SecurityLayout from "../securelayout"
-import React from "react"
+import React from 'react'
 import usePostData from "@/lib/hooks/usepost"
 import useGetData from "@/lib/hooks/useget"
 
