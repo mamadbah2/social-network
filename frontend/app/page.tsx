@@ -1,6 +1,15 @@
+'use client'
+import useGetData from "@/lib/hooks/useget";
 import Image from "next/image";
+import { useEffect } from "react";
 
 export default function Home() {
+
+  const {data} = useGetData('/posts')
+  useEffect(()=>{
+    console.log('data :>> ', data);
+  }, [])
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
       <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">

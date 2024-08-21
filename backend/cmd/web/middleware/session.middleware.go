@@ -13,7 +13,6 @@ const SessionKey contextKey = "session"
 func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
 		session, err := m.ConnDB.GetSession(r)
 		if err != nil || session == nil {
 			http.Redirect(w, r, "/login", http.StatusSeeOther)
@@ -42,7 +41,7 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 
 		// session.Expired_at = time.Now().Add(30 * time.Minute)
 		// session.Cookie.Expires = time.Now().Add(30 * time.Minute
-		
+
 		next.ServeHTTP(w, r)
 	})
 }
