@@ -31,9 +31,9 @@ export function convertFormat(formData: FormData) {
 
 // Ceci fonctionne comme un useState hook
 const usePostData = () => {
-    const [isLoading, setIsLoading] = useState(false)
-    const [error, setError] = useState(null)
-    const [data, setData] = useState(null)
+    const [isLoad, setIsLoading] = useState(false)
+    const [err, setError] = useState(null)
+    const [resp, setData] = useState(null)
 
     const post = async (url: string, data: FormData, enctyped=false) => {
         setIsLoading(true)
@@ -48,7 +48,7 @@ const usePostData = () => {
         }
     }
 
-    return { data, error, isLoading, post }
+    return { resp, err, isLoad, post }
 }
 
 export default usePostData;
