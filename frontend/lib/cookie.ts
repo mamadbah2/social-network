@@ -7,7 +7,7 @@ export const getSessionToken = (): string | undefined => {
 
 // Fonction pour définir le token de session
 export const setSessionToken = (token: string): void => {
-  Cookies.set("session", token, { expires: 7 });
+  Cookies.set("session", token, { expires: 7, domain:"localhost", sameSite:"None", secure:true });
 };
 
 // Fonction pour supprimer le token de session

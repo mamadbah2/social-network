@@ -18,14 +18,13 @@ export default function Register() {
     const [aboutMe, setAboutMe] = useState('')
     const [file, setFile] = useState(undefined)
     const [privacy, setPrivacy] = useState('')
-    const { resp, err, isLoad, post } = usePostData()
-
+    
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        await post('/register', new FormData(e.currentTarget), true)
+        const [resp, err] = await usePostData('/register', new FormData(e.currentTarget), true)
         console.log('data :>> ', resp);
         console.log('error :>> ', err);
-        console.log('isLoading :>> ', isLoad);
+        // console.log('isLoading :>> ', isLoad);
     }
 
     return <SecurityLayout>
