@@ -1,5 +1,4 @@
 "use client";
-
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function SocialMediaLayout({
@@ -12,13 +11,13 @@ export default function SocialMediaLayout({
   section: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-2 bg-muted w-full h-screen px-5">
+    <div className="flex flex-col gap-2 bg-muted w-full h-screen p-5">
       <header>{header}</header>
-      <main className="flex">
+      <main className="flex h-full">
         <aside className="bg-background h-full">{aside}</aside>
-        <section className="flex-1 bg-muted">
-          <ScrollArea className="max-h-max">{section}</ScrollArea>
-        </section>
+        <ScrollArea className="h-full w-full">
+          <section className="flex-1 w-full bg-muted">{section}</section>
+        </ScrollArea>
       </main>
     </div>
   );

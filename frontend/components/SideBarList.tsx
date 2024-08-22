@@ -11,7 +11,7 @@ import { PlusIcon } from "lucide-react";
 
 export default function SideBarList() {
   return (
-    <div className="flex flex-1 overflow-hidden border border-black rounded-lg h-full">
+    <div className="flex flex-1 overflow-hidden border rounded-lg h-full">
       <aside className="w-64">
         <ScrollArea className="h-full">
           <Accordion type="multiple" className="w-full">

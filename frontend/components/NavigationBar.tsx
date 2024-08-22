@@ -1,44 +1,72 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import {
-  BellIcon,
-  HomeIcon,
-  MessageCircleIcon,
-  PlusIcon,
-  UsersIcon,
-} from "lucide-react";
-
+import { PlusIcon } from "lucide-react";
+import Image from "next/image";
 export default function NavigationBar() {
   return (
     <nav className="flex items-center justify-between px-4 py-2 bg-background border rounded-lg">
-      <div className="flex items-center space-x-2">
-        <Button
-          variant="secondary"
-          className="bg-secondary text-secondary-foreground"
-        >
+      <div className="flex items-center space-x-2 ">
+        <Button className="bg-[#292929] text-white">
           <PlusIcon className="h-4 w-4 mr-2" />
           Create Post
         </Button>
       </div>
-      <div className="flex items-center space-x-6">
+
+      <div className="flex items-center justify-center w-60 space-x-10">
         <Button variant="ghost" className="text-muted-foreground" size="icon">
-          <HomeIcon className="h-6 w-6" />
+          <Image
+            src="home.svg"
+            width={25}
+            height={25}
+            alt="home icon"
+            className="h-6 w-6"
+          />
         </Button>
         <Button variant="ghost" className="text-muted-foreground" size="icon">
-          <UsersIcon className="h-6 w-6" />
+          <Image
+            src="group.svg"
+            width={25}
+            height={25}
+            alt="group icon"
+            className="h-6 w-6"
+          />
         </Button>
-        <Button variant="ghost" className="text-primary" size="icon">
-          <MessageCircleIcon className="h-6 w-6" />
+      </div>
+
+      <div className="flex items-center justify-end space-x-4">
+        <Button variant="ghost" className="text-muted-foreground" size="icon">
+          <Image
+            src="chat.svg"
+            width={25}
+            height={25}
+            alt="group icon"
+            className="h-6 w-6"
+          />
         </Button>
         <Button variant="ghost" className="text-muted-foreground" size="icon">
-          <BellIcon className="h-6 w-6" />
+          <Image
+            src="notification.svg"
+            width={25}
+            height={25}
+            alt="group icon"
+            className="h-6 w-6"
+          />
+        </Button>
+        <Button variant="ghost" className="text-muted-foreground" size="icon">
+          <Image
+            src="logout.svg"
+            width={25}
+            height={25}
+            alt="group icon"
+            className="h-6 w-6"
+          />
         </Button>
         <Avatar className="h-8 w-8">
           <AvatarImage
             src="/placeholder.svg?height=32&width=32"
             alt="User avatar"
           />
-          <AvatarFallback>U</AvatarFallback>
+          <AvatarFallback>CN</AvatarFallback>
         </Avatar>
       </div>
     </nav>
