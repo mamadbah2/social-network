@@ -11,6 +11,12 @@ log() {
     sleep 1
 }
 
+check_remotes() {
+    log "\nChecking remotes..."
+
+    git remote -
+}
+
 # Checks if there is already a username and email in configuration...
 # If no username or email if found, it will config it...
 check_credentials() {

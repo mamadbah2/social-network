@@ -199,13 +199,38 @@ cd social-network
 
     |
     + --- app/
+    |       |
+    |       + -- login/
+    |       |       |
+    |       |       + -- page.tsx
+    |       |
+    |       + -- register/
+    |       |       |
+    |       |       + -- page.tsx
+    |       |
     |       + -- favicon.ico
     |       + -- global.css
     |       + -- layout.tsx
     |       + -- page.tsx
+    |       + -- securelayout.tsx
     |
     + -- components/
-    |       + -- button.tsx
+    |       |
+    |       + --- ui/
+    |               + -- button.tsx
+    |               + -- checkbox.tsx
+    |               + -- checker.tsx
+    |               + -- input.tsx
+    |               + -- textarea.tsx
+    |
+    + --- lib/
+    |       |
+    |       + -- hooks/
+    |       |       + -- useget.ts
+    |       |       + -- usepost.ts
+    |       |
+    |       + -- cookie.ts
+    |       + -- utils.ts
     |
     + -- public/
     |       |
@@ -216,6 +241,8 @@ cd social-network
     |       + -- vercel.svg
     |
     + -- .eslintrc.json
+    + -- .gitignore
+    + -- components.json
     + -- frontend.Dockerfile
     + -- next.config.mjs
     + -- package-lock.json
