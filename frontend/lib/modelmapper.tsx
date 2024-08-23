@@ -1,11 +1,13 @@
+import { Post } from "@/models/post.model";
 import { User } from "@/models/user.model";
+import { Group } from "@/models/group.model";
 
-export function mapUser(data: any):User[] {
+export function mapUser(data: any): User[] {
     if (!data) {
         return []
     }
 
-    return data.map((u: any):User => ({
+    return data.map((u: any): User => ({
         id: u.Id,
         email: u.Email,
         firstname: u.FirstName,
@@ -17,4 +19,38 @@ export function mapUser(data: any):User[] {
     }))
 
     // return som
+}
+
+export function mapPost(data: any): Post[] {
+    if (!data) {
+        return [];
+    }
+
+
+    return data.map((p: any): Post => ({
+        id: p.Id,
+        title: p.Title,
+        content: p.Content,
+        createdAt: new Date(p.CreatedAt),
+        privacy: p.Privacy,
+        liked: p.Liked,
+        disliked: p.Disliked,
+        numberLike: p.NumberLike,
+        numberDislike: p.NumberDislike,
+        numberComment: p.NumberComment,
+    }));
+}
+
+export function mapGroup(data: any): Group[] {
+    if (!data) {
+        return [];
+    }
+
+
+    return data.map((g: any): Group => ({
+        id: g.Id,
+        name : g.Name,
+        description : g.Description,
+        createdAt: g.CreatedAt,
+    }));
 }
