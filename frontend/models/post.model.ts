@@ -11,6 +11,6 @@ export interface Post {
     numberLike: number;
     numberDislike: number;
     numberComment: number;
-    author?: User// Optional array of comments
-    viewers?: User[];      // Optional array of viewers
+    author ?: User// Optional array of comments
+    viewers ?: User[];      // Optional array of viewers
 }

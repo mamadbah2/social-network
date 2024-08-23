@@ -7,6 +7,6 @@ export default function Home() {
   
 
   return <div>
-    <SideBarList />
+      <SideBarList />
     </div>
 }
