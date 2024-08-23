@@ -74,7 +74,7 @@ const GroupBarComponent: React.FC = () => {
           <PlusIcon className="w-4 h-4" />
           <span>Create Event</span>
         </Button>
-        <Button variant="outline">Joined</Button>
+        <Button variant="outline">JOIN</Button>
       </div>
     </div>
   );
