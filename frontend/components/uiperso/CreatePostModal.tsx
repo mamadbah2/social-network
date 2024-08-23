@@ -1,3 +1,4 @@
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -7,6 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import Image from "next/image";
 
 import { FormEvent, useState } from "react";
 
@@ -18,6 +20,7 @@ interface PostModalProps {
     content: string;
     privacy: string;
     extraPrivacy?: string;
+    selectedUsers?: string[];
   }) => void;
 }
 
@@ -26,8 +29,11 @@ export default function CreatePostModal({
   onClose,
   onSubmit,
 }: PostModalProps) {
-  const [privacy, setPrivacy] = useState("");
+  const [privacy, setPrivacy] = useState<string>("");
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+  const [search, setSearch] = useState<string>("");
+
+  const allUsers = ["Safiatou Doumbia", "John Doe", "Jane Smith"]; // Sample list of users
 
   if (!isOpen) return null;
 
@@ -37,17 +43,28 @@ export default function CreatePostModal({
     const data: any = {
       title: formData.get("title") as string,
       content: formData.get("content") as string,
-      privacy: privacy,
+      privacy,
     };
 
-    // If "Almost Private" is selected, include the extra field
+    // If "Almost Private" is selected, include the selected users
     if (privacy === "almost private") {
       data.selectedUsers = selectedUsers;
     }
 
-    console.log("Form Data:", data); // Log the data to the console
+    console.log("Form Data:", data);
     onSubmit(data);
     onClose();
+  };
+
+  const handleAddUser = (user: string) => {
+    if (!selectedUsers.includes(user)) {
+      setSelectedUsers([...selectedUsers, user]);
+    }
+    setSearch(""); // Clear the search field after adding a user
+  };
+
+  const handleRemoveUser = (user: string) => {
+    setSelectedUsers(selectedUsers.filter((u) => u !== user));
   };
 
   return (
@@ -97,14 +114,70 @@ export default function CreatePostModal({
             </Select>
           </div>
 
-          {/* Conditionally render additional input if "Almost Private" is selected */}
+          {/* Conditionally render user selection input if "Almost Private" is selected */}
           {privacy === "almost private" && (
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700">
                 Specify users
               </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  placeholder="Search users"
+                />
+                {search && (
+                  <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg">
+                    {allUsers
+                      .filter((user) =>
+                        user.toLowerCase().includes(search.toLowerCase())
+                      )
+                      .map((user) => (
+                        <div
+                          key={user}
+                          onClick={() => handleAddUser(user)}
+                          className="cursor-pointer p-2 hover:bg-gray-100"
+                        >
+                          {user}
+                        </div>
+                      ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="mt-2 flex flex-wrap">
+                {selectedUsers.map((user) => (
+                  <div
+                    key={user}
+                    className="flex items-center bg-gray-200 text-sm font-medium text-[#292929] p-1 m-1 rounded"
+                  >
+                    <span>{user}</span>
+                    <button
+                      onClick={() => handleRemoveUser(user)}
+                      className="ml-2 text-sm text-gray-600 hover:text-gray-800"
+                    >
+                      <Image
+                        src="cancel.svg"
+                        width={18}
+                        height={18}
+                        alt="cancel icon"
+                        className=""
+                      />
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
+
+          <div className="mb-4">
+            <label className="block text-sm mb-2 font-medium text-gray-700">
+              Image
+            </label>
+            <Input type="file" />
+          </div>
 
           <div className="flex justify-end">
             <button

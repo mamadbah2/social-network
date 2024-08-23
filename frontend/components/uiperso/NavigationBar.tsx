@@ -1,10 +1,10 @@
 "use client";
-import CreatePostModal from "@/components/CreatePostModal";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import CreatePostModal from "@/components/uiperso/CreatePostModal";
 import usePostData from "@/lib/hooks/usepost";
-import { PlusIcon } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
 
 export default function NavigationBar() {
@@ -49,35 +49,45 @@ export default function NavigationBar() {
         onClose={handleCreatePostModalClose}
         onSubmit={handlePostFormSubmit}
       />
-      <div className="flex items-center space-x-2 ">
+      <div className="flex items-center space-x-4 ">
         <Button
-          className="bg-[#292929] text-white"
+          className="bg-[#292929] text-white space-x-4"
           onClick={handleCreatePostModalOpen}
         >
-          <PlusIcon className="h-4 w-4 mr-2" />
+          <Image
+            src="add.svg"
+            width={25}
+            height={25}
+            alt="home icon"
+            className="h-6 w-6 mx-2"
+          />
           Create Post
         </Button>
       </div>
 
       <div className="flex items-center justify-end w-96  space-x-16">
-        <Button variant="ghost" className="text-muted-foreground" size="icon">
-          <Image
-            src="home.svg"
-            width={25}
-            height={25}
-            alt="home icon"
-            className="h-6 w-6"
-          />
-        </Button>
-        <Button variant="ghost" className="text-muted-foreground" size="icon">
-          <Image
-            src="group.svg"
-            width={25}
-            height={25}
-            alt="group icon"
-            className="h-6 w-6"
-          />
-        </Button>
+        <Link href={"/"}>
+          <Button variant="ghost" className="text-muted-foreground" size="icon">
+            <Image
+              src="home.svg"
+              width={25}
+              height={25}
+              alt="home icon"
+              className="h-6 w-6"
+            />
+          </Button>
+        </Link>
+        <Link href={"/groups"}>
+          <Button variant="ghost" className="text-muted-foreground" size="icon">
+            <Image
+              src="group.svg"
+              width={25}
+              height={25}
+              alt="group icon"
+              className="h-6 w-6"
+            />
+          </Button>
+        </Link>
       </div>
 
       <div className="flex items-center justify-end  space-x-4">

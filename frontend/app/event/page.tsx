@@ -1,6 +1,6 @@
 "use client";
-import EventModal from "@/components/EventModal";
-import GroupModal from "@/components/GroupModal";
+import EventModal from "@/components/uiperso/EventModal";
+import GroupModal from "@/components/uiperso/GroupModal";
 import { useState } from "react";
 
 export default function Home() {
