@@ -5,9 +5,14 @@
     "typescript": "^5.5.4"
   },
   "dependencies": {
+<<<<<<< Updated upstream
     "@radix-ui/react-checkbox": "^1.1.1",
     "@radix-ui/react-slot": "^1.1.0",
     "next": "^14.2.5",
     "swr": "^2.2.5"
+=======
+    "js-cookie": "^3.0.5",
+    "next": "^14.2.5"
+>>>>>>> Stashed changes
   }
 }
