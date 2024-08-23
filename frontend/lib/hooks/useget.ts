@@ -1,7 +1,4 @@
-import { resp } from "@/models/resp.model"
-import { User } from "@/models/user.model"
 import useSWR from "swr"
-import { mapUser } from "../modelmapper"
 
 const fetcher = async (url: string): Promise<any> => {
 

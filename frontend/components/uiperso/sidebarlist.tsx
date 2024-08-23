@@ -10,44 +10,52 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import useGetData from "@/lib/hooks/useget";
-import { mapUser } from "@/lib/modelmapper";
+import { mapGroup, mapPost, mapUser } from "@/lib/modelmapper";
+import { paginateTable } from "@/lib/utils";
+import { Group } from "@/models/group.model";
+import { Item } from "@/models/item.model";
+import { Post } from "@/models/post.model";
 import { User } from "@/models/user.model";
 import { PlusIcon } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
 // Voir si possible accordeon de maintenir...
-let prev = 0, suiv = 4
+let prevUser = 0, prevGroup = 0;
+let suivUser = 4, suivGroup = 4;
+let step = 4
 
 export default function SideBarList() {
-    const { expect:data, error } = useGetData<User[]>('/users', mapUser)
-    // const { datas } = useGetData('/groups')
-    // const [Users, setUsers] = React.useState<any>()
+    const { expect: users, error: errUser } = useGetData<User[]>('/users', mapUser)
+    const { expect: groups, error: errGroup } = useGetData<Group[]>('/groups', mapGroup)
+
     const [ItemUser, setItemUser] = React.useState<Item[]>([])
-    // useEffect(() => {
-    //     setUsers(data)
-    // }, [data])
+    const [ItemGroup, setItemGroup] = React.useState<Item[]>([])
 
     const handlePaginate = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault()
         console.log(e.currentTarget.id)
-        let currentUsers: Array<User> = data.slice(prev, suiv)
-        if (suiv <= data.length) {
-            prev = prev + 4
-            suiv = suiv + 4
-        } else {
-            suiv = 4; prev = 0;
+        switch (e.currentTarget.id) {
+            case "friendBtn":
+                // La logique à optimiser
+                setItemUser(paginateTable(users, prevUser, suivUser))
+                if (suivUser <= users.length) {
+                    prevUser = prevUser + step; suivUser = suivUser + step
+                } else { 
+                    suivUser = 4; prevUser = 0; 
+                }
+                break;
+            case "groupBtn":
+                setItemGroup(paginateTable(groups, prevGroup, suivGroup))
+                if (suivGroup <= groups.length) {
+                    prevGroup = prevGroup + step; suivGroup = suivGroup + step
+                } else { 
+                    suivGroup = 4; prevGroup = 0; 
+                }
+                break;
+            default:
+                break;
         }
 
-        setItemUser(
-            currentUsers.map((u) => {
-                return {
-                    name: u.firstname,
-                    image: "",
-                }
-            })
-        )
-
-        Array.isArray(data)
     }
 
 
@@ -74,27 +82,10 @@ export default function SideBarList() {
                             </AccordionTrigger>
                             <AccordionContent>
                                 <SidebarList
-                                    items={[
-                                        {
-                                            name: "Call of duty",
-                                            image: "/placeholder.svg?height=40&width=40",
-                                        },
-                                        {
-                                            name: "bahahah",
-                                            image: "/placeholder.svg?height=40&width=40",
-                                        },
-                                        {
-                                            name: "bahahah",
-                                            image: "/placeholder.svg?height=40&width=40",
-                                        },
-                                        {
-                                            name: "bahahah",
-                                            image: "/placeholder.svg?height=40&width=40",
-                                        },
-                                    ]}
+                                    items={ItemGroup}
                                     showAddButton
                                 />
-                                <Button className="w-full mt-2" variant="secondary">View Other</Button>
+                                <Button onClick={handlePaginate} id="groupBtn" className="w-full mt-2" variant="secondary">View Other</Button>
                             </AccordionContent>
                         </AccordionItem>
                         <AccordionItem value="joined-groups">
@@ -160,10 +151,7 @@ export default function SideBarList() {
     );
 }
 
-interface Item {
-    name: string;
-    image: string;
-}
+
 
 function SidebarList({
     items,
