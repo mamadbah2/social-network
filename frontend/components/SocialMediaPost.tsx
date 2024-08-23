@@ -48,7 +48,7 @@ export default function PostCard({
         <h2 className="text-xl font-bold mb-2">{title}</h2>
         <p className="text-muted-foreground">{content}</p>
       </CardContent>
-      <CardContent className="pb-2 h-[300px]">
+      <CardContent className="pb-2 h-[280px]">
         <div className="relative w-full h-full">
           <Image
             src={imageSrc}

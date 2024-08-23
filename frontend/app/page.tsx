@@ -31,6 +31,45 @@ const posts = [
     shares: 80,
     comments: 1300,
   },
+  {
+    id: 2,
+    username: "Alice",
+    avatarSrc: "/avatar2.jpg",
+    date: "02/03/2024",
+    title: "Explore New Frontiers",
+    content:
+      "Join us in exploring new frontiers with AI-powered applications...",
+    imageSrc: "/ironman.jpeg",
+    likes: 1200,
+    shares: 80,
+    comments: 1300,
+  },
+  {
+    id: 2,
+    username: "Alice",
+    avatarSrc: "/avatar2.jpg",
+    date: "02/03/2024",
+    title: "Explore New Frontiers",
+    content:
+      "Join us in exploring new frontiers with AI-powered applications...",
+    imageSrc: "/ironman.jpeg",
+    likes: 1200,
+    shares: 80,
+    comments: 1300,
+  },
+  {
+    id: 2,
+    username: "Alice",
+    avatarSrc: "/avatar2.jpg",
+    date: "02/03/2024",
+    title: "Explore New Frontiers",
+    content:
+      "Join us in exploring new frontiers with AI-powered applications...",
+    imageSrc: "/ironman.jpeg",
+    likes: 1200,
+    shares: 80,
+    comments: 1300,
+  },
   // Add more posts as needed
 ];
 

@@ -16,7 +16,9 @@ export default function SocialMediaLayout({
       <main className="flex h-full">
         <aside className="bg-background h-full">{aside}</aside>
         <ScrollArea className="h-full w-full">
-          <section className="flex-1 w-full bg-muted">{section}</section>
+          <section className="flex-1 w-full max-h-96 bg-muted">
+            {section}
+          </section>
         </ScrollArea>
       </main>
     </div>

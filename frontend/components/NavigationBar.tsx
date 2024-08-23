@@ -1,18 +1,65 @@
+"use client";
+import CreatePostModal from "@/components/CreatePostModal";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import usePostData from "@/lib/hooks/usepost";
 import { PlusIcon } from "lucide-react";
 import Image from "next/image";
+import { useState } from "react";
+
 export default function NavigationBar() {
+  const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false);
+  const handleCreatePostModalOpen = () => setIsCreatePostModalOpen(true);
+  const handleCreatePostModalClose = () => setIsCreatePostModalOpen(false);
+  const { resp, err, isLoad, post } = usePostData();
+  // const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  //   e.preventDefault();
+  //   await post("/post", new FormData(e.currentTarget), true);
+  //   console.log("data :>> ", resp);
+  //   console.log("error :>> ", err);
+  //   console.log("isLoading :>> ", isLoad);
+  // };
+  const handlePostFormSubmit = async (data: {
+    title: string;
+    content: string;
+    privacy: string;
+  }) => {
+    try {
+      const response = await fetch("/posts", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        console.log("Event created successfully");
+      } else {
+        console.error("Failed to create event");
+      }
+    } catch (error) {
+      console.error("An error occurred while creating the event:", error);
+    }
+  };
   return (
     <nav className="flex items-center justify-between px-4 py-2 bg-background border rounded-lg">
+      <CreatePostModal
+        isOpen={isCreatePostModalOpen}
+        onClose={handleCreatePostModalClose}
+        onSubmit={handlePostFormSubmit}
+      />
       <div className="flex items-center space-x-2 ">
-        <Button className="bg-[#292929] text-white">
+        <Button
+          className="bg-[#292929] text-white"
+          onClick={handleCreatePostModalOpen}
+        >
           <PlusIcon className="h-4 w-4 mr-2" />
           Create Post
         </Button>
       </div>
 
-      <div className="flex items-center justify-center w-60 space-x-10">
+      <div className="flex items-center justify-end w-96  space-x-16">
         <Button variant="ghost" className="text-muted-foreground" size="icon">
           <Image
             src="home.svg"
@@ -33,7 +80,7 @@ export default function NavigationBar() {
         </Button>
       </div>
 
-      <div className="flex items-center justify-end space-x-4">
+      <div className="flex items-center justify-end  space-x-4">
         <Button variant="ghost" className="text-muted-foreground" size="icon">
           <Image
             src="chat.svg"
