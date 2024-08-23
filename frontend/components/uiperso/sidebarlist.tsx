@@ -1,3 +1,5 @@
+'use client'
+
 import {
     Accordion,
     AccordionContent,
@@ -8,26 +10,46 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import useGetData from "@/lib/hooks/useget";
+import { mapUser } from "@/lib/modelmapper";
+import { User } from "@/models/user.model";
 import { PlusIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 // Voir si possible accordeon de maintenir...
+let prev = 0, suiv = 4
 
 export default function SideBarList() {
-    const { data, error } = useGetData('/users')
-    const [Users, setUsers] = useState([])
-    let last = 4
-    useEffect(() => {
-        // const someUsers = Users.slice(0,4)
-        // console.log('data :>> ', data);
-        setUsers(data)
-        console.log('data :>> ', Users);
-    }, [data])
+    const { expect:data, error } = useGetData<User[]>('/users', mapUser)
+    // const { datas } = useGetData('/groups')
+    // const [Users, setUsers] = React.useState<any>()
+    const [ItemUser, setItemUser] = React.useState<Item[]>([])
+    // useEffect(() => {
+    //     setUsers(data)
+    // }, [data])
 
     const handlePaginate = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault()
-        console.log('data:>> ', data);
+        console.log(e.currentTarget.id)
+        let currentUsers: Array<User> = data.slice(prev, suiv)
+        if (suiv <= data.length) {
+            prev = prev + 4
+            suiv = suiv + 4
+        } else {
+            suiv = 4; prev = 0;
+        }
+
+        setItemUser(
+            currentUsers.map((u) => {
+                return {
+                    name: u.firstname,
+                    image: "",
+                }
+            })
+        )
+
+        Array.isArray(data)
     }
+
 
     return (
         <div className="flex flex-1 overflow-hidden border border-black rounded-lg h-full w-fit">
@@ -40,27 +62,10 @@ export default function SideBarList() {
                             </AccordionTrigger>
                             <AccordionContent>
                                 <SidebarList
-                                    items={[
-                                        {
-                                            name: "Call of duty",
-                                            image: "/placeholder.svg?height=40&width=40",
-                                        },
-                                        {
-                                            name: "bahahah",
-                                            image: "/placeholder.svg?height=40&width=40",
-                                        },
-                                        {
-                                            name: "Sister",
-                                            image: "",
-                                        },
-                                        {
-                                            name: "Brother",
-                                            image: "",
-                                        },
-                                    ]}
+                                    items={ItemUser}
                                     showAddButton
                                 />
-                                <Button onClick={handlePaginate} className="w-full mt-2" variant="secondary">View Other</Button>
+                                <Button onClick={handlePaginate} id="friendBtn" className="w-full mt-2" variant="secondary">View Other</Button>
                             </AccordionContent>
                         </AccordionItem>
                         <AccordionItem value="suggested-groups">
