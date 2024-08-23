@@ -180,28 +180,28 @@ func (m *ConnDB) GetAllPost() ([]*Post, error) {
 		}
 
 		// Fetch comments
-		// comments, err := m.GetAllComment(p.Id)
-		// if err != nil {
-		// 	return nil, err
-		// }
-		// p.Comments = comments
+		comments, err := m.GetAllComment(p.Id)
+		if err != nil {
+			return nil, err
+		}
+		p.Comments = comments
 
-		// // Fetch viewers
-		// viewers, err := m.getViewersByPostId(p.Id)
-		// if err != nil {
-		// 	return nil, err
-		// }
-		// p.Viewers = viewers
+		// Fetch viewers
+		viewers, err := m.getViewersByPostId(p.Id)
+		if err != nil {
+			return nil, err
+		}
+		p.Viewers = viewers
 
-		// // Calculate likes, dislikes, and comments count
-		// p.NumberLike, p.NumberDislike, err = m.getCountReactionEntity(p.Id)
-		// if err != nil {
-		// 	return nil, err
-		// }
+		// Calculate likes, dislikes, and comments count
+		p.NumberLike, p.NumberDislike, err = m.getCountReactionEntity(p.Id)
+		if err != nil {
+			return nil, err
+		}
 
-		// p.NumberComment = len(p.Comments)
+		p.NumberComment = len(p.Comments)
 
-		// posts = append(posts, p)
+		posts = append(posts, p)
 	}
 
 	return posts, nil
