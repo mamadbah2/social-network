@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	"time"
 )
 
@@ -234,21 +235,21 @@ func (m *ConnDB) getViewersByPostId(postId int) ([]*User, error) {
 }
 
 func (m *ConnDB) getCountReactionEntity(postId int) (int, int, error) {
-	// SQL statement to count likes and dislikes for the post
 	statement := `
 		SELECT 
 			COUNT(CASE WHEN liked = TRUE THEN 1 END) AS like_count,
 			COUNT(CASE WHEN disliked = TRUE THEN 1 END) AS dislike_count
 		FROM reactions
 		WHERE id_entity = ?
-
 	`
 
-	row := m.DB.QueryRow(statement, postId)
-
 	var likeCount, dislikeCount int
-	err := row.Scan(&likeCount, &dislikeCount)
+	err := m.DB.QueryRow(statement, postId).Scan(&likeCount, &dislikeCount)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			// No reactions found for the entity, return 0 counts
+			return 0, 0, nil
+		}
 		return 0, 0, err
 	}
 
