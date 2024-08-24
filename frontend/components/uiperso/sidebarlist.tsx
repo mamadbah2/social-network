@@ -25,7 +25,7 @@ let step = 4
 
 export default function SideBarList() {
     const { expect: users, error: errUsers } = useGetData<User[]>('/users', mapUser)
-    const { expect: user, error: errUser } = useGetData<User>(`/users?id=${localStorage.getItem('userID')}`, mapSimpleUser)
+    const { expect: user, error: errUser } = useGetData<User>(`/users?id=1`, mapSimpleUser)
     const { expect: groups, error: errGroups } = useGetData<Group[]>('/groups', mapGroup)
 
     const [ItemUser, setItemUser] = React.useState<Item[]>([])
@@ -56,6 +56,7 @@ export default function SideBarList() {
             case "joinedGroupBtn":
                 const joinedGroup = user.groups || []
                 setItemJoinedGroup(paginateTable(joinedGroup, prevJoin, suivJoin))
+                console.log(user.groups)
                 if (suivJoin <= joinedGroup.length) {
                     prevJoin = prevJoin + step; suivJoin = suivJoin + step
                 } else {
@@ -115,7 +116,7 @@ export default function SideBarList() {
                             </AccordionTrigger>
                             <AccordionContent>
                                 <SidebarList
-                                    items={ItemJoinedGroup}
+                                    items={[]}
                                 />
                                 <Button className="w-full mt-2" variant="secondary">View Other</Button>
                             </AccordionContent>
