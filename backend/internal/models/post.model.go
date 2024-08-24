@@ -179,7 +179,7 @@ func (m *ConnDB) GetAllPost() ([]*Post, error) {
 		}
 		p.Comments = comments
 
-		// // Fetch viewers
+		// Fetch viewers
 		viewers, err := m.getViewersByPostId(p.Id)
 		if err != nil {
 			return nil, err

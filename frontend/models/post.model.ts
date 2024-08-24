@@ -1,4 +1,6 @@
-import { User } from "./user.model";
+import { User } from "@/models/user.model";
+import { Group } from "@/models/group.model";
+import { Comment } from "@/models/comment.model";
 
 export interface Post {
     id: number;
@@ -11,6 +13,9 @@ export interface Post {
     numberLike: number;
     numberDislike: number;
     numberComment: number;
-    author ?: User// Optional array of comments
-    viewers ?: User[];      // Optional array of viewers
+    author?: User;         // Optional field for the author
+    group?: Group;         // Optional field for the group
+    comments?: Comment[];  // Optional array of comments
+    viewers?: User[];      // Optional array of viewers
 }
+

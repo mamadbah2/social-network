@@ -1,12 +1,9 @@
-import { Post } from "./post.model"
-import { User } from "./user.model"
+import { User } from "@/models/user.model"
 
 export interface Group {
-    id: number
-    name: string
-    description: string
-    createdAt: Date
-    Creator?: User[]
-    Posts?: Post[]
-    // Event ?:Event[]
+    Id :          number
+	Name    :    string
+	Description :string
+	Creator    : User
+	CreatedAt  : Date
 }

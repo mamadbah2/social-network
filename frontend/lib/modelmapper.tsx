@@ -60,7 +60,6 @@ export function mapPost(data: any): Post[] {
         return [];
     }
 
-
     return data.map((p: any): Post => ({
         id: p.Id,
         title: p.Title,
