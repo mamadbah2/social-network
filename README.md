@@ -77,7 +77,7 @@ Click on badges to get to the code...
 ### Office
 
 [![TRELLO](https://img.shields.io/badge/Trello-0052CC?style=for-the-badge&logo=trello&logoColor=white)]()
-[![FIGMA](https://img.shields.io/badge/Figma-F24E1E?style=for-the-badge&logo=figma&logoColor=white)]()
+[![FIGMA](https://img.shields.io/badge/Figma-F24E1E?style=for-the-badge&logo=figma&logoColor=white)](https://www.figma.com/design/995XflZXhXqKloZs9wT2nx/social-network?node-id=0-1&t=KnNTiKHVFJnQhkQj-0)
 [![WARP](https://img.shields.io/badge/warp-01A4FF?style=for-the-badge&logo=warp&logoColor=white)]()
 
 ### Others
