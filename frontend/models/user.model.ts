@@ -7,6 +7,7 @@ export interface User {
     dateOfBirth: Date
     aboutMe: string
     private: boolean
+    profilePicture?: string;
 }
 
 // Id             int

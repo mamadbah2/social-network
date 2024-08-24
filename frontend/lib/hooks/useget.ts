@@ -18,7 +18,7 @@ const useGetData = <T>(uri: string, mapper:(obj:any)=>T ) => {
     const expect = data?.Datas ? mapper(data?.Datas) : [];
 
     return {
-        expect,
+        data: expect,
         error,
         isLoading
     };

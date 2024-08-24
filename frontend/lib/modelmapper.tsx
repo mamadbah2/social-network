@@ -16,6 +16,7 @@ export function mapUser(data: any): User[] {
         dateOfBirth: u.DateOfBirth,
         aboutMe: u.AboutMe,
         private: u.Private,
+        profilePicture: u.ProfilePicture, 
     }))
 
     // return som
