@@ -1,6 +1,6 @@
 #!/bin/bash
 
-desired_branch="main"
+desired_branch="cherif"
 username="your_username"
 email="your_email"
 
@@ -37,7 +37,7 @@ check_credentials() {
 # Exits the program is we're in a different branch to prevent confusion...
 check_branch() {
     log "\nChecking branch..."
-    git branch -a
+    git branch
 
     if [ "$(git rev-parse --abbrev-ref HEAD)" != "$desired_branch" ]; then
         log "[WARNING] Not on branch $desired_branch..."
