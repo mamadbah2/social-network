@@ -15,22 +15,39 @@ import { paginateTable } from "@/lib/utils";
 import { Group } from "@/models/group.model";
 import { Item } from "@/models/item.model";
 import { User } from "@/models/user.model";
-import { PlusIcon } from "lucide-react";
-import React from "react";
+import { Hand, PlusIcon } from "lucide-react";
+import React, { useEffect } from "react";
 
 // Voir si possible accordeon de maintenir...
-let prevUser = 0, prevGroup = 0, prevJoin = 0
-let suivUser = 4, suivGroup = 4, suivJoin = 0
+let prevUser = 0, prevGroup = 0, prevJoin = 0, prevCreated = 0
+let suivUser = 4, suivGroup = 4, suivJoin = 4, suivCreated = 4
 let step = 4
 
 export default function SideBarList() {
     const { expect: users, error: errUsers } = useGetData<User[]>('/users', mapUser)
-    const { expect: user, error: errUser } = useGetData<User>(`/users?id=1`, mapSimpleUser)
+    // const { expect: user, error: errUser } = useGetData<User>(`/users?id=3`, mapSimpleUser)
+    const { expect: user, error: errUser } = useGetData<User>(`/users?id=${localStorage.getItem('userID')}`, mapSimpleUser)
     const { expect: groups, error: errGroups } = useGetData<Group[]>('/groups', mapGroup)
 
     const [ItemUser, setItemUser] = React.useState<Item[]>([])
     const [ItemGroup, setItemGroup] = React.useState<Item[]>([])
     const [ItemJoinedGroup, setItemJoinedGroup] = React.useState<Item[]>([])
+    const [ItemCreatedGroup, setItemCreatedGroup] = React.useState<Item[]>([])
+
+    const HandleSetInit = (): void => {
+        setItemUser(paginateTable(users, prevUser, suivUser))
+        setItemGroup(paginateTable(groups, prevGroup, suivGroup))
+        setItemJoinedGroup(paginateTable(user.groups || [], prevJoin, suivJoin))
+        setItemCreatedGroup(paginateTable(user.createdGroups || [], prevCreated, suivCreated))
+    }
+
+
+    useEffect(()=>{
+        const timer = setTimeout(()=>{
+            HandleSetInit()
+        }, 500)
+        return ()=>clearTimeout(timer)
+    })
 
     const handlePaginate = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault()
@@ -56,11 +73,19 @@ export default function SideBarList() {
             case "joinedGroupBtn":
                 const joinedGroup = user.groups || []
                 setItemJoinedGroup(paginateTable(joinedGroup, prevJoin, suivJoin))
-                console.log(user.groups)
                 if (suivJoin <= joinedGroup.length) {
                     prevJoin = prevJoin + step; suivJoin = suivJoin + step
                 } else {
                     suivJoin = 4; prevJoin = 0;
+                }
+                break;
+            case "createdGroupBtn":
+                const createdGroup = user.createdGroups || []
+                setItemCreatedGroup(paginateTable(createdGroup, prevCreated, suivCreated))
+                if (suivCreated <= createdGroup.length) {
+                    prevCreated = prevCreated + step; suivCreated = suivCreated + step
+                } else {
+                    suivCreated = 4; prevCreated = 0;
                 }
                 break;
             default:
@@ -116,9 +141,9 @@ export default function SideBarList() {
                             </AccordionTrigger>
                             <AccordionContent>
                                 <SidebarList
-                                    items={[]}
+                                    items={ItemCreatedGroup}
                                 />
-                                <Button className="w-full mt-2" variant="secondary">View Other</Button>
+                                <Button onClick={handlePaginate} id="createdGroupBtn" className="w-full mt-2" variant="secondary">View Other</Button>
                             </AccordionContent>
                         </AccordionItem>
                     </Accordion>

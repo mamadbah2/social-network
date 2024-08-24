@@ -10,6 +10,7 @@ export interface User {
     aboutMe: string
     private: boolean
     groups?: Group[]
+    createdGroups?: Group[]
 }
 
 // Id             int

@@ -25,7 +25,8 @@ export function mapSimpleUser(data: any): User {
         dateOfBirth: data.DateOfBirth,
         aboutMe: data.AboutMe,
         private: data.Private,
-        groups: mapGroup(data.Groups)
+        groups: mapGroup(data.Groups),
+        createdGroups : mapGroup(data.CreatedGroups),
     }
 
     // return som
