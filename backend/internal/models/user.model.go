@@ -166,12 +166,6 @@ func (m *ConnDB) GetAllUsers() ([]*User, error) {
 			return nil, err
 		}
 
-		// Convertir la chaîne de caractères en time.Time
-		/* u.DateOfBirth, err = time.Parse("2006-01-02 15:04:05-07:00", dateOfBirthStr)
-		if err != nil {
-			return nil, err
-		} */
-
 		followers, err := m.getFollowers(u.Id)
 		if err != nil {
 			return nil, err
@@ -213,11 +207,6 @@ func (m *ConnDB) GetUser(userID int) (*User, error) {
 		fmt.Println("bobo choked")
 		return nil, err
 	}
-	// Convertir la chaîne de caractères en time.Time
-	/* u.DateOfBirth, err = time.Parse("2006-01-02 15:04:05-07:00", dateOfBirthStr)
-	if err != nil {
-		return nil, err
-	} */
 
 	followers, err := m.getFollowers(u.Id)
 	if err != nil {

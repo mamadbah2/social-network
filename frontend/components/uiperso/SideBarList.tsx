@@ -10,44 +10,73 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import useGetData from "@/lib/hooks/useget";
-import { mapUser } from "@/lib/modelmapper";
+import { mapGroup, mapSimpleUser, mapUser } from "@/lib/modelmapper";
+import { paginateTable } from "@/lib/utils";
+import { Group } from "@/models/group.model";
+import { Item } from "@/models/item.model";
 import { User } from "@/models/user.model";
-import { PlusIcon } from "lucide-react";
-import React from "react";
+import React, { useEffect } from "react";
+import { ListBar } from "./listbar";
 
 // Voir si possible accordeon de maintenir...
-let prev = 0, suiv = 4
+let prevUser = 0, prevGroup = 0, prevJoin = 0, prevCreated = 0
+let suivUser = 4, suivGroup = 4, suivJoin = 4, suivCreated = 4
+let step = 4
 
 export default function SideBarList() {
-    const { expect:data, error } = useGetData<User[]>('/users', mapUser);    
-    // const { datas } = useGetData('/groups')
-    // const [Users, setUsers] = React.useState<any>()
-    const [ItemUser, setItemUser] = React.useState<Item[]>([]);
-    // useEffect(() => {
-    //     setUsers(data)
-    // }, [data])
+    const { expect: users, error: errUsers } = useGetData<User[]>('/users', mapUser)
+    // const { expect: user, error: errUser } = useGetData<User>(`/users?id=3`, mapSimpleUser)
+    const { expect: user, error: errUser } = useGetData<User>(`/users?id=${localStorage.getItem('userID')}`, mapSimpleUser)
+    const { expect: groups, error: errGroups } = useGetData<Group[]>('/groups', mapGroup)
+
+    const [ItemUser, setItemUser] = React.useState<Item[]>([])
+    const [ItemGroup, setItemGroup] = React.useState<Item[]>([])
+    const [ItemJoinedGroup, setItemJoinedGroup] = React.useState<Item[]>([])
+    const [ItemCreatedGroup, setItemCreatedGroup] = React.useState<Item[]>([])
 
     const handlePaginate = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault()
         console.log(e.currentTarget.id)
-        let currentUsers: Array<User> = data.slice(prev, suiv)
-        if (suiv <= data.length) {
-            prev = prev + 4
-            suiv = suiv + 4
-        } else {
-            suiv = 4; prev = 0;
+        switch (e.currentTarget.id) {
+            case "friendBtn":
+                // La logique à optimiser
+                setItemUser(paginateTable(users, prevUser, suivUser))
+                if (suivUser <= users.length) {
+                    prevUser = prevUser + step; suivUser = suivUser + step
+                } else {
+                    suivUser = 4; prevUser = 0;
+                }
+                break;
+            case "groupBtn":
+                setItemGroup(paginateTable(groups, prevGroup, suivGroup))
+                if (suivGroup <= groups.length) {
+                    prevGroup = prevGroup + step; suivGroup = suivGroup + step
+                } else {
+                    suivGroup = 4; prevGroup = 0;
+                }
+                break;
+            case "joinedGroupBtn":
+                const joinedGroup = user.groups || []
+                setItemJoinedGroup(paginateTable(joinedGroup, prevJoin, suivJoin))
+                if (suivJoin <= joinedGroup.length) {
+                    prevJoin = prevJoin + step; suivJoin = suivJoin + step
+                } else {
+                    suivJoin = 4; prevJoin = 0;
+                }
+                break;
+            case "createdGroupBtn":
+                const createdGroup = user.createdGroups || []
+                setItemCreatedGroup(paginateTable(createdGroup, prevCreated, suivCreated))
+                if (suivCreated <= createdGroup.length) {
+                    prevCreated = prevCreated + step; suivCreated = suivCreated + step
+                } else {
+                    suivCreated = 4; prevCreated = 0;
+                }
+                break;
+            default:
+                break;
         }
 
-        setItemUser(
-            currentUsers.map((u) => {
-                return {
-                    name: u.firstname,
-                    image: "",
-                }
-            })
-        )
-
-        Array.isArray(data)
     }
 
 
@@ -56,101 +85,50 @@ export default function SideBarList() {
             <aside className="w-64">
                 <ScrollArea className="h-full">
                     <Accordion type="multiple" className="w-full">
-                        <AccordionItem value="suggested-friends">
+                        <AccordionItem onClick={()=> setItemUser(paginateTable(users, prevUser, suivUser))} value="suggested-friends">
                             <AccordionTrigger className="px-4">
                                 Suggested Friends
                             </AccordionTrigger>
                             <AccordionContent>
-                                <SidebarList
+                                <ListBar
                                     items={ItemUser}
                                     showAddButton
                                 />
-                                <Button onClick={handlePaginate} id="friendBtn" className="w-full mt-2" variant="secondary">View Other</Button>
+                                {users.length != 0 && <Button onClick={handlePaginate} id="friendBtn" className="w-full mt-2" variant="secondary">View Other</Button>}
                             </AccordionContent>
                         </AccordionItem>
                         <AccordionItem value="suggested-groups">
-                            <AccordionTrigger className="px-4">
+                            <AccordionTrigger onClick={()=>setItemGroup(paginateTable(groups, prevGroup, suivGroup))} className="px-4">
                                 Suggested groups
                             </AccordionTrigger>
                             <AccordionContent>
-                                <SidebarList
-                                    items={[
-                                        {
-                                            name: "Call of duty",
-                                            image: "/placeholder.svg?height=40&width=40",
-                                        },
-                                        {
-                                            name: "bahahah",
-                                            image: "/placeholder.svg?height=40&width=40",
-                                        },
-                                        {
-                                            name: "bahahah",
-                                            image: "/placeholder.svg?height=40&width=40",
-                                        },
-                                        {
-                                            name: "bahahah",
-                                            image: "/placeholder.svg?height=40&width=40",
-                                        },
-                                    ]}
+                                <ListBar
+                                    items={ItemGroup}
                                     showAddButton
                                 />
-                                <Button className="w-full mt-2" variant="secondary">View Other</Button>
+                                { groups?.length != 0 && <Button onClick={handlePaginate} id="groupBtn" className="w-full mt-2" variant="secondary">View Other</Button>}
                             </AccordionContent>
                         </AccordionItem>
                         <AccordionItem value="joined-groups">
-                            <AccordionTrigger className="px-4">
+                            <AccordionTrigger onClick={()=>setItemJoinedGroup(paginateTable(user.groups || [], prevJoin, suivJoin))} className="px-4">
                                 Joined groups
                             </AccordionTrigger>
                             <AccordionContent>
-                                <SidebarList
-                                    items={[
-                                        {
-                                            name: "Call of duty",
-                                            image: "/placeholder.svg?height=40&width=40",
-                                        },
-                                        {
-                                            name: "Bahahah",
-                                            image: "/placeholder.svg?height=40&width=40",
-                                        },
-                                        {
-                                            name: "Call of duty",
-                                            image: "/placeholder.svg?height=40&width=40",
-                                        },
-                                        {
-                                            name: "Bahahah",
-                                            image: "/placeholder.svg?height=40&width=40",
-                                        },
-                                    ]}
+                                <ListBar
+                                    items={ItemJoinedGroup}
                                 />
-                                <Button className="w-full mt-2" variant="secondary">View Other</Button>
+                                {(user.groups)?.length != 0 && <Button onClick={handlePaginate} id="joinedGroupBtn" className="w-full mt-2" variant="secondary">View Other</Button>}
                             </AccordionContent>
                         </AccordionItem>
                         <AccordionItem value="created-groups">
-                            <AccordionTrigger className="px-4">
+                            <AccordionTrigger onClick={()=>setItemCreatedGroup(paginateTable(user.createdGroups || [], prevCreated, suivCreated))} className="px-4">
                                 Created groups
                             </AccordionTrigger>
                             <AccordionContent>
-                                <SidebarList
-                                    items={[
-                                        {
-                                            name: "Call of duty",
-                                            image: "/placeholder.svg?height=40&width=40",
-                                        },
-                                        {
-                                            name: "bahahah",
-                                            image: "/placeholder.svg?height=40&width=40",
-                                        },
-                                        {
-                                            name: "Sister",
-                                            image: "",
-                                        },
-                                        {
-                                            name: "Brother",
-                                            image: "",
-                                        },
-                                    ]}
+                                <ListBar
+                                    items={ItemCreatedGroup}
                                 />
-                                <Button className="w-full mt-2" variant="secondary">View Other</Button>
+                                {(user?.createdGroups)?.length != 0 && <Button onClick={handlePaginate} id="createdGroupBtn" className="w-full mt-2" variant="secondary">View Other</Button>}
                             </AccordionContent>
                         </AccordionItem>
                     </Accordion>
@@ -160,37 +138,6 @@ export default function SideBarList() {
     );
 }
 
-interface Item {
-    name: string;
-    image: string;
-}
 
-function SidebarList({
-    items,
-    showAddButton = false,
-}: {
-    items: Item[];
-    showAddButton?: boolean;
-}) {
-    return (
-        <ul className="space-y-2 px-4">
-            {items.map((item, index) => (
-                <li key={index} className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                        <Avatar className="h-8 w-8">
-                            <AvatarImage src={item.image} alt={item.name} />
-                            <AvatarFallback>{item.name[0].toUpperCase()}</AvatarFallback>
-                        </Avatar>
-                        <span className="text-sm">{item.name}</span>
-                    </div>
-                    {showAddButton && (
-                        <Button variant="ghost" size="icon" className="h-6 w-6">
-                            <PlusIcon className="h-4 w-4" />
-                        </Button>
-                    )}
-                </li>
-            ))}
-            {/* Ajouter un bouton là pour paginer */}
-        </ul>
-    );
-}
+
+

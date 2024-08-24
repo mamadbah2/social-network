@@ -53,16 +53,6 @@ func (hand *Handler) Login(w http.ResponseWriter, r *http.Request) {
 			hand.Helpers.ServerError(w, err)
 			return
 		}
-		/* cookie := http.Cookie{
-			Name:     "session",
-			Value:    "",
-			MaxAge:   -1,
-			Path:     "/",
-			HttpOnly: true,
-			Secure:   true,
-		}
-		hand.renderJSON(w, cookie)
-		return */
 	}
 
 	session, err := hand.SessionManager.NewSession(w, id)
@@ -71,5 +61,5 @@ func (hand *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	http.SetCookie(w, session.Cookie)
-	hand.renderJSON(w, session.Cookie)
+	hand.renderJSON(w, session)
 }

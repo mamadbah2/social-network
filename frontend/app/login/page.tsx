@@ -12,10 +12,10 @@ export default function Login() {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         const [resp, err] = await usePostData('/login', new FormData(e.currentTarget))
-        console.log(resp.value);
-        
-        setSessionToken(resp.Value)
-        console.log("Login Success");
+        console.log('resp :>> ', resp);
+        setSessionToken(resp?.Cookie.Value)
+        localStorage.setItem('userID', `${resp?.UserId}`)
+        console.log("Login Success :>>", resp?.Cookie.Value);
     }
 
     return <SecurityLayout>

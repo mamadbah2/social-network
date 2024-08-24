@@ -73,6 +73,10 @@ const posts = [
   // Add more posts as needed
 ];
 
+
+
+  
+
 export default function Home() {
   return (
     <SocialMediaLayout

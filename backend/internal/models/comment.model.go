@@ -42,7 +42,10 @@ func (m *ConnDB) GetAllComment(postID int) ([]*Comment, error) {
 
 	var allComments []*Comment
 	for rows.Next() {
-		c := &Comment{}
+		c := &Comment{
+			Post: &Post{},
+			Author: &User{},
+		}
 		var authorId int
 
 		err := rows.Scan(&c.Id, &authorId, &c.Post.Id, &c.Content, &c.Date)

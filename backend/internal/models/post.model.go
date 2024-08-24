@@ -144,18 +144,16 @@ func (m *ConnDB) GetPost(postId int) (*Post, error) {
 }
 
 func (m *ConnDB) GetAllPost() ([]*Post, error) {
-	query := `
-        SELECT p.id, p.title, p.content, p.privacy, p.created_at,
-		 g.id, g.name, g.description, p.created_at, u.id, u.email,
-		 u.password, u.first_name, u.last_name, u.date_of_birth, 
-		 u.profile_picture, u.nickname, u.about_me, u.profile_privacy,
-		 u.created_at
-        FROM posts p
-		JOIN groups g ON g.id = p.id_group
-		JOIN users u ON u.id = p.id_author
-    `
-
-	rows, err := m.DB.Query(query)
+	statement := `
+		SELECT p.id, p.title, p.content, p.privacy, p.created_at, 
+		       u.id, u.email, u.first_name, u.last_name, u.nickname, u.profile_picture, u.about_me,
+		       g.id, g.name, g.description
+		FROM posts p
+		JOIN users u ON p.id_author = u.id
+		LEFT JOIN groups g ON p.id_group = g.id
+		ORDER BY p.created_at DESC
+	`
+	rows, err := m.DB.Query(statement)
 	if err != nil {
 		return nil, err
 	}
@@ -167,42 +165,36 @@ func (m *ConnDB) GetAllPost() ([]*Post, error) {
 			Author: &User{},
 			Group:  &Group{},
 		}
-		// var dateOfBirthStr string
-
-		err := rows.Scan(
-			&p.Id, &p.Title, &p.Content, &p.Privacy, &p.CreatedAt,
-			&p.Group.Id, &p.Group.Name, &p.Group.Description, &p.Group.CreatedAt,
-			&p.Author.Id, &p.Author.Email, &p.Author.Password, &p.Author.FirstName, &p.Author.LastName,
-			&p.Author.DateOfBirth, &p.Author.ProfilePicture, &p.Author.Nickname,
-			&p.Author.AboutMe, &p.Author.Private, &p.Author.CreatedAt,
-		)
+		err := rows.Scan(&p.Id, &p.Title, &p.Content, &p.Privacy, &p.CreatedAt,
+			&p.Author.Id, &p.Author.Email, &p.Author.FirstName, &p.Author.LastName, &p.Author.Nickname, &p.Author.ProfilePicture, &p.Author.AboutMe,
+			&p.Group.Id, &p.Group.Name, &p.Group.Description)
 		if err != nil {
 			return nil, err
 		}
 
 		// Fetch comments
-		// comments, err := m.GetAllComment(p.Id)
-		// if err != nil {
-		// 	return nil, err
-		// }
-		// p.Comments = comments
+		comments, err := m.GetAllComment(p.Id)
+		if err != nil {
+			return nil, err
+		}
+		p.Comments = comments
 
-		// // Fetch viewers
-		// viewers, err := m.getViewersByPostId(p.Id)
-		// if err != nil {
-		// 	return nil, err
-		// }
-		// p.Viewers = viewers
+		// Fetch viewers
+		viewers, err := m.getViewersByPostId(p.Id)
+		if err != nil {
+			return nil, err
+		}
+		p.Viewers = viewers
 
-		// // Calculate likes, dislikes, and comments count
-		// p.NumberLike, p.NumberDislike, err = m.getCountReactionEntity(p.Id)
-		// if err != nil {
-		// 	return nil, err
-		// }
+		// Calculate likes, dislikes, and comments count
+		p.NumberLike, p.NumberDislike, err = m.getCountReactionEntity(p.Id)
+		if err != nil {
+			return nil, err
+		}
 
-		// p.NumberComment = len(p.Comments)
+		p.NumberComment = len(p.Comments)
 
-		// posts = append(posts, p)
+		posts = append(posts, p)
 	}
 
 	return posts, nil
