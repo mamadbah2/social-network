@@ -59,6 +59,7 @@ func (hand *Handler) Post(w http.ResponseWriter, r *http.Request) {
 			hand.renderJSON(w, post)
 		}
 	case http.MethodPost:
+		fmt.Println("yoooo")
 		err := r.ParseForm()
 		if err != nil {
 			hand.Helpers.ClientError(w, http.StatusBadRequest)
@@ -134,7 +135,7 @@ func (hand *Handler) Post(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
-		hand.renderJSON(w, data)
+		hand.renderJSON(w, nil)
 
 	default:
 		hand.Helpers.ClientError(w, http.StatusMethodNotAllowed)

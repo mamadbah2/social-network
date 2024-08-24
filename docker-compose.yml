@@ -22,6 +22,16 @@ services:
       backend:
         condition: service_healthy
         restart: true
+    healthcheck:
+      test: curl -f http://localhost:3000/health || exit 1
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 10s
+    develop:
+      watch:
+        - path: .
+          action: rebuild
   #----------------------------------------------------------------
   backend:
     build:
@@ -31,13 +41,17 @@ services:
     ports:
       - 4000:4000
     volumes:
-      - ./backend/database:/src/database
+      - ./backend/:/src/database
     healthcheck:
-      test: curl -f https://localhost:4000/health || exit 1
-      interval: 30s
+      test: curl -f http://localhost:4000/health || exit 1
+      interval: 1m30s
       timeout: 30s
       retries: 5
       start_period: 10s
+    develop:
+      watch:
+        - path: .
+          action: rebuild
 
 # The commented out section below is an example of how to define a PostgreSQL
 # database that your application can use. `depends_on` tells Docker Compose to

@@ -14,7 +14,7 @@ export default function SocialMediaLayout({
     <div className="flex flex-col gap-2 bg-muted w-full h-screen p-5">
       <header>{header}</header>
       <main className="flex h-full">
-        <aside className="bg-background h-full">{aside}</aside>
+        <aside className="bg-background h-full rounded-lg">{aside}</aside>
         <ScrollArea className="h-full w-full">
           <section className="flex-1 w-full max-h-96 bg-muted">
             {section}

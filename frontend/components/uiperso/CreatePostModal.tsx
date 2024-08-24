@@ -1,3 +1,5 @@
+'use client'
+
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -8,9 +10,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import useGetData from "@/lib/hooks/useget";
+import usePostData from "@/lib/hooks/usepost";
+import { mapUser } from "@/lib/modelmapper";
+import { User } from "@/models/user.model";
 import Image from "next/image";
-
-import { FormEvent, useState } from "react";
+import React, { FormEvent, useEffect, useState } from "react";
 
 interface PostModalProps {
   isOpen: boolean;
@@ -20,8 +25,13 @@ interface PostModalProps {
     content: string;
     privacy: string;
     extraPrivacy?: string;
-    selectedUsers?: string[];
+    followers?: string[];
   }) => void;
+}
+
+interface Item {
+  id: number;
+  name: string;
 }
 
 export default function CreatePostModal({
@@ -29,42 +39,63 @@ export default function CreatePostModal({
   onClose,
   onSubmit,
 }: PostModalProps) {
+  const { expect:data, error } = useGetData<User[]>('/users', mapUser);
   const [privacy, setPrivacy] = useState<string>("");
-  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+  const [selectedUsers, setSelectedUsers] = useState<Item[]>([]);
+  // const [selectedUsersId, setSelectedUsersId] = useState<string[]>([]);
   const [search, setSearch] = useState<string>("");
+  const [ItemUser, setItemUser] = React.useState<Item[]>([]);  
+  useEffect(() => {
+    // Only setItemUser if the data has changed
+    if (data && data.length > 0 && ItemUser.length === 0) {
+      setItemUser(
+        data.map((u) => ({
+          id: u.id,
+          name: u.firstname,
+        }))
+      );
+    }
+  }, [data, ItemUser]);// Add data as a dependency
+  
 
-  const allUsers = ["Safiatou Doumbia", "John Doe", "Jane Smith"]; // Sample list of users
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+    formData.set("privacy", privacy);
     const data: any = {
       title: formData.get("title") as string,
       content: formData.get("content") as string,
-      privacy,
+      privacy: formData.get("privacy") as string,
     };
 
     // If "Almost Private" is selected, include the selected users
     if (privacy === "almost private") {
-      data.selectedUsers = selectedUsers;
+      const selectedUserIds = selectedUsers.map(user => user.id);
+      // Append the array of user IDs to the formData (as a string)
+      formData.append("selectedUserIds", JSON.stringify(selectedUserIds));
+  
+      // Add the selectedUserIds to data for logging purposes
+      data.selectedUserIds = selectedUserIds;
     }
 
     console.log("Form Data:", data);
-    onSubmit(data);
+    const [resp, err] = await usePostData('/posts', new FormData(e.currentTarget))
+    // onSubmit(data);
     onClose();
   };
 
-  const handleAddUser = (user: string) => {
-    if (!selectedUsers.includes(user)) {
+  const handleAddUser = (user: Item) => {
+    if (!selectedUsers.some((u) => u.name === user.name)) {
       setSelectedUsers([...selectedUsers, user]);
     }
     setSearch(""); // Clear the search field after adding a user
   };
 
-  const handleRemoveUser = (user: string) => {
-    setSelectedUsers(selectedUsers.filter((u) => u !== user));
+  const handleRemoveUser = (user: Item) => {
+    setSelectedUsers(selectedUsers.filter((u) => u.name !== user.name));
   };
 
   return (
@@ -99,13 +130,13 @@ export default function CreatePostModal({
             <label className="block text-sm mb-2 font-medium text-gray-700">
               Post privacy
             </label>
-            <Select onValueChange={(value) => setPrivacy(value)}>
+            <Select onValueChange={(value) => setPrivacy(value)} name="privacy">
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select privacy" />
               </SelectTrigger>
               <SelectContent>
-                <SelectGroup>
-                  <SelectLabel>Post Privacy</SelectLabel>
+                <SelectGroup >
+                  <SelectLabel >Post Privacy</SelectLabel>
                   <SelectItem value="public">Public</SelectItem>
                   <SelectItem value="private">Private</SelectItem>
                   <SelectItem value="almost private">Almost Private</SelectItem>
@@ -116,6 +147,7 @@ export default function CreatePostModal({
 
           {/* Conditionally render user selection input if "Almost Private" is selected */}
           {privacy === "almost private" && (
+            
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700">
                 Specify users
@@ -130,17 +162,18 @@ export default function CreatePostModal({
                 />
                 {search && (
                   <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg">
-                    {allUsers
+                    {ItemUser
                       .filter((user) =>
-                        user.toLowerCase().includes(search.toLowerCase())
+                        user.name.toLowerCase().includes(search.toLowerCase())
                       )
                       .map((user) => (
                         <div
-                          key={user}
+                          key={user.name}
                           onClick={() => handleAddUser(user)}
+                          
                           className="cursor-pointer p-2 hover:bg-gray-100"
                         >
-                          {user}
+                          {user.name}
                         </div>
                       ))}
                   </div>
@@ -150,18 +183,18 @@ export default function CreatePostModal({
               <div className="mt-2 flex flex-wrap">
                 {selectedUsers.map((user) => (
                   <div
-                    key={user}
+                    key={user.id}
                     className="flex items-center bg-gray-200 text-sm font-medium text-[#292929] p-1 m-1 rounded"
                   >
-                    <span>{user}</span>
+                    <span>{user.name}</span>
                     <button
                       onClick={() => handleRemoveUser(user)}
                       className="ml-2 text-sm text-gray-600 hover:text-gray-800"
                     >
                       <Image
                         src="cancel.svg"
-                        width={18}
-                        height={18}
+                        width={15}
+                        height={15}
                         alt="cancel icon"
                         className=""
                       />
@@ -176,7 +209,7 @@ export default function CreatePostModal({
             <label className="block text-sm mb-2 font-medium text-gray-700">
               Image
             </label>
-            <Input type="file" />
+            <Input type="file" name="imagePost"/>
           </div>
 
           <div className="flex justify-end">

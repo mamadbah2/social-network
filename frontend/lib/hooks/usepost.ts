@@ -1,14 +1,14 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { mutate } from 'swr';
 
-async function postData(url: string, data: FormData, enctyped: boolean) {
+async function postData(uri: string, data: FormData, enctyped: boolean) {
     let init: RequestInit
-    console.log(data)
     if (enctyped) {
         init = { method: 'POST', body: data }
     } else {
-        init = { method: 'POST', headers: {"Content-Type": "application/x-www-form-urlencoded"} , body: convertFormat(data) }
+        init = { method: 'POST', headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: convertFormat(data) }
     }
-    const response = await fetch("http://localhost:4000" + url, init)
+    const response = await fetch("http://localhost:4000" + uri, init)
 
     if (!response.ok) {
         throw new Error("Echec pour POST les données")
@@ -30,25 +30,20 @@ export function convertFormat(formData: FormData) {
 }
 
 // Ceci fonctionne comme un useState hook
-const usePostData = () => {
-    const [isLoad, setIsLoading] = useState(false)
-    const [err, setError] = useState(null)
-    const [resp, setData] = useState(null)
 
-    const post = async (url: string, data: FormData, enctyped=false) => {
-        setIsLoading(true)
-        try {
-            const response = await postData(url, data, enctyped)
-            setData(response)
-            setError(response.Errors)
-        } catch (err: any) {
-            
-        } finally {
-            setIsLoading(false)
-        }
+
+const usePostData = async (uri: string, data: FormData, enctyped = false) => {
+    try {
+        const response = await postData(uri, data, enctyped)
+
+        mutate(uri, response, false);
+        return [
+            response.Datas,
+            response.Errors
+        ]
+    } catch (err: any) {
+        return [null, err]
     }
-
-    return { resp, err, isLoad, post }
 }
 
 export default usePostData;

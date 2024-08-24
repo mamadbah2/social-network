@@ -33,36 +33,35 @@ func (m *ConnDB) SetComment(c *Comment) error {
 }
 
 func (m *ConnDB) GetAllComment(postID int) ([]*Comment, error) {
-
-	stmt := `SELECT id, id_author, id_post, content, created_at FROM comments WHERE id_post = ?
-	`
-
+	stmt := `SELECT id, id_author, id_post, content, created_at FROM comments WHERE id_post = ?`
 	rows, err := m.DB.Query(stmt, postID)
-
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
-	var AuthorId int
-	var PostId int
-	var AllComments []*Comment
-	c := &Comment{}
-
+	var allComments []*Comment
 	for rows.Next() {
-		rows.Scan(&c.Id, &AuthorId, &PostId, &c.Content, &c.Date)
+		c := &Comment{}
+		var authorId int
 
-		c.Author, err = m.GetUser(AuthorId)
+		err := rows.Scan(&c.Id, &authorId, &c.Post.Id, &c.Content, &c.Date)
 		if err != nil {
 			return nil, err
 		}
 
-		c.Post, err = m.GetPost(AuthorId)
+		// Fetch the author
+		c.Author, err = m.GetUser(authorId)
 		if err != nil {
 			return nil, err
 		}
 
-		AllComments = append(AllComments, c)
+		allComments = append(allComments, c)
 	}
 
-	return AllComments, nil
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return allComments, nil
 }
