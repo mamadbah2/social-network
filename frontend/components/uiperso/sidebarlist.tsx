@@ -15,8 +15,8 @@ import { paginateTable } from "@/lib/utils";
 import { Group } from "@/models/group.model";
 import { Item } from "@/models/item.model";
 import { User } from "@/models/user.model";
-import { Hand, PlusIcon } from "lucide-react";
 import React, { useEffect } from "react";
+import { ListBar } from "./listbar";
 
 // Voir si possible accordeon de maintenir...
 let prevUser = 0, prevGroup = 0, prevJoin = 0, prevCreated = 0
@@ -33,21 +33,6 @@ export default function SideBarList() {
     const [ItemGroup, setItemGroup] = React.useState<Item[]>([])
     const [ItemJoinedGroup, setItemJoinedGroup] = React.useState<Item[]>([])
     const [ItemCreatedGroup, setItemCreatedGroup] = React.useState<Item[]>([])
-
-    const HandleSetInit = (): void => {
-        setItemUser(paginateTable(users, prevUser, suivUser))
-        setItemGroup(paginateTable(groups, prevGroup, suivGroup))
-        setItemJoinedGroup(paginateTable(user.groups || [], prevJoin, suivJoin))
-        setItemCreatedGroup(paginateTable(user.createdGroups || [], prevCreated, suivCreated))
-    }
-
-
-    useEffect(()=>{
-        const timer = setTimeout(()=>{
-            HandleSetInit()
-        }, 500)
-        return ()=>clearTimeout(timer)
-    })
 
     const handlePaginate = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault()
@@ -100,50 +85,50 @@ export default function SideBarList() {
             <aside className="w-64 ">
                 <ScrollArea >
                     <Accordion type="multiple" className="w-full">
-                        <AccordionItem value="suggested-friends">
+                        <AccordionItem onClick={()=> setItemUser(paginateTable(users, prevUser, suivUser))} value="suggested-friends">
                             <AccordionTrigger className="px-4">
                                 Suggested Friends
                             </AccordionTrigger>
                             <AccordionContent>
-                                <SidebarList
+                                <ListBar
                                     items={ItemUser}
                                     showAddButton
                                 />
-                                <Button onClick={handlePaginate} id="friendBtn" className="w-full mt-2" variant="secondary">View Other</Button>
+                                {users.length != 0 && <Button onClick={handlePaginate} id="friendBtn" className="w-full mt-2" variant="secondary">View Other</Button>}
                             </AccordionContent>
                         </AccordionItem>
                         <AccordionItem value="suggested-groups">
-                            <AccordionTrigger className="px-4">
+                            <AccordionTrigger onClick={()=>setItemGroup(paginateTable(groups, prevGroup, suivGroup))} className="px-4">
                                 Suggested groups
                             </AccordionTrigger>
                             <AccordionContent>
-                                <SidebarList
+                                <ListBar
                                     items={ItemGroup}
                                     showAddButton
                                 />
-                                <Button onClick={handlePaginate} id="groupBtn" className="w-full mt-2" variant="secondary">View Other</Button>
+                                { groups?.length != 0 && <Button onClick={handlePaginate} id="groupBtn" className="w-full mt-2" variant="secondary">View Other</Button>}
                             </AccordionContent>
                         </AccordionItem>
                         <AccordionItem value="joined-groups">
-                            <AccordionTrigger className="px-4">
+                            <AccordionTrigger onClick={()=>setItemJoinedGroup(paginateTable(user.groups || [], prevJoin, suivJoin))} className="px-4">
                                 Joined groups
                             </AccordionTrigger>
                             <AccordionContent>
-                                <SidebarList
+                                <ListBar
                                     items={ItemJoinedGroup}
                                 />
-                                <Button onClick={handlePaginate} id="joinedGroupBtn" className="w-full mt-2" variant="secondary">View Other</Button>
+                                {(user.groups)?.length != 0 && <Button onClick={handlePaginate} id="joinedGroupBtn" className="w-full mt-2" variant="secondary">View Other</Button>}
                             </AccordionContent>
                         </AccordionItem>
                         <AccordionItem value="created-groups">
-                            <AccordionTrigger className="px-4">
+                            <AccordionTrigger onClick={()=>setItemCreatedGroup(paginateTable(user.createdGroups || [], prevCreated, suivCreated))} className="px-4">
                                 Created groups
                             </AccordionTrigger>
                             <AccordionContent>
-                                <SidebarList
+                                <ListBar
                                     items={ItemCreatedGroup}
                                 />
-                                <Button onClick={handlePaginate} id="createdGroupBtn" className="w-full mt-2" variant="secondary">View Other</Button>
+                                {(user?.createdGroups)?.length != 0 && <Button onClick={handlePaginate} id="createdGroupBtn" className="w-full mt-2" variant="secondary">View Other</Button>}
                             </AccordionContent>
                         </AccordionItem>
                     </Accordion>
@@ -155,32 +140,4 @@ export default function SideBarList() {
 
 
 
-function SidebarList({
-    items,
-    showAddButton = false,
-}: {
-    items: Item[];
-    showAddButton?: boolean;
-}) {
-    return (
-        <ul className="space-y-2 px-4">
-            {items.map((item, index) => (
-                <li key={index} className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                        <Avatar className="h-8 w-8">
-                            <AvatarImage src={item.image} alt={item.name} />
-                            <AvatarFallback>{item.name[0].toUpperCase()}</AvatarFallback>
-                        </Avatar>
-                        <span className="text-sm">{item.name}</span>
-                    </div>
-                    {showAddButton && (
-                        <Button variant="ghost" size="icon" className="h-6 w-6">
-                            <PlusIcon className="h-4 w-4" />
-                        </Button>
-                    )}
-                </li>
-            ))}
-            {/* Ajouter un bouton là pour paginer */}
-        </ul>
-    );
-}
+
