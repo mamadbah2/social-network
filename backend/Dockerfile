@@ -7,9 +7,10 @@
 ################################################################################
 # Create a stage for building the application.
 ARG GO_VERSION=1.22.2
-FROM --platform=$BUILDPLATFORM golang:${GO_VERSION} AS build
+FROM golang:${GO_VERSION}-alpine AS build
 WORKDIR /src
 
+RUN apk add --no-cache gcc musl-dev
 # Download dependencies as a separate step to take advantage of Docker's caching.
 # Leverage a cache mount to /go/pkg/mod/ to speed up subsequent builds.
 # Leverage bind mounts to go.sum and go.mod to avoid having to copy them into
@@ -54,23 +55,28 @@ FROM alpine:3.17.2 AS final
 #         update-ca-certificates
 
 # # Create a non-privileged user that the app will run under.
+
+RUN apk add --no-cache ca-certificates
+
 # # See https://docs.docker.com/go/dockerfile-user-best-practices/
-# ARG UID=10001
-# RUN adduser \
-#     --disabled-password \
-#     --gecos "" \
-#     --home "/nonexistent" \
-#     --shell "/sbin/nologin" \
-#     --no-create-home \
-#     --uid "${UID}" \
-#     appuser
-# USER appuser
+ ARG UID=1000
+ RUN adduser \
+     --disabled-password \
+     --gecos "" \
+     --home "/nonexistent" \
+     --shell "/sbin/nologin" \
+     --no-create-home \
+     --uid "${UID}" \
+     appuser
+ USER appuser
+
 
 # Copy the executable from the "build" stage.
-COPY --from=build /bin/server /bin/
+COPY --from=build /bin/server /bin
 
 # Expose the port that the application listens on.
 EXPOSE 4000
 
+WORKDIR /
 # What the container should run when it is started.
-ENTRYPOINT [ "/bin/server" ]
+ENTRYPOINT [ "/bin/server"]
