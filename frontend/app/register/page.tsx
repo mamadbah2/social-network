@@ -1,12 +1,12 @@
 'use client'
 
 import { Button } from "@/components/ui/button"
+import Checker from "@/components/ui/checker"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import usePostData from "@/lib/hooks/usepost"
 import { useState } from "react"
 import SecurityLayout from "../securelayout"
-import Checker from "@/components/ui/checker"
-import usePostData from "@/lib/hooks/usepost"
 
 export default function Register() {
     const [firstname, setFirstname] = useState('')
