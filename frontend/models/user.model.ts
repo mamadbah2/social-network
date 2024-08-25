@@ -9,6 +9,7 @@ export interface User {
     dateOfBirth: Date
     aboutMe: string
     private: boolean
+    profilePicture?: string
     groups?: Group[]
     createdGroups?: Group[]
 }

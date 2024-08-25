@@ -5,6 +5,7 @@ CREATE TABLE posts (
     title VARCHAR(255) NOT NULL,
     content TEXT NOT NULL,
     privacy VARCHAR(50) NOT NULL CHECK (privacy IN ('public', 'private', 'almost private')),
+    image_name VARCHAR(120),
     created_at DATETIME NOT NULL,
     FOREIGN KEY (id_author) REFERENCES users(id),
     FOREIGN KEY (id_group) REFERENCES groups(id)
