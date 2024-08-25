@@ -90,24 +90,24 @@ commit_and_push() {
 # All in a defined time interval...
 # Not used, needs further investigations...
 # Requires commit_and_push() to be desactivated...
-auto_push() {
-    i=1
-    # Continuous process...
-    while true; do
-        if [[ -n $(git status -s) ]]; then
-            add_files "$@"
+# auto_push() {
+#     i=1
+#     # Continuous process...
+#     while true; do
+#         if [[ -n $(git status -s) ]]; then
+#             add_files "$@"
 
-            log "Status:"
-            git status
+#             log "Status:"
+#             git status
 
-            git commit -a -m "Auto Commit - $i"
-            git push origin master
+#             git commit -a -m "Auto Commit - $i"
+#             git push origin master
 
-            i=$((i + 1))
-        fi
-        sleep 1200
-    done
-}
+#             i=$((i + 1))
+#         fi
+#         sleep 1200
+#     done
+# }
 
 #_________________________________________________________________________
 #

@@ -65,13 +65,13 @@ func main() {
 	}
 
 	srv := &http.Server{
-		Addr:     "localhost" + *PORT,
+		Addr:     "0.0.0.0" + *PORT,
 		Handler:  app.routes(),
 		ErrorLog: help.ErrorLog,
 	}
 
 	// Lancement du serveur
-	help.InfoLog.Printf("server on http://localhost%s", *PORT)
+	help.InfoLog.Printf("server on http://0.0.0.0%s", *PORT)
 	err = srv.ListenAndServe()
 	help.ErrorLog.Fatalln(err.Error())
 }
