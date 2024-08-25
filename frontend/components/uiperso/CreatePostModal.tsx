@@ -82,7 +82,7 @@ export default function CreatePostModal({
     }
 
     console.log("Form Data:", data);
-    const [resp, err] = await usePostData('/posts', new FormData(e.currentTarget))
+    const [resp, err] = await usePostData('/posts', new FormData(e.currentTarget), true)
     // onSubmit(data);
     onClose();
   };
@@ -102,7 +102,7 @@ export default function CreatePostModal({
     <div className="fixed inset-0 bg-black bg-opacity-50 z-10 flex justify-center items-center">
       <div className="bg-white p-6 rounded-lg shadow-lg w-96">
         <h2 className="text-xl font-semibold mb-4">Create New Post</h2>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} encType="multipart/form-data">
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700">
               Post Title
