@@ -1,7 +1,7 @@
 import SocialMediaLayout from "@/app/socialMediaLayout";
 import NavigationBar from "@/components/uiperso/NavigationBar";
 import SideBarList from "@/components/uiperso/SideBarList";
-import PostCard from "@/components/uiperso/SocialMediaPost";
+import PostCard from "@/components/uiperso/PostCard";
 
 // Example post data
 const posts = [
@@ -91,7 +91,7 @@ export default function Home() {
               content={post.content}
               imageSrc={post.imageSrc}
               likes={post.likes}
-              shares={post.shares}
+              dislikes={post.shares}
               comments={post.comments}
             />
           ))}

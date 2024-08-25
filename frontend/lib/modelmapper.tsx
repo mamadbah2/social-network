@@ -72,6 +72,8 @@ export function mapPost(data: any): Post[] {
         numberLike: p.NumberLike,
         numberDislike: p.NumberDislike,
         numberComment: p.NumberComment,
+        author: mapSimpleUser(p.Author),
+        viewers: mapUser(p.Viewers),
     }));
 }
 

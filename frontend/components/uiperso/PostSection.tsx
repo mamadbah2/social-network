@@ -1,6 +1,6 @@
 import React from 'react';
 import { Post } from '@/models/post.model'; // Adjust path if necessary
-import PostCard from './SocialMediaPost';
+import PostCard from './PostCard';
 
 interface PostSectionProps {
   posts: Post[]; // Ensure this matches the Post type
@@ -8,7 +8,7 @@ interface PostSectionProps {
 
 const PostSection: React.FC<PostSectionProps> = ({ posts }) => {
   return (
-    <div className="w-3/4 ml-4">
+    <div className="space-y-4">
       {posts.map((post) => (
         <PostCard
           key={post.id}
@@ -19,7 +19,7 @@ const PostSection: React.FC<PostSectionProps> = ({ posts }) => {
           content={post.content || "No content available"}
           imageSrc={post.imageSrc || "/ironman.jpeg"}
           likes={post.numberLike || 0}
-          // shares={post.numberShare || 0}
+          dislikes={post.numberDislike || 0}
           comments={post.numberComment || 0}
         />
       ))}
