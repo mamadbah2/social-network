@@ -4,12 +4,8 @@ import { Button } from "@/components/ui/button"
 import Checker from "@/components/ui/checker"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-<<<<<<< HEAD
-import { useState } from 'react'
-=======
 import usePostData from "@/lib/hooks/usepost"
 import { useState } from "react"
->>>>>>> origin/cherif
 import SecurityLayout from "../securelayout"
 
 export default function Register() {

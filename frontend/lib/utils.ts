@@ -21,3 +21,11 @@ export function paginateTable<T>(table: T[], prev:number, suiv :number): Item[] 
     
   return paginated
 }
+
+export function calculPagination<T>(table: T[], prev:number, suiv:number, step = 4) {
+  if (suiv <= table.length) {
+      prev = prev + step; suiv = suiv + step
+  } else {
+      suiv = 4; prev = 0;
+  }
+}

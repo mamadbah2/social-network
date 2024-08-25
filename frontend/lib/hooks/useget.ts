@@ -13,9 +13,10 @@ const useGetData = <T>(uri: string, mapper:(obj:any)=>T ) => {
         revalidateOnReconnect: false, // Ne pas refetch lorsque la connexion est rétablie
         refreshInterval: 0,           // Ne pas refetch à intervalle régulier
     })
+    
 
     // const expect= mapper(data?.Datas)
-    const expect = data?.Datas ? mapper(data?.Datas) : [];
+    const expect = mapper(data?.Datas);
 
     return {
         data: expect,

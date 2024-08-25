@@ -2,7 +2,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import CreatePostModal from "@/components/uiperso/CreatePostModal";
-import usePostData from "@/lib/hooks/usepost";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -11,7 +10,7 @@ export default function NavigationBar() {
   const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false);
   const handleCreatePostModalOpen = () => setIsCreatePostModalOpen(true);
   const handleCreatePostModalClose = () => setIsCreatePostModalOpen(false);
-  const { resp, err, isLoad, post } = usePostData();
+  //const { resp, err, isLoad, post } = usePostData()
   // const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
   //   e.preventDefault();
   //   await post("/post", new FormData(e.currentTarget), true);

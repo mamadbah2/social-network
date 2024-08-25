@@ -1,3 +1,5 @@
+import { Group } from "./group.model"
+
 export interface User {
     id: number
     email: string
@@ -7,7 +9,8 @@ export interface User {
     dateOfBirth: Date
     aboutMe: string
     private: boolean
-    profilePicture?: string;
+    groups?: Group[]
+    createdGroups?: Group[]
 }
 
 // Id             int

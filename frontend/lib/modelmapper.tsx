@@ -2,22 +2,56 @@ import { Post } from "@/models/post.model";
 import { User } from "@/models/user.model";
 import { Group } from "@/models/group.model";
 
+export function mapSimpleUser(data: any): User {
+    if (!data) {
+        return {
+            id: 0,
+            email: "",
+            firstname: "",
+            lastname: "",
+            nickname: " ",
+            dateOfBirth: new Date(),
+            aboutMe: "",
+            private: false,
+        }
+    }
+
+    return {
+        id: data.Id,
+        email: data.Email,
+        firstname: data.FirstName,
+        lastname: data.LastName,
+        nickname: data.Nickname,
+        dateOfBirth: data.DateOfBirth,
+        aboutMe: data.AboutMe,
+        private: data.Private,
+        groups: mapGroup(data.Groups),
+        createdGroups : mapGroup(data.CreatedGroups),
+    }
+
+    // return som
+}
+
 export function mapUser(data: any): User[] {
     if (!data) {
         return []
     }
 
-    return data.map((u: any): User => ({
-        id: u.Id,
-        email: u.Email,
-        firstname: u.FirstName,
-        lastname: u.LastName,
-        nickname: u.Nickname,
-        dateOfBirth: u.DateOfBirth,
-        aboutMe: u.AboutMe,
-        private: u.Private,
-        profilePicture: u.ProfilePicture, 
-    }))
+    return data.map((u: any): User => {
+        // console.log('u.Groups :>> ', mapGroup(u.Groups));
+
+        return ({
+            id: u.Id,
+            email: u.Email,
+            firstname: u.FirstName,
+            lastname: u.LastName,
+            nickname: u.Nickname,
+            dateOfBirth: u.DateOfBirth,
+            aboutMe: u.AboutMe,
+            private: u.Private,
+            groups: mapGroup(u.Groups)
+        })
+    })
 
     // return som
 }
@@ -48,10 +82,9 @@ export function mapGroup(data: any): Group[] {
 
 
     return data.map((g: any): Group => ({
-        Id: g.Id,
-        Name : g.Name,
-        Description : g.Description,
-        Creator: g.Author,
-        CreatedAt: g.CreatedAt,
+        id: g.Id,
+        name: g.Name,
+        description: g.Description,
+        createdAt: g.CreatedAt,
     }));
 }
