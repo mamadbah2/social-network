@@ -56,8 +56,6 @@ FROM alpine:3.17.2 AS final
 
 # # Create a non-privileged user that the app will run under.
 
-RUN apk add --no-cache ca-certificates
-
 # # See https://docs.docker.com/go/dockerfile-user-best-practices/
  ARG UID=1000
  RUN adduser \
@@ -77,6 +75,5 @@ COPY --from=build /bin/server /bin
 # Expose the port that the application listens on.
 EXPOSE 4000
 
-WORKDIR /
 # What the container should run when it is started.
 ENTRYPOINT [ "/bin/server"]
