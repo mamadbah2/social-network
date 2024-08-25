@@ -1,6 +1,6 @@
 #!/bin/bash
 
-desired_branch="main"
+desired_branch="cherif"
 username="your_username"
 email="your_email"
 
