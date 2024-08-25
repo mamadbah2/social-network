@@ -59,10 +59,10 @@ func (hand *Handler) Post(w http.ResponseWriter, r *http.Request) {
 			hand.renderJSON(w, post)
 		}
 	case http.MethodPost:
-		fmt.Println("yoooo")
-		err := r.ParseForm()
+		//Parsing Formulaire
+		err := r.ParseMultipartForm(20 << 20)
 		if err != nil {
-			hand.Helpers.ClientError(w, http.StatusBadRequest)
+			hand.Helpers.ClientError(w, 400)
 			return
 		}
 
@@ -72,6 +72,7 @@ func (hand *Handler) Post(w http.ResponseWriter, r *http.Request) {
 			if int(fileHeaderImg.Size) > 20000000 || !hand.Valid.ImageValidation(fileImg) {
 				hand.renderJSON(w, &data)
 				if int(fileHeaderImg.Size) > 20000000 || !hand.Valid.ImageValidation(fileImg) {
+					fmt.Println("5555555")
 					hand.Helpers.ClientError(w, http.StatusBadRequest)
 					return
 				}
@@ -92,48 +93,47 @@ func (hand *Handler) Post(w http.ResponseWriter, r *http.Request) {
 					return
 				}
 
-			} else {
-				hand.Helpers.InfoLog.Println(err, " --Pas d'image set")
 			}
+		} else {
+			hand.Helpers.InfoLog.Println(err, " --Pas d'image set")
+		}
+		title := r.PostForm.Get("title")
+		content := r.PostForm.Get("content")
+		privacy := r.PostForm.Get("privacy")
+		groupIdStr := r.PostForm.Get("group_id")
+		escapedContent := html.EscapeString(content)
 
-			title := r.PostForm.Get("title")
-			content := r.PostForm.Get("content")
-			privacy := r.PostForm.Get("privacy")
-			groupIdStr := r.PostForm.Get("group_id")
-			escapedContent := html.EscapeString(content)
+		if strings.TrimSpace(escapedContent) == "" || strings.TrimSpace(title) == "" || strings.TrimSpace(privacy) == "" {
+			http.Error(w, "Title, content, and privacy fields must not be empty.", http.StatusBadRequest)
+			return
+		}
 
-			if strings.TrimSpace(escapedContent) == "" || strings.TrimSpace(title) == "" || strings.TrimSpace(privacy) == "" {
-				http.Error(w, "Title, content, and privacy fields must not be empty.", http.StatusBadRequest)
+		var groupId int
+		if groupIdStr != "" {
+			groupId, err = strconv.Atoi(groupIdStr)
+			if err != nil {
+				hand.Helpers.ClientError(w, http.StatusBadRequest)
 				return
 			}
+		}
 
-			var groupId int
-			if groupIdStr != "" {
-				groupId, err = strconv.Atoi(groupIdStr)
+		selectedFollowers := []int{}
+		if privacy == "almost private" {
+			followers := r.Form["followers"]
+			for _, followerId := range followers {
+				fId, err := strconv.Atoi(strings.TrimSpace(followerId))
 				if err != nil {
 					hand.Helpers.ClientError(w, http.StatusBadRequest)
 					return
 				}
+				selectedFollowers = append(selectedFollowers, fId)
 			}
+		}
 
-			selectedFollowers := []int{}
-			if privacy == "almost private" {
-				followers := r.Form["followers"]
-				for _, followerId := range followers {
-					fId, err := strconv.Atoi(strings.TrimSpace(followerId))
-					if err != nil {
-						hand.Helpers.ClientError(w, http.StatusBadRequest)
-						return
-					}
-					selectedFollowers = append(selectedFollowers, fId)
-				}
-			}
-
-			_, err = hand.ConnDB.SetPost(title, escapedContent, nameImg, privacy, actualUser.Id, groupId, selectedFollowers)
-			if err != nil {
-				hand.Helpers.ServerError(w, err)
-				return
-			}
+		_, err = hand.ConnDB.SetPost(title, escapedContent, nameImg, privacy, actualUser.Id, groupId, selectedFollowers)
+		if err != nil {
+			hand.Helpers.ServerError(w, err)
+			return
 		}
 		hand.renderJSON(w, nil)
 

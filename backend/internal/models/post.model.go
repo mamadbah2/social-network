@@ -24,8 +24,8 @@ type Post struct {
 
 func (m *ConnDB) SetPost(title, content, imageName, privacy string, userId, groupId int, selectedFollowers []int) (int, error) {
 	// Insert the post into the posts table
-	statement := `INSERT INTO posts (title, content, image_name, privacy, created_at, id_author, id_group) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, ?, ?)`
-	result, err := m.DB.Exec(statement, title, content, imageName, privacy, userId, groupId)
+	statement := `INSERT INTO posts (title, content, privacy, image_name, created_at, id_author, id_group) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, ?, ?)`
+	result, err := m.DB.Exec(statement, title, content, privacy, imageName, userId, groupId)
 	if err != nil {
 		return 0, err
 	}
