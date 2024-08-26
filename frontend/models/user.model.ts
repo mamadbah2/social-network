@@ -12,6 +12,7 @@ export interface User {
     profilePicture?: string
     groups?: Group[]
     createdGroups?: Group[]
+    suggestedFriends?: User[]
 }
 
 // Id             int
