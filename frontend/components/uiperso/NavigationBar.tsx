@@ -10,43 +10,12 @@ export default function NavigationBar() {
   const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false);
   const handleCreatePostModalOpen = () => setIsCreatePostModalOpen(true);
   const handleCreatePostModalClose = () => setIsCreatePostModalOpen(false);
-  //const { resp, err, isLoad, post } = usePostData()
-  // const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  //   e.preventDefault();
-  //   await post("/post", new FormData(e.currentTarget), true);
-  //   console.log("data :>> ", resp);
-  //   console.log("error :>> ", err);
-  //   console.log("isLoading :>> ", isLoad);
-  // };
-  const handlePostFormSubmit = async (data: {
-    title: string;
-    content: string;
-    privacy: string;
-  }) => {
-    try {
-      const response = await fetch("/posts", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
 
-      if (response.ok) {
-        console.log("Event created successfully");
-      } else {
-        console.error("Failed to create event");
-      }
-    } catch (error) {
-      console.error("An error occurred while creating the event:", error);
-    }
-  };
   return (
     <nav className="flex items-center justify-between px-4 py-2 bg-background border rounded-lg">
       <CreatePostModal
         isOpen={isCreatePostModalOpen}
         onClose={handleCreatePostModalClose}
-        onSubmit={handlePostFormSubmit}
       />
       <div className="flex items-center space-x-4 ">
         <Button
