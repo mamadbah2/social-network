@@ -12,8 +12,8 @@ import (
 var chatbox = make(map[int]*websocket.Conn)
 
 var socket = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
+	ReadBufferSize:  2048,
+	WriteBufferSize: 2048,
 	CheckOrigin: func(r *http.Request) bool {
 		return true
 	},
@@ -60,12 +60,6 @@ func (h *Handler) Chat(w http.ResponseWriter, r *http.Request) {
 	chatbox[senderID] = senderConn // Add sender's connection in the chat box.
 
 	// Get the message history from the database.
-	/* oldMessages, err := h.ConnDB.Get(
-		`SELECT * FROM messages
-		WHERE id_sender = ? AND id_receiver = ?
-		OR id_receiver = ? AND id_sender = ?`,
-		senderID, receiverID, senderID, receiverID,
-	) */
 	oldMessages, err := h.ConnDB.GetOldConversation(senderID, receiverID)
 	if err != nil {
 		h.Helpers.ServerError(w, err)

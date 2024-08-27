@@ -123,21 +123,69 @@ func (m *ConnDB) GetFollowing(userID int) ([]*Follow, error) {
 	return Followed, nil
 }
 
-// func (m *ConnDB) ArchiveFollower(followerID, followedID int) error {
-// 	if followerID == followedID {
-// 		return ErrSelfFollow
-// 	}
-// 	query := `
-// 		UPDATE follows
-// 		SET state = unfollow
-// 		WHERE id_follower = ? AND id_followed = ?
-// 	`
-// 	_, err := m.DB.Exec(query, followerID, followedID)
-// 	if err != nil {
-// 		// Affichage de l'erreur pour le débogage
-// 		return fmt.Errorf("error executing query: %w", err)
+func (m *ConnDB) GetSuggestedFriends(userID int) ([]*User, error) {
+	stmt := `
+		SELECT u.id, u.email, u.first_name, u.last_name, u.nickname, 
+			u.profile_picture, u.profile_privacy, u.about_me, u.created_at
+		FROM users u
+		WHERE u.id NOT IN (
+			SELECT f.id_followed
+			FROM follows f
+			WHERE f.id_follower = ?
+		) 
+		AND u.id != ?;
+	`
 
-// 	}
-// 	fmt.Println("Successfully archive")
-// 	return nil
-// }
+	
+	rows, err := m.DB.Query(stmt, userID, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var friends []*User
+	for rows.Next() {
+		f := &User{}
+		err := rows.Scan(
+			&f.Id, &f.Email, &f.FirstName, &f.LastName, &f.Nickname,
+			&f.ProfilePicture, &f.Private, &f.AboutMe, &f.CreatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		friends = append(friends, f)
+	}
+	
+	return friends, nil
+}
+
+func (m *ConnDB) GetFollowersByUser(userID int) ([]*User, error) {
+	query := `
+        SELECT u.*
+        FROM users u
+        JOIN follows f ON u.id = f.id_follower
+        WHERE f.id_followed = ?
+    `
+
+	rows, err := m.DB.Query(query, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var followers []*User
+
+	for rows.Next() {
+		f := &User{}
+		var dateOfBirthStr string
+		err := rows.Scan(
+			&f.Id, &f.Email, &f.Password, &f.FirstName, &f.LastName, &dateOfBirthStr, &f.ProfilePicture, &f.Nickname, &f.AboutMe, &f.Private, &f.CreatedAt)
+		if err != nil {
+			return nil, err
+		}
+		followers = append(followers, f)
+	}
+	return followers, nil
+}

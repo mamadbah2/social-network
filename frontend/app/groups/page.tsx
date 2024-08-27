@@ -1,6 +1,6 @@
 import SocialMediaLayout from "@/app/socialMediaLayout";
 import NavigationBar from "@/components/uiperso/NavigationBar";
-import SideBarList from "@/components/uiperso/SideBarList";
+import SideBarList from "@/components/uiperso/sidebarlist";
 import PostCard from "@/components/uiperso/PostCard";
 
 // Example post data

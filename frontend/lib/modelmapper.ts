@@ -27,6 +27,7 @@ export function mapSimpleUser(data: any): User {
         private: data.Private,
         groups: mapGroup(data.Groups),
         createdGroups : mapGroup(data.CreatedGroups),
+        suggestedFriends : mapUser(data.SuggestedFriends)
     }
 
     // return som
