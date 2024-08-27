@@ -1,6 +1,3 @@
-import SocialMediaLayout from "@/app/socialMediaLayout";
-import NavigationBar from "@/components/uiperso/NavigationBar";
-import SideBarList from "@/components/uiperso/sidebarlist";
 import PostCard from "@/components/uiperso/PostCard";
 
 // Example post data
@@ -75,28 +72,22 @@ const posts = [
 
 export default function Home() {
   return (
-    <SocialMediaLayout
-      header={<NavigationBar />}
-      aside={<SideBarList />}
-      section={
-        <div className="space-y-4">
-          {" "}
-          {posts.map((post) => (
-            <PostCard
-              key={post.id}
-              username={post.username}
-              avatarSrc={post.avatarSrc}
-              date={post.date}
-              title={post.title}
-              content={post.content}
-              imageSrc={post.imageSrc}
-              likes={post.likes}
-              dislikes={post.shares}
-              comments={post.comments}
-            />
-          ))}
-        </div>
-      }
-    />
+    <div className="space-y-4">
+      {" "}
+      {posts.map((post) => (
+        <PostCard
+          key={post.id}
+          username={post.username}
+          avatarSrc={post.avatarSrc}
+          date={post.date}
+          title={post.title}
+          content={post.content}
+          imageSrc={post.imageSrc}
+          likes={post.likes}
+          dislikes={post.shares}
+          comments={post.comments}
+        />
+      ))}
+    </div>
   );
 }
