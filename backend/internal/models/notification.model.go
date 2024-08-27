@@ -9,8 +9,8 @@ type Notification struct {
 	CreatedAt  time.Time
 	EntityType string // exple message, event, follow, rejoin group
 	EntityID   int    // là ce sera id de l'entité considéré
-	SenderID   int
-	ReceiverID int
+	Sender   *User
+	Receiver *User
 }
 
 func (m *ConnDB) GetNotifications(receiverID int) ([]*Notification, error) {
@@ -29,11 +29,25 @@ func (m *ConnDB) GetNotifications(receiverID int) ([]*Notification, error) {
 
 	var notifs []*Notification
 	for rows.Next() {
-		n := &Notification{}
-		err = rows.Scan(&n.Id, &n.Content, &n.Approuved, &n.CreatedAt, &n.EntityType, &n.EntityID, &n.SenderID, &n.ReceiverID)
+		n := &Notification{
+			Sender: &User{},
+			Receiver: &User{},
+		}
+		var s, r int
+		err = rows.Scan(&n.Id, &n.Content, &n.Approuved, &n.CreatedAt, &n.EntityType, &n.EntityID, &s, &r)
 		if err != nil {
 			return nil, err
 		}
+
+		n.Sender, err = m.GetUser(s)
+		if err != nil {
+			return nil, err
+		}
+		n.Receiver, err = m.GetUser(r)
+		if err != nil {
+			return nil, err
+		}
+
 		notifs = append(notifs, n)
 	}
 	return notifs, nil
@@ -44,7 +58,7 @@ func (m *ConnDB) SetNotification(notif *Notification) (int, error) {
 		INSERT INTO notifications (content, created_at, entity_type, entity_id, sender_id, receiver_id)
 		VALUES (?, CURRENT_TIMESTAMP, ?, ?, ?, ?)
 	`
-	result, err := m.DB.Exec(stmt, notif.Content, notif.EntityType, notif.EntityID, notif.SenderID, notif.ReceiverID)
+	result, err := m.DB.Exec(stmt, notif.Content, notif.EntityType, notif.EntityID, notif.Sender.Id, notif.Receiver.Id)
 	if err != nil {
 		return 0, err
 	}

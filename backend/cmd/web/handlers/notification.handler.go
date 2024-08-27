@@ -27,7 +27,7 @@ func (hand *Handler) Notification(w http.ResponseWriter, r *http.Request) {
 	defer senderConn.Close()
 
 	notifClients[senderID] = senderConn // Add sender's connection in the chat box.
-
+	// senderConn.WriteMessage(1, []byte("Bienvenue mon gars"))
 	// Get the message history from the database.
 	myNotifs, err := hand.ConnDB.GetNotifications(senderID)
 	if err != nil {
@@ -65,10 +65,10 @@ func (hand *Handler) Notification(w http.ResponseWriter, r *http.Request) {
 			}
 			// Send the new messages to the receiver
 			// if the receiver has a connection in the chat box.
-			if receiverConn, exists := notifClients[newNotif.ReceiverID]; exists {
+			if receiverConn, exists := notifClients[newNotif.Receiver.Id]; exists {
 				if err = receiverConn.WriteJSON(newNotif); err != nil {
 					receiverConn.Close()
-					delete(notifClients, newNotif.ReceiverID)
+					delete(notifClients, newNotif.Receiver.Id)
 					break
 				}
 			}
