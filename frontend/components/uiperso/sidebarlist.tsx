@@ -85,7 +85,7 @@ export default function SideBarList() {
             <aside className="w-64">
                 <ScrollArea className="h-full">
                     <Accordion type="multiple" className="w-full">
-                        <AccordionItem onClick={()=> setItemUser(paginateTable(user.suggestedFriends || [], prevUser, suivUser))} value="suggested-friends">
+                        <AccordionItem onClick={() => setItemUser(paginateTable(user.suggestedFriends || [], prevUser, suivUser))} value="suggested-friends">
                             <AccordionTrigger className="px-4">
                                 Suggested Friends
                             </AccordionTrigger>
@@ -98,7 +98,7 @@ export default function SideBarList() {
                             </AccordionContent>
                         </AccordionItem>
                         <AccordionItem value="suggested-groups">
-                            <AccordionTrigger onClick={()=>setItemGroup(paginateTable(groups, prevGroup, suivGroup))} className="px-4">
+                            <AccordionTrigger onClick={() => setItemGroup(paginateTable(groups, prevGroup, suivGroup))} className="px-4">
                                 Suggested groups
                             </AccordionTrigger>
                             <AccordionContent>
@@ -106,22 +106,22 @@ export default function SideBarList() {
                                     items={ItemGroup}
                                     showAddButton
                                 />
-                                { (groups?.length || 0) > step && <Button onClick={handlePaginate} id="groupBtn" className="w-full mt-2" variant="secondary">View Other</Button>}
+                                {(groups?.length || 0) > step && <Button onClick={handlePaginate} id="groupBtn" className="w-full mt-2" variant="secondary">View Other</Button>}
                             </AccordionContent>
                         </AccordionItem>
                         <AccordionItem value="joined-groups">
-                            <AccordionTrigger onClick={()=>setItemJoinedGroup(paginateTable(user.groups || [], prevJoin, suivJoin))} className="px-4">
+                            <AccordionTrigger onClick={() => setItemJoinedGroup(paginateTable(user.groups || [], prevJoin, suivJoin))} className="px-4">
                                 Joined groups
                             </AccordionTrigger>
                             <AccordionContent>
                                 <ListBar
                                     items={ItemJoinedGroup}
                                 />
-                                {((user.groups)?.length || 0 )> step && <Button onClick={handlePaginate} id="joinedGroupBtn" className="w-full mt-2" variant="secondary">View Other</Button>}
+                                {((user.groups)?.length || 0) > step && <Button onClick={handlePaginate} id="joinedGroupBtn" className="w-full mt-2" variant="secondary">View Other</Button>}
                             </AccordionContent>
                         </AccordionItem>
                         <AccordionItem value="created-groups">
-                            <AccordionTrigger onClick={()=>setItemCreatedGroup(paginateTable(user.createdGroups || [], prevCreated, suivCreated))} className="px-4">
+                            <AccordionTrigger onClick={() => setItemCreatedGroup(paginateTable(user.createdGroups || [], prevCreated, suivCreated))} className="px-4">
                                 Created groups
                             </AccordionTrigger>
                             <AccordionContent>

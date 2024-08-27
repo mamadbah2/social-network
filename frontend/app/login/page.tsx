@@ -8,6 +8,8 @@ import React from 'react'
 import SecurityLayout from "../securelayout"
 import { useRouter } from "next/navigation"
 
+export let socketNotif : WebSocket;
+
 export default function Login() {
     const router = useRouter()
 
@@ -19,7 +21,7 @@ export default function Login() {
             setSessionToken(resp?.Cookie.Value)
             localStorage.setItem('userID', `${resp?.UserId}`)
             console.log("Login Success :>>", resp?.Cookie.Value);
-            router.push("/")
+            router.push('/')
         } else {
             alert("Error to log : Try to restart backend")
         }
