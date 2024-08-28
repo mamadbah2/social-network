@@ -15,6 +15,7 @@ export function paginateTable<T>(table: T[], prev: number, suiv: number): Item[]
   let current: Array<T> = table.slice(prev, suiv)
   const paginated: Array<Item> = current.map((c: T): Item => {
     return {
+      userId : (c as User).id || (c as Group).id,
       name: (c as User).firstname || (c as Group).name || "" ,
       image: "",
     }

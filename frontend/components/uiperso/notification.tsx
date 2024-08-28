@@ -32,7 +32,7 @@ const NotificationBar: React.FC<NotificationProps> = ({
                 {notifications.map((notification, index) => (
                     <div key={index} className="flex items-start space-x-2 sm:space-x-3">
                         <Avatar className="h-8 w-8 flex-shrink-0">
-                        <AvatarFallback>{notification.sender.firstname[0].toUpperCase()}</AvatarFallback>
+                        <AvatarFallback>{notification.sender!.firstname![0].toUpperCase() ?? "N/A" }</AvatarFallback>
                         </Avatar>
                         <div className="flex-1 space-y-1 min-w-0">
                             <p className="text-xs sm:text-sm leading-tight">

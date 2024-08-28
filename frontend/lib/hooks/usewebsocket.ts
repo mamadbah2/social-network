@@ -29,9 +29,18 @@ const useWS = <T>(uri: string, mapper: (obj: any)=>T[]) => {
         };
     }, [uri])
 
+    const sendObject = (obj : T):boolean => {
+        if (ws && ws.readyState == WebSocket.OPEN) {
+            ws.send(JSON.stringify(obj))
+            return true
+        }
+        return false
+    }
+
     return {
         ws,
-        initData
+        initData,
+        sendObject,
     }
 }
 

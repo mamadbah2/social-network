@@ -2,6 +2,10 @@ import { Item } from "@/models/item.model";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { PlusIcon } from "lucide-react";
+import useWS from "@/lib/hooks/usewebsocket";
+import { mapNotification } from "@/lib/modelmapper";
+import { Notification } from "@/models/notification.model";
+import { User } from "@/models/user.model";
 
 export function ListBar({
     items,
@@ -10,6 +14,25 @@ export function ListBar({
     items: Item[];
     showAddButton?: boolean;
 }) {
+    const { ws: socket, sendObject } = useWS('/notification', mapNotification)
+
+    const handleFollow = (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault()
+        const suggestFriendId = parseInt( e.currentTarget.value)
+        const myId = localStorage.getItem('userId') || ""
+        let notif: Notification = {
+            content : "want follow you",
+            approuved: false,
+            entityType:"follow",
+            entityId:suggestFriendId,
+            sender: {id : parseInt(myId)}  ,
+            receiver: {id: suggestFriendId} ,
+        }
+        if ( sendObject(notif) ) {
+            console.log('notifs send successful :>> ', notif);
+        }
+    }
+
     return (
         <ul className="space-y-2 px-4">
             {items.map((item, index) => (
@@ -22,7 +45,7 @@ export function ListBar({
                         <span className="text-sm">{item.name}</span>
                     </div>
                     {showAddButton && (
-                        <Button variant="ghost" size="icon" className="h-6 w-6">
+                        <Button onClick={handleFollow} value={item?.userId} variant="ghost" size="icon" className="h-6 w-6">
                             <PlusIcon className="h-4 w-4" />
                         </Button>
                     )}

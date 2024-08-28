@@ -1,12 +1,12 @@
 import { User } from "./user.model";
 
 export interface Notification {
-    id: number,
+    id?: number,
     content: string,
     approuved: boolean,
-    createdAt: Date,
+    createdAt?: Date,
     entityType: string,
     entityId: number,
-    sender: User,
-    receiver: User,
+    sender: Partial<User>,
+    receiver: Partial<User>,
 }
