@@ -1,6 +1,8 @@
 import { Post } from "@/models/post.model";
 import { User } from "@/models/user.model";
 import { Group } from "@/models/group.model";
+import { Notification } from "@/models/notification.model";
+import { Session } from "@/models/session.model";
 
 export function mapSimpleUser(data: any): User {
     if (!data) {
@@ -90,4 +92,39 @@ export function mapGroup(data: any): Group[] {
         description: g.Description,
         createdAt: g.CreatedAt,
     }));
+}
+
+
+export function mapNotification(data: any): Notification[] {
+    if (!data) {
+        return [];
+    }
+
+    data = (!Array.isArray(data)) ? [data] : data
+
+    return data.map((n: any): Notification => ({
+        id: n.Id,
+        content : n.Content,
+        approuved: n.Approuved, 
+        createdAt: n.CreatedAt,
+        entityType: n.EntityType,
+        entityId: n.EntityID,
+        sender: mapSimpleUser(n.Sender),
+        receiver: mapSimpleUser(n.Receiver),
+    }));
+}
+
+export function mapSimpleSession(data: any): Session {
+    if (!data) {
+        return {
+            id: 0,
+            userId: 0,
+        }
+    }
+
+    return {
+        id: data.Id,
+        userId: data.UserId,
+    }
+
 }

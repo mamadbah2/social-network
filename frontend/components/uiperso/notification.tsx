@@ -1,17 +1,30 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Avatar, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Check, X } from "lucide-react"
+import { Notification } from "@/models/notification.model"
 
-export default function Notifications() {
-    const notifications = [
-        { name: "Bobo", action: "request to follow your account", avatar: "/placeholder.svg?height=32&width=32" },
-        { name: "murielle", action: "request to join your group", avatar: "/placeholder.svg?height=32&width=32" },
-        { name: "john", action: "follow you", avatar: "/placeholder.svg?height=32&width=32" },
+interface NotificationProps {
+    isOpen: Boolean,
+    notifs: Notification[],
+}
+ 
+const NotificationBar: React.FC<NotificationProps> = ({
+    isOpen,
+    notifs,
+}) => {
+    if (!isOpen) {
+        return null
+    }
+
+    const notifications = notifs ||  [
+        { sender: {firstname: "Bobo"}, content: "request to follow your account",  },
+        { sender: {firstname: "Jonh"}, content: "request to join your group",  },
+        { sender: {firstname: "Murielle"}, content: "follow you",  },
     ]
 
     return (
-        <Card className="w-full max-w-sm mx-auto bg-white shadow-lg rounded-xl">
+        <Card className="absolute top-10 z-10  w-full min-w-80 max-w-sm mx-auto bg-white shadow-lg rounded-xl">
             <CardHeader className="pb-3">
                 <CardTitle className="text-lg sm:text-xl font-bold">Notifications</CardTitle>
             </CardHeader>
@@ -19,12 +32,12 @@ export default function Notifications() {
                 {notifications.map((notification, index) => (
                     <div key={index} className="flex items-start space-x-2 sm:space-x-3">
                         <Avatar className="h-8 w-8 flex-shrink-0">
-                            <AvatarImage src={notification.avatar} alt={notification.name} />
+                        <AvatarFallback>{notification.sender!.firstname![0].toUpperCase() ?? "N/A" }</AvatarFallback>
                         </Avatar>
                         <div className="flex-1 space-y-1 min-w-0">
                             <p className="text-xs sm:text-sm leading-tight">
-                                <span className="font-medium">{notification.name}</span>{" "}
-                                <span className="text-muted-foreground break-words">{notification.action}</span>
+                                <span className="font-medium">{notification.sender.firstname}</span>{" "}
+                                <span className="text-muted-foreground break-words">{notification.content}</span>
                             </p>
                         </div>
                         <div className="flex space-x-1 flex-shrink-0">
@@ -43,3 +56,5 @@ export default function Notifications() {
         </Card>
     )
 }
+
+export default NotificationBar

@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea"
 import usePostData from "@/lib/hooks/usepost"
 import { useState } from "react"
 import SecurityLayout from "../securelayout"
+import { useRouter } from "next/navigation"
 
 export default function Register() {
     const [firstname, setFirstname] = useState('')
@@ -19,10 +20,14 @@ export default function Register() {
     const [file, setFile] = useState(undefined)
     const [privacy, setPrivacy] = useState('')
     
+    const router = useRouter()
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         const [resp, err] = await usePostData('/register', new FormData(e.currentTarget), true)
-        console.log('data :>> ', resp);
+        if (Object.keys(err).length == 0) {
+            console.log('data :>> ', resp);
+            router.push('/login')
+        }
         console.log('error :>> ', err);
         // console.log('isLoading :>> ', isLoad);
     }

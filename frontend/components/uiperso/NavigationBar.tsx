@@ -5,11 +5,17 @@ import CreatePostModal from "@/components/uiperso/CreatePostModal";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import useWS from "@/lib/hooks/usewebsocket";
+import { mapNotification } from "@/lib/modelmapper";
+import NotificationBar from "./notification";
+import Logout from "./logout";
 
 export default function NavigationBar() {
   const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false);
+  const [isOpenNotif, setIsOpenNotif] = useState(false);
   const handleCreatePostModalOpen = () => setIsCreatePostModalOpen(true);
   const handleCreatePostModalClose = () => setIsCreatePostModalOpen(false);
+  const { getReceived } = useWS();
 
   return (
     <nav className="flex items-center justify-between px-4 py-2 bg-background border rounded-lg">
@@ -58,7 +64,7 @@ export default function NavigationBar() {
         </Link>
       </div>
 
-      <div className="flex items-center justify-end  space-x-4">
+      <div className="relative flex items-center justify-end  space-x-4">
         <Button variant="ghost" className="text-muted-foreground" size="icon">
           <Image
             src="chat.svg"
@@ -68,7 +74,18 @@ export default function NavigationBar() {
             className="h-6 w-6"
           />
         </Button>
-        <Button variant="ghost" className="text-muted-foreground" size="icon">
+        <NotificationBar isOpen={isOpenNotif} notifs={getReceived()} />
+        <Button
+          onClick={() => {
+            setIsOpenNotif(!isOpenNotif);
+            if (!isOpenNotif) {
+              console.log("initNotif :>> ", getReceived());
+            }
+          }}
+          variant="ghost"
+          className="text-muted-foreground"
+          size="icon"
+        >
           <Image
             src="notification.svg"
             width={25}
@@ -77,15 +94,7 @@ export default function NavigationBar() {
             className="h-6 w-6"
           />
         </Button>
-        <Button variant="ghost" className="text-muted-foreground" size="icon">
-          <Image
-            src="logout.svg"
-            width={25}
-            height={25}
-            alt="group icon"
-            className="h-6 w-6"
-          />
-        </Button>
+        <Logout />
         <Avatar className="h-8 w-8">
           <AvatarImage
             src="/placeholder.svg?height=32&width=32"

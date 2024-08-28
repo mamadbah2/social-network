@@ -133,7 +133,7 @@ func (m *ConnDB) GetSuggestedFriends(userID int) ([]*User, error) {
 			FROM follows f
 			WHERE f.id_follower = ?
 		) 
-		AND u.id != ?;
+		AND u.id != ? AND u.id != 0;
 	`
 
 	
