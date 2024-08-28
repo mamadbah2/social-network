@@ -15,7 +15,7 @@ export default function NavigationBar() {
   const [isOpenNotif, setIsOpenNotif] = useState(false)
   const handleCreatePostModalOpen = () => setIsCreatePostModalOpen(true);
   const handleCreatePostModalClose = () => setIsCreatePostModalOpen(false);
-  const { ws, initData: initNotif } = useWS('/notification', mapNotification) || null
+  const { getReceived } = useWS() 
 
 
   return (
@@ -76,11 +76,11 @@ export default function NavigationBar() {
             className="h-6 w-6"
           />
         </Button>
-        <NotificationBar isOpen={isOpenNotif} notifs={initNotif} />
+        <NotificationBar isOpen={isOpenNotif} notifs={getReceived()} />
         <Button onClick={() => {
           setIsOpenNotif(!isOpenNotif)
           if (!isOpenNotif) {
-            console.log('initNotif :>> ', initNotif);
+            console.log('initNotif :>> ', getReceived());
           }
         }} variant="ghost" className="text-muted-foreground" size="icon">
           <Image

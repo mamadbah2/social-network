@@ -22,6 +22,7 @@ export default function Login() {
             localStorage.setItem('userID', `${resp?.UserId}`)
             console.log("Login Success :>>", resp?.Cookie.Value);
             router.push('/')
+            console.log('noPush ');
         } else {
             alert("Error to log : Try to restart backend")
         }

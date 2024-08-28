@@ -6,6 +6,7 @@ import useWS from "@/lib/hooks/usewebsocket";
 import { mapNotification } from "@/lib/modelmapper";
 import { Notification } from "@/models/notification.model";
 import { User } from "@/models/user.model";
+import useGetData from "@/lib/hooks/useget";
 
 export function ListBar({
     items,
@@ -14,18 +15,18 @@ export function ListBar({
     items: Item[];
     showAddButton?: boolean;
 }) {
-    const { ws: socket, sendObject } = useWS('/notification', mapNotification)
+    const { sendObject } = useWS()
 
     const handleFollow = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault()
         const suggestFriendId = parseInt( e.currentTarget.value)
-        const myId = localStorage.getItem('userId') || ""
+        const myId = localStorage.getItem('userID') || ""
         let notif: Notification = {
             content : "want follow you",
             approuved: false,
             entityType:"follow",
             entityId:suggestFriendId,
-            sender: {id : parseInt(myId)}  ,
+            sender: {id : parseInt(myId)} ,
             receiver: {id: suggestFriendId} ,
         }
         if ( sendObject(notif) ) {

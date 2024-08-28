@@ -100,13 +100,15 @@ export function mapNotification(data: any): Notification[] {
         return [];
     }
 
+    data = (!Array.isArray(data)) ? [data] : data
+
     return data.map((n: any): Notification => ({
         id: n.Id,
         content : n.Content,
         approuved: n.Approuved, 
         createdAt: n.CreatedAt,
         entityType: n.EntityType,
-        entityId: n.entityId,
+        entityId: n.EntityID,
         sender: mapSimpleUser(n.Sender),
         receiver: mapSimpleUser(n.Receiver),
     }));
