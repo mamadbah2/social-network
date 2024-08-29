@@ -50,7 +50,7 @@ export default function CreatePostModal({
     if (data && data.length > 0 && ItemUser.length === 0) {
       setItemUser(
         data.map((u) => ({
-          id: u.id,
+          id: u.Id,
           name: u.firstname,
         }))
       );

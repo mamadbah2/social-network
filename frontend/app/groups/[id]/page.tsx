@@ -41,6 +41,7 @@ export default function Home() {
       aside={<SideBarList />}
       section={
         <>
+        <div className="space-y-4 pl-3">
           <GroupBarComponent
             imgSrc="https://image.api.playstation.com/vulcan/ap/rnd/202306/2400/ac505d57a46e24dd96712263d89a150cb443af288c025ff2.jpg"
             groupName={group && group.length > 0 ? group[0].Name : "Loading..."}
@@ -62,7 +63,6 @@ export default function Home() {
               )
             }
           />
-          <div className="space-y-4">
             {" "}
             {posts.map((post: Post) => (
               <PostCard

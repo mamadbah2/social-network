@@ -49,46 +49,59 @@ interface GroupBarProps {
   createdAt: string;
   descriptionLink: string;
   creator: boolean;
+  setShowForm?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const GroupBarComponent: React.FC<GroupBarProps> = ({ imgSrc, groupName, createdAt, descriptionLink, creator }) => {
+
+const GroupBarComponent: React.FC<GroupBarProps> = ({ imgSrc, groupName, createdAt, descriptionLink, creator, setShowForm }) => {
   return (
     <div className="flex items-center justify-between p-4 bg-white border rounded-md">
-      <div className="flex items-center space-x-4">
-        <Avatar>
-          <AvatarImage src={imgSrc} alt={groupName} />
-          <AvatarFallback>{groupName.charAt(0).toUpperCase()}</AvatarFallback>
-        </Avatar>
-        <div>
-          <div className="flex items-center space-x-2">
-            <span className="font-medium">{groupName}</span>
-            <span className="text-muted-foreground">•</span>
-            <Link href={descriptionLink} className="text-muted-foreground" prefetch={false}>
-              View description
-            </Link>
+      {groupName ? (
+        <>
+        <div className="flex items-center space-x-4">
+          <Avatar>
+            <AvatarImage src={imgSrc} alt={groupName} />
+            <AvatarFallback>{groupName.charAt(0).toUpperCase()}</AvatarFallback>
+          </Avatar>
+          <div>
+            <div className="flex items-center space-x-2">
+              <span className="font-medium">{groupName}</span>
+              <span className="text-muted-foreground">•</span>
+              <Link href={descriptionLink} className="text-muted-foreground" prefetch={false}>
+                View description
+              </Link>
+            </div>
+            <p className="text-sm text-muted-foreground">Created at {createdAt}</p>
           </div>
-          <p className="text-sm text-muted-foreground">Created at {createdAt}</p>
         </div>
-      </div>
-      <div className="flex items-center space-x-2">
-        <Button variant="outline" className="flex items-center space-x-1">
-          <MessageSquareIcon className="w-4 h-4" />
-        </Button>
-        <Button variant="default" className="flex items-center space-x-1">
-          <PlusIcon className="w-4 h-4" />
-          <span>Create Post</span>
-        </Button>
-        <Button variant="default" className="flex items-center space-x-1">
-          <PlusIcon className="w-4 h-4" />
-          <span>Create Event</span>
-        </Button>
-        {creator && (
+        <div className="flex items-center space-x-2">
+          <Button variant="outline" className="flex items-center space-x-1">
+            <MessageSquareIcon className="w-4 h-4" />
+          </Button>
+          <Button variant="default" className="flex items-center space-x-1">
+            <PlusIcon className="w-4 h-4" />
+            <span>Create Post</span>
+          </Button>
           <Button variant="default" className="flex items-center space-x-1">
             <PlusIcon className="w-4 h-4" />
             <span>Create Event</span>
           </Button>
-        )}
-      </div>
+          {creator && (
+            <Button variant="default" className="flex items-center space-x-1">
+              <PlusIcon className="w-4 h-4" />
+              <span>Add Member's'</span>
+            </Button>
+          )}
+        </div>
+        </>
+      ) : (
+        setShowForm && (
+        <Button onClick={() => setShowForm(true)} variant="default" className="flex items-center space-x-1">
+          <PlusIcon className="w-4 h-4" />
+          <span>Create Group</span>
+        </Button>
+        )
+      )}
     </div>
   );
 };

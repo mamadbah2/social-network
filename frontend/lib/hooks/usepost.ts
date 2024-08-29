@@ -9,7 +9,8 @@ async function postData(uri: string, data: FormData, enctyped: boolean) {
         init = { method: 'POST', headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: convertFormat(data) }
     }
     const response = await fetch("http://localhost:4000" + uri, init)
-
+    console.log(response);
+    
     if (!response.ok) {
         throw new Error("Echec pour POST les données")
     }
