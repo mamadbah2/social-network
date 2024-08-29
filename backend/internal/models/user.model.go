@@ -60,7 +60,7 @@ func (m *ConnDB) getFollowers(userID int) ([]*User, error) {
 	return followers, nil
 }
 
-func (m *ConnDB) getGroups(userID int) ([]*Group, error) {
+func (m *ConnDB) GetGroups(userID int) ([]*Group, error) {
 	query := `
 		SELECT g.id, g.name, g.description , g.created_at,
 		 u.id, u.email, u.first_name, u.last_name,  u.nickname,u.date_of_birth, 
@@ -100,7 +100,7 @@ func (m *ConnDB) getGroups(userID int) ([]*Group, error) {
 	return groups, nil
 }
 
-func (m *ConnDB) getPosts(userID int) ([]*Post, error) {
+func (m *ConnDB) GetPosts(userID int) ([]*Post, error) {
 	query := `
         SELECT p.id, p.title, p.content, p.privacy, p.created_at,
 		 g.id, g.name, g.description, p.created_at, u.id, u.email,
@@ -166,25 +166,19 @@ func (m *ConnDB) GetAllUsers() ([]*User, error) {
 			return nil, err
 		}
 
-		// Convertir la chaîne de caractères en time.Time
-		/* u.DateOfBirth, err = time.Parse("2006-01-02 15:04:05-07:00", dateOfBirthStr)
-		if err != nil {
-			return nil, err
-		} */
-
 		followers, err := m.getFollowers(u.Id)
 		if err != nil {
 			return nil, err
 		}
 		u.Followers = followers
 
-		groups, err := m.getGroups(u.Id)
+		groups, err := m.GetGroups(u.Id)
 		if err != nil {
 			return nil, err
 		}
 		u.Groups = groups
 
-		posts, err := m.getPosts(u.Id)
+		posts, err := m.GetPosts(u.Id)
 		if err != nil {
 			return nil, err
 		}
@@ -213,11 +207,6 @@ func (m *ConnDB) GetUser(userID int) (*User, error) {
 		fmt.Println("bobo choked")
 		return nil, err
 	}
-	// Convertir la chaîne de caractères en time.Time
-	/* u.DateOfBirth, err = time.Parse("2006-01-02 15:04:05-07:00", dateOfBirthStr)
-	if err != nil {
-		return nil, err
-	} */
 
 	followers, err := m.getFollowers(u.Id)
 	if err != nil {
@@ -225,13 +214,13 @@ func (m *ConnDB) GetUser(userID int) (*User, error) {
 	}
 	u.Followers = followers
 	
-	groups, err := m.getGroups(u.Id)
+	groups, err := m.GetGroups(u.Id)
 	if err != nil {
 		return nil, err
 	}
 	u.Groups = groups
 	
-	posts, err := m.getPosts(u.Id)
+	posts, err := m.GetPosts(u.Id)
 	if err != nil {
 		
 		return nil, err
@@ -287,7 +276,6 @@ func (m *ConnDB) Authenticate(emailOrUsername, password string) (int, error) {
 	err = bcrypt.CompareHashAndPassword([]byte(passwordeu), []byte(password))
 	if err != nil {
 		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
-			fmt.Println("error 3")
 			return 0, errors.New("models: invalid credentials")
 		} else {
 			fmt.Println("error 4")

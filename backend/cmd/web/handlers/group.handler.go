@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"social-network/internal/models"
 	"strconv"
@@ -14,7 +15,7 @@ func (hand *Handler) GroupsHandle(w http.ResponseWriter, r *http.Request) {
 	}
 	if r.Method == http.MethodGet {
 		GroupIdStr := r.URL.Query().Get("id")
-
+		
 		if GroupIdStr == "" {
 			Allg, err := hand.ConnDB.GetAllGroups()
 			if err != nil {
@@ -24,19 +25,20 @@ func (hand *Handler) GroupsHandle(w http.ResponseWriter, r *http.Request) {
 			hand.renderJSON(w, Allg)
 			return
 		}
-
+		
 		GroupId, err := strconv.Atoi(GroupIdStr)
 		if (err != nil) || GroupId < 1 {
 			hand.Helpers.ClientError(w, http.StatusNotFound)
 			return
 		}
-
+		
 		//will render the group data
 		g, err := hand.ConnDB.GetGroup(GroupId)
 		if err != nil {
 			http.Error(w, err.Error(), 404)
 			return
 		}
+		fmt.Println(g)
 		hand.renderJSON(w, g)
 		return
 	}
@@ -104,4 +106,20 @@ func (hand *Handler) GroupMembersHandle(w http.ResponseWriter, r *http.Request) 
 	} else {
 		http.Error(w, "not Allowed", 400)
 	}
+}
+
+func  (hand *Handler) GroupHomePageHandle(w http.ResponseWriter, r *http.Request) {
+	session, ok := hand.ConnDB.GetSession(r)
+	if ok != nil {
+		hand.Helpers.ServerError(w, ok)
+		return
+	}
+	groups, err := hand.ConnDB.GetGroups(session.UserId)
+	if err != nil {
+		http.Error(w, "Not Found", 404)
+		return
+	}
+	allPosts := hand.ConnDB.GetAllGroupsPosts(groups)
+
+	hand.renderJSON(w, allPosts)
 }

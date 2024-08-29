@@ -1,6 +1,6 @@
 #!/bin/bash
 
-desired_branch="main"
+desired_branch="cherif"
 username="your_username"
 email="your_email"
 
@@ -9,6 +9,12 @@ email="your_email"
 log() {
     echo -e "$1"
     sleep 1
+}
+
+check_remotes() {
+    log "\nChecking remotes..."
+
+    git remote -
 }
 
 # Checks if there is already a username and email in configuration...
@@ -31,7 +37,7 @@ check_credentials() {
 # Exits the program is we're in a different branch to prevent confusion...
 check_branch() {
     log "\nChecking branch..."
-    git branch -a
+    git branch
 
     if [ "$(git rev-parse --abbrev-ref HEAD)" != "$desired_branch" ]; then
         log "[WARNING] Not on branch $desired_branch..."

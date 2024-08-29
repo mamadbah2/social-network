@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"sort"
 	"time"
 )
 
@@ -36,34 +37,35 @@ func (m *ConnDB) GetGroup(id int) (*Group, error) {
 		return nil, err
 	}
 	//Posts, Members and Events
-	
+
 	var postID, userId, EventID int
-	
+
 	stmt = `
-	SELECT p.id, m.id_member, m.state, e.id
+	SELECT p.id, m.id_member, e.id
 	FROM posts p
 	JOIN groups_members m ON p.id_group = m.id_group
 	JOIN events e ON p.id_group = e.id_group
-	WHERE p.id_group = ? AND m.state = 'approved';
+	WHERE p.id_group = ?;
 	`
 	rows, errRows := m.DB.Query(stmt, id)
 	if errRows != nil {
 		fmt.Println(errRows.Error())
 		return nil, errRows
 	}
-	
+
 	for rows.Next() {
 		rows.Scan(&postID, &userId, &EventID)
 		Post, err := m.GetPost(postID)
 		if err != nil {
+			fmt.Println(err)
 			return nil, err
 		}
-		
+
 		Member, err := m.GetUser(userId)
 		if err != nil {
 			return nil, err
 		}
-		
+
 		Event, err := m.GetEvent(EventID)
 		if err != nil {
 			return nil, err
@@ -119,6 +121,23 @@ func (m *ConnDB) GetAllGroups() ([]*Group, error) {
 	}
 
 	return AllGroups, nil
+}
+
+func (m *ConnDB) GetAllGroupsPosts(groups []*Group) []*Post {
+	var allPosts []*Post
+
+	// Iterate over each group and collect all posts
+	for _, group := range groups {
+		allPosts = append(allPosts, group.Posts...)
+	}
+
+	// Sort all posts by CreatedAt in descending order (newest first)
+	sort.Slice(allPosts, func(i, j int) bool {
+		return allPosts[i].CreatedAt.After(allPosts[j].CreatedAt)
+	})
+	fmt.Println("posts:", allPosts)
+	// Now allPosts contains all posts sorted by CreatedAt
+	return allPosts
 }
 
 func (m *ConnDB) UpdateGroup(id int) error {

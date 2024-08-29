@@ -22,6 +22,7 @@ func (app *Application) routes() http.Handler {
 	router.HandleFunc("/like", app.Middleware.Authenticate(http.HandlerFunc(app.Handlers.LikeReaction)).ServeHTTP)
 	router.HandleFunc("/dislike", app.Middleware.Authenticate(http.HandlerFunc(app.Handlers.DislikeReaction)).ServeHTTP)
 	router.HandleFunc("/groupMembers", app.Handlers.GroupMembersHandle)
+	router.HandleFunc("/groupHomePage", app.Handlers.GroupHomePageHandle)
 	//             -//- -//-
 
 	return app.Middleware.PanicRecover(app.Middleware.LogRequest(app.Middleware.CORS(router)))
