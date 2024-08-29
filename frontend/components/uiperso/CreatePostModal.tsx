@@ -50,11 +50,6 @@ export default function CreatePostModal({ isOpen, onClose }: PostModalProps) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     formData.set("privacy", privacy);
-    const data: any = {
-      title: formData.get("title") as string,
-      content: formData.get("content") as string,
-      privacy: formData.get("privacy") as string,
-    };
 
     if (privacy === "almost private") {
       const selectedUserIds = selectedUsers.map((user) => user.id);
@@ -62,11 +57,7 @@ export default function CreatePostModal({ isOpen, onClose }: PostModalProps) {
       selectedUserIds.forEach((id, index) => {
         formData.append(`followers`, id.toString());
       });
-
-      data.followers = selectedUserIds;
     }
-
-    console.log("Form Data:", data);
     const [resp, err] = await usePostData("/posts", formData, true);
     setSelectedUsers([]);
     setPrivacy("");

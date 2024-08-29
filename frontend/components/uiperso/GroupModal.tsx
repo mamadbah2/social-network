@@ -3,14 +3,9 @@ import { FormEvent } from "react";
 interface GroupModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: { groupName: string; description: string }) => void;
 }
 
-export default function GroupModal({
-  isOpen,
-  onClose,
-  onSubmit,
-}: GroupModalProps) {
+export default function GroupModal({ isOpen, onClose }: GroupModalProps) {
   if (!isOpen) return null;
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
@@ -20,7 +15,6 @@ export default function GroupModal({
       groupName: formData.get("groupName") as string,
       description: formData.get("description") as string,
     };
-    onSubmit(data);
     onClose();
   };
 

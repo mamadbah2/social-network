@@ -17,8 +17,8 @@ type Comment struct {
 }
 
 func (m *ConnDB) SetComment(c *Comment) error {
-	stmt := `INSERT INTO comments (id_author, id_post, content)
-		VALUES(?, ?, ?)
+	stmt := `INSERT INTO comments (id_author, id_post, content, created_at)
+		VALUES(?, ?, ?, CURRENT_TIMESTAMP)
 	`
 
 	AuthorId := c.Author.Id

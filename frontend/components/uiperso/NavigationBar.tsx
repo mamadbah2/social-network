@@ -2,13 +2,12 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import CreatePostModal from "@/components/uiperso/CreatePostModal";
+import useWS from "@/lib/hooks/usewebsocket";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import useWS from "@/lib/hooks/usewebsocket";
-import { mapNotification } from "@/lib/modelmapper";
-import NotificationBar from "./notification";
 import Logout from "./logout";
+import NotificationBar from "./notification";
 
 export default function NavigationBar() {
   const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false);
