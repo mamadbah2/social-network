@@ -6,16 +6,25 @@ import { setSessionToken } from "@/lib/cookie"
 import usePostData from "@/lib/hooks/usepost"
 import React from 'react'
 import SecurityLayout from "../securelayout"
+import { useRouter } from "next/navigation"
+
+export let socketNotif : WebSocket;
 
 export default function Login() {
+    const router = useRouter()
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         const [resp, err] = await usePostData('/login', new FormData(e.currentTarget))
         console.log('resp :>> ', resp);
-        setSessionToken(resp?.Cookie.Value)
-        localStorage.setItem('userID', `${resp?.UserId}`)
-        console.log("Login Success :>>", resp?.Cookie.Value);
+        if (resp != null) {
+            setSessionToken(resp?.Cookie.Value)
+            localStorage.setItem('userID', `${resp?.UserId}`)
+            console.log("Login Success :>>", resp?.Cookie.Value);
+            router.push('/')
+        } else {
+            alert("Error to log : Try to restart backend")
+        }
     }
 
     return <SecurityLayout>

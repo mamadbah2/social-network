@@ -1,4 +1,5 @@
 import { Group } from "./group.model";
+import { Post } from "./post.model";
 
 export interface User {
   id: number;
@@ -9,9 +10,13 @@ export interface User {
   dateOfBirth: Date;
   aboutMe: string;
   private: boolean;
-  profilePicture?: string;
+  profilePicture: string;
   groups?: Group[];
   createdGroups?: Group[];
+  suggestedFriends?: User[];
+  posts?: Post[];
+  followers?: User[];
+  followed?: User[];
 }
 
 // Id             int

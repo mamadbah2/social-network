@@ -6,11 +6,15 @@ import {
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
-import { HeartCrack, HeartIcon, MessageCircleIcon, RepeatIcon } from "lucide-react";
+import { HeartCrack, HeartIcon, MessageCircleIcon } from "lucide-react";
 import Image from "next/image";
+import ProfileButton from "./ProfileLink";
 
 interface PostCardProps {
+  author: number;
   username: string;
+  firstname: string;
+  lastname: string;
   avatarSrc: string;
   date: string;
   title: string;
@@ -22,7 +26,10 @@ interface PostCardProps {
 }
 
 export default function PostCard({
+  author,
   username,
+  firstname,
+  lastname,
   avatarSrc,
   date,
   title,
@@ -35,10 +42,15 @@ export default function PostCard({
   return (
     <Card className="max-w-2xl mx-auto">
       <CardHeader className="flex flex-row items-center gap-4 pb-2">
-        <Avatar>
-          <AvatarImage src={avatarSrc} alt={username} />
-          <AvatarFallback>{username.charAt(0).toUpperCase()}</AvatarFallback>
-        </Avatar>
+        <ProfileButton id={author}>
+          <Avatar>
+            <AvatarImage src={avatarSrc} alt={firstname} />
+            <AvatarFallback>
+              {firstname.charAt(0).toUpperCase()}
+              {lastname.charAt(0).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+        </ProfileButton>
         <div className="flex flex-col">
           <span className="font-semibold">{username}</span>
           <span className="text-sm text-muted-foreground">{date}</span>

@@ -1,4 +1,5 @@
 export interface Item {
-    name: string;
-    image: string;
+    userId ?: number,
+    name: string,
+    image: string,
 }

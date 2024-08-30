@@ -1,10 +1,8 @@
 package models
 
 import (
-	"database/sql"
 	"errors"
 	"fmt"
-	"social-network/cmd/web/validators"
 	"strings"
 	"time"
 
@@ -15,94 +13,22 @@ import (
 // Ceci n'est pas un model officiel mais un exemple
 
 type User struct {
-	Id             int
-	Email          string
-	Password       string
-	FirstName      string
-	LastName       string
-	Nickname       string
-	DateOfBirth    time.Time
-	ProfilePicture string
-	AboutMe        string
-	Private        bool
-	CreatedAt      time.Time
-	Followers      []*User
-	Groups         []*Group
-	Posts          []*Post
-}
-
-type UserLoginForm struct{
-	EmailOrUsername string
-	Password string
-}
-
-func (m *ConnDB) getFollowers(userID int) ([]*User, error) {
-	query := `
-        SELECT u.*
-        FROM users u
-        JOIN follows f ON u.id = f.id_follower
-        WHERE f.id_followed = ?
-    `
-
-	rows, err := m.DB.Query(query, userID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var followers []*User
-
-	for rows.Next() {
-		f := &User{}
-		var dateOfBirthStr string
-		err := rows.Scan(
-			&f.Id, &f.Email, &f.Password, &f.FirstName, &f.LastName, &dateOfBirthStr, &f.ProfilePicture, &f.Nickname, &f.AboutMe, &f.Private, &f.CreatedAt)
-		if err != nil {
-			return nil, err
-		}
-		followers = append(followers, f)
-	}
-	return followers, nil
-}
-
-func (m *ConnDB) getGroups(userID int) ([]*Group, error) {
-	query := `
-		SELECT g.id, g.name, g.description , g.created_at,
-		 u.id, u.email, u.first_name, u.last_name,  u.nickname,u.date_of_birth, 
-		 u.profile_picture, u.about_me, u.profile_privacy,
-		 u.created_at
-		FROM groups g
-		JOIN users u ON g.id_creator = u.id
-		JOIN groups_members gm ON g.id = gm.id_group
-		WHERE gm.id_member = ?
-    `
-
-	rows, err := m.DB.Query(query, userID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var groups []*Group
-
-	for rows.Next() {
-
-		g := &Group{Creator: &User{}}
-		var dateOfBirthStr string
-
-		err := rows.Scan(
-			&g.Id, &g.Name, &g.Description, &g.CreatedAt,
-			&g.Creator.Id, &g.Creator.Email, &g.Creator.FirstName, &g.Creator.LastName,
-			&g.Creator.Nickname, &dateOfBirthStr, &g.Creator.ProfilePicture,
-			&g.Creator.AboutMe, &g.Creator.Private, &g.Creator.CreatedAt,
-		)
-		if err != nil {
-			return nil, err
-		}
-
-		groups = append(groups, g)
-	}
-	return groups, nil
+	Id               int
+	Email            string
+	Password         string
+	FirstName        string
+	LastName         string
+	Nickname         string
+	DateOfBirth      time.Time
+	ProfilePicture   string
+	AboutMe          string
+	Private          bool
+	CreatedAt        time.Time
+	Followers        []*User
+	Followed				 []*User
+	Groups           []*Group
+	Posts            []*Post
+	SuggestedFriends []*User
 }
 
 func (m *ConnDB) GetPosts(userID int) ([]*Post, error) {
@@ -171,13 +97,13 @@ func (m *ConnDB) GetAllUsers() ([]*User, error) {
 			return nil, err
 		}
 
-		followers, err := m.getFollowers(u.Id)
+		followers, err := m.GetFollowersByUser(u.Id)
 		if err != nil {
 			return nil, err
 		}
 		u.Followers = followers
 
-		groups, err := m.getGroups(u.Id)
+		groups, err := m.GetGroupsByUser(u.Id)
 		if err != nil {
 			return nil, err
 		}
@@ -188,6 +114,12 @@ func (m *ConnDB) GetAllUsers() ([]*User, error) {
 			return nil, err
 		}
 		u.Posts = posts
+
+		noFriend, err := m.GetSuggestedFriends(u.Id)
+		if err != nil {
+			return nil, err
+		}
+		u.SuggestedFriends = noFriend
 
 		users = append(users, u)
 	}
@@ -205,7 +137,6 @@ func (m *ConnDB) GetUser(userID int) (*User, error) {
 	row := m.DB.QueryRow(statement, userID)
 
 	u := &User{}
-	// var dateOfBirthStr string
 
 	err := row.Scan(&u.Id, &u.Email, &u.Password, &u.FirstName, &u.LastName, &u.DateOfBirth, &u.ProfilePicture, &u.Nickname, &u.AboutMe, &u.Private, &u.CreatedAt)
 	if err != nil {
@@ -213,25 +144,36 @@ func (m *ConnDB) GetUser(userID int) (*User, error) {
 		return nil, err
 	}
 
-	followers, err := m.getFollowers(u.Id)
+	followers, err := m.GetFollowersByUser(u.Id)
 	if err != nil {
 		return nil, err
 	}
 	u.Followers = followers
-	
-	groups, err := m.getGroups(u.Id)
+
+	followed, err := m.GetFollowedByUser(u.Id)
+	if err != nil {
+		return nil, err
+	}
+	u.Followed = followed
+
+	groups, err := m.GetGroupsByUser(u.Id)
 	if err != nil {
 		return nil, err
 	}
 	u.Groups = groups
-	
+
 	posts, err := m.GetPosts(u.Id)
 	if err != nil {
-		
 		return nil, err
 	}
 	u.Posts = posts
-	
+
+	noFriend, err := m.GetSuggestedFriends(u.Id)
+	if err != nil {
+		return nil, err
+	}
+	u.SuggestedFriends = noFriend
+
 	return u, nil
 }
 
@@ -257,58 +199,4 @@ func (m *ConnDB) SetUser(user *User) error {
 	rowsAffected, _ := result.RowsAffected()
 	fmt.Println("Rows affected:", rowsAffected)
 	return nil
-}
-
-func (m *ConnDB) Authenticate(emailOrUsername, password string) (int, error) {
-	var id int
-	var passwordeu string
-	var stmt string
-	if validators.Matches(emailOrUsername, validators.EmailRX) {
-		stmt = `SELECT id, password FROM users WHERE email = ?`
-	} else {
-		stmt = `SELECT id, password FROM users WHERE nickname = ?`
-	}
-	err := m.DB.QueryRow(stmt, emailOrUsername).Scan(&id, &passwordeu)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			fmt.Println("error 1")
-			return 0, errors.New("models: invalid credentials")
-		} else {
-			fmt.Println("error 2")
-			return 0, err
-		}
-	}
-	err = bcrypt.CompareHashAndPassword([]byte(passwordeu), []byte(password))
-	if err != nil {
-		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
-			return 0, errors.New("models: invalid credentials")
-		} else {
-			fmt.Println("error 4")
-			return 0, err
-		}
-	}
-	return id, nil
-
-}
-
-func (m *ConnDB) CheckNickname(nickname string) (bool, error) {
-	var record int
-	// Prepare a query to check if the username exists
-	stmt := `SELECT count(*) FROM users WHERE nickname = ?`
-	err := m.DB.QueryRow(stmt, nickname).Scan(&record)
-	if err != nil {
-		return false, err
-	}
-	return record == 0, nil
-}
-
-func (m *ConnDB) CheckEmail(email string) (bool, error) {
-	var record int
-	// Prepare a query to check if the username exists
-	stmt := `SELECT count(*) FROM users WHERE email = ?`
-	err := m.DB.QueryRow(stmt, email).Scan(&record)
-	if err != nil {
-		return false, err
-	}
-	return record == 0, nil
 }
