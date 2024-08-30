@@ -3,10 +3,10 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { setSessionToken } from "@/lib/cookie"
-import usePostData from "@/lib/hooks/usepost"
+import postData from "@/lib/hooks/usepost"
 import React from 'react'
 import SecurityLayout from "../securelayout"
-import { useRouter } from "next/navigation"
+import { useRouter, redirect } from "next/navigation"
 
 export let socketNotif : WebSocket;
 
@@ -15,14 +15,16 @@ export default function Login() {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        const [resp, err] = await usePostData('/login', new FormData(e.currentTarget))
+        const [resp, err] = await postData('/login', new FormData(e.currentTarget))
         console.log('resp :>> ', resp);
         if (resp != null) {
             setSessionToken(resp?.Cookie.Value)
             localStorage.setItem('userID', `${resp?.UserId}`)
             console.log("Login Success :>>", resp?.Cookie.Value);
-            router.push('/')
-            console.log('noPush ');
+            setTimeout(() => {
+                router.push('/')
+                console.log('noPush');
+            }, 1000);
         } else {
             alert("Error to log : Try to restart backend")
         }

@@ -1,13 +1,13 @@
 'use client'
 
 import { Button } from "@/components/ui/button"
-import Checker from "@/components/ui/checker"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import usePostData from "@/lib/hooks/usepost"
+import postData from "@/lib/hooks/usepost"
 import { useState } from "react"
 import SecurityLayout from "../securelayout"
 import { useRouter } from "next/navigation"
+import { Checkbox } from "@/components/ui/checkbox"
 
 export default function Register() {
     const [firstname, setFirstname] = useState('')
@@ -18,18 +18,19 @@ export default function Register() {
     const [date, setDate] = useState('')
     const [aboutMe, setAboutMe] = useState('')
     const [file, setFile] = useState(undefined)
-    const [privacy, setPrivacy] = useState('')
-    
+    const [privacy, setPrivacy] = useState(false)
+
     const router = useRouter()
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        const [resp, err] = await usePostData('/register', new FormData(e.currentTarget), true)
+        const formData = new FormData(e.currentTarget)
+        if (!privacy) formData.append("privacy", "public")
+        const [resp, err] = await postData('/register', formData, true)
         if (Object.keys(err).length == 0) {
             console.log('data :>> ', resp);
             router.push('/login')
         }
         console.log('error :>> ', err);
-        // console.log('isLoading :>> ', isLoad);
     }
 
     return <SecurityLayout>
@@ -46,7 +47,15 @@ export default function Register() {
             <Textarea placeholder="About Me" name="aboutMe" value={aboutMe} onChange={(e) => setAboutMe(e.target.value)} />
             <Input type="file" value={file} />
             <div className="flex items-center space-x-2">
-                <Checker label="Private Account" name="privacy" onChange={(e) => setPrivacy(e.currentTarget.value)} value={privacy} />
+                <div className="flex items-center space-x-2">
+                    <Checkbox id="terms" onClick={()=> {setPrivacy(!privacy);}} />
+                    <label
+                        htmlFor="terms"
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    >
+                        Private account
+                    </label>
+                </div>
             </div>
             <Button type="submit" className="w-full" > Sign In </Button>
         </form>

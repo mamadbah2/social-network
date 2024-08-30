@@ -93,6 +93,7 @@ export default function SideBarList() {
                                 <ListBar
                                     items={ItemUser}
                                     showAddButton
+                                    section="friend"
                                 />
                                 {((user.suggestedFriends)?.length || 0) > step && <Button onClick={handlePaginate} id="friendBtn" className="w-full mt-2" variant="secondary">View Other</Button>}
                             </AccordionContent>
@@ -105,6 +106,7 @@ export default function SideBarList() {
                                 <ListBar
                                     items={ItemGroup}
                                     showAddButton
+                                    section="group"
                                 />
                                 {(groups?.length || 0) > step && <Button onClick={handlePaginate} id="groupBtn" className="w-full mt-2" variant="secondary">View Other</Button>}
                             </AccordionContent>

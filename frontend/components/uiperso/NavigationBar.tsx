@@ -5,7 +5,7 @@ import CreatePostModal from "@/components/uiperso/CreatePostModal";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import useWS from "@/lib/hooks/usewebsocket";
+import UseWS from "@/lib/hooks/usewebsocket";
 import { mapNotification } from "@/lib/modelmapper";
 import NotificationBar from "./notification";
 import Logout from "./logout";
@@ -15,7 +15,7 @@ export default function NavigationBar() {
   const [isOpenNotif, setIsOpenNotif] = useState(false)
   const handleCreatePostModalOpen = () => setIsCreatePostModalOpen(true);
   const handleCreatePostModalClose = () => setIsCreatePostModalOpen(false);
-  const { getReceived } = useWS() 
+  const { getReceived } = UseWS() 
 
 
   return (

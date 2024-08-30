@@ -4,14 +4,14 @@ import Image from "next/image";
 import { Button } from "../ui/button";
 import { setSessionToken } from "@/lib/cookie"
 import { useRouter } from "next/navigation";
-import usePostData from "@/lib/hooks/usepost";
+import postData from "@/lib/hooks/usepost";
 
 
 export default function Logout() {
     const router = useRouter()
     const handleLogout = async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault()
-        const [resp, err] = await usePostData('/logout', new FormData())
+        const [resp, err] = await postData('/logout', new FormData())
         if (resp != null) {
             setSessionToken(resp?.Cookie.Value)
             console.log('logout Successful :>> ', resp);

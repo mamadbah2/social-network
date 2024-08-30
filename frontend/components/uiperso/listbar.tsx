@@ -1,37 +1,47 @@
 import { Item } from "@/models/item.model";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
-import { PlusIcon } from "lucide-react";
-import useWS from "@/lib/hooks/usewebsocket";
-import { mapNotification } from "@/lib/modelmapper";
-import { Notification } from "@/models/notification.model";
-import { User } from "@/models/user.model";
+import { History, PlusIcon, UserRoundCheck } from "lucide-react";
+import UseWS from "@/lib/hooks/usewebsocket";
+import { mapUser } from "@/lib/modelmapper";
 import useGetData from "@/lib/hooks/useget";
+import postData from "@/lib/hooks/usepost";
+import { handleFollow, toggleIcons } from "@/services/follow.service";
+import { useEffect } from "react";
+import { useToast } from "../ui/use-toast";
 
 export function ListBar({
     items,
     showAddButton = false,
+    section,
 }: {
     items: Item[];
     showAddButton?: boolean;
+    section?: string
 }) {
-    const { sendObject } = useWS()
+    const { toast } = useToast()
+    const { sendObject: sendNotification } = UseWS()
+    const { expect: users } = useGetData('/users', mapUser)
+    const onFollow = (e: React.MouseEvent<HTMLButtonElement>) => {
+        const suggestFriendId = parseInt(`${e.currentTarget.value}`)
+        const myId = parseInt(`${localStorage.getItem('userID')}`)
+        const suggestFriend = handleFollow(e, { suggestFriendId, myId, users, sendNotification, postData, })
+        console.log('suggestFriend.private :>> ', suggestFriend?.private);
+        if (suggestFriend) {
+            if (suggestFriend.private) {
+                toast({
+                    title: "Followed",
+                    description: `You are now following this user ${suggestFriend.firstname}`,
+                })
+            } else {
+                toast({
+                    title: "Request sent",
+                    description: `Your request has been sent to the user ${suggestFriend.firstname}`,
+                })
+            }
+            e.currentTarget.parentElement?.remove()
+        }
 
-    const handleFollow = (e: React.MouseEvent<HTMLButtonElement>) => {
-        e.preventDefault()
-        const suggestFriendId = parseInt( e.currentTarget.value)
-        const myId = localStorage.getItem('userID') || ""
-        let notif: Notification = {
-            content : "want follow you",
-            approuved: false,
-            entityType:"follow",
-            entityId:suggestFriendId,
-            sender: {id : parseInt(myId)} ,
-            receiver: {id: suggestFriendId} ,
-        }
-        if ( sendObject(notif) ) {
-            console.log('notifs send successful :>> ', notif);
-        }
     }
 
     return (
@@ -45,14 +55,20 @@ export function ListBar({
                         </Avatar>
                         <span className="text-sm">{item.name}</span>
                     </div>
-                    {showAddButton && (
-                        <Button onClick={handleFollow} value={item?.userId} variant="ghost" size="icon" className="h-6 w-6">
-                            <PlusIcon className="h-4 w-4" />
+                    {showAddButton && section == "friend" && (
+                        <Button onClick={onFollow} value={item?.userId} variant="ghost" size="icon" className="h-6 w-6">
+                            <PlusIcon className="plusIcon h-4 w-4" />
+                        </Button>
+                    )}
+                    {showAddButton && section == "group" && (
+                        <Button variant="ghost" size="icon" className="h-6 w-6">
+                            <PlusIcon className="plusIcon h-4 w-4" />
                         </Button>
                     )}
                 </li>
             ))}
-            {/* Ajouter un bouton là pour paginer */}
+            {/* Ajouter un bouton là pour paginer*/}
+
         </ul>
     );
 }
