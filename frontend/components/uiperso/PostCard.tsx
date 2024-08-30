@@ -20,7 +20,7 @@ interface PostCardProps {
   date: string;
   title: string;
   content: string;
-  imageSrc: string;
+  imageSrc: string | null;
   likes: number;
   dislikes: number;
   comments: number;
@@ -69,16 +69,18 @@ export default function PostCard({
         <h2 className="text-xl font-bold mb-2">{title}</h2>
         <p className="text-muted-foreground">{content}</p>
       </CardContent>
-      <CardContent className="pb-2 h-[280px]">
-        <div className="relative w-full h-full">
-          <Image
-            src={imageSrc}
-            alt={title}
-            fill
-            className="object-contain rounded-lg"
-          />
-        </div>
-      </CardContent>
+      {imageSrc && (
+        <CardContent className="pb-2 max-h-[450px] h-[420px] bg-contain w-full rounded-lg">
+          <div className="relative w-full h-full rounded-lg">
+            <Image
+              src={`/upload/${imageSrc}`}
+              alt={title}
+              fill
+              className="object-cover rounded-lg"
+            />
+          </div>
+        </CardContent>
+      )}
       <CardFooter className="flex justify-start pt-2">
         <Button
           variant="ghost"

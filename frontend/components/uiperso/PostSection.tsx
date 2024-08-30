@@ -7,6 +7,12 @@ interface PostSectionProps {
 }
 
 const PostSection: React.FC<PostSectionProps> = ({ posts }) => {
+  {
+    posts.map((post) => {
+      console.log(post.imageName);
+    });
+  }
+
   return (
     <div className="space-y-4">
       {posts.map((post) => (
@@ -22,7 +28,7 @@ const PostSection: React.FC<PostSectionProps> = ({ posts }) => {
           }
           title={post.title || "Untitled Post"}
           content={post.content || "No content available"}
-          imageSrc={post.imageSrc || "/ironman.jpeg"}
+          imageSrc={post.imageName || ""}
           likes={post.numberLike || 0}
           dislikes={post.numberDislike || 0}
           comments={post.numberComment || 0}

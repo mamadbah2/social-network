@@ -11,6 +11,7 @@ type Post struct {
 	Content       string
 	CreatedAt     time.Time
 	Privacy       string
+	ImageName			string
 	Author        *User
 	Group         *Group
 	Liked         bool
@@ -96,7 +97,7 @@ func (db *ConnDB) SetPostViewer(postId, userId int) (int, error) {
 
 func (m *ConnDB) GetPost(postId int) (*Post, error) {
 	statement := `
-		SELECT p.id, p.title, p.content, p.privacy, p.created_at, 
+		SELECT p.id, p.title, p.content, p.privacy, p.image_name, p.created_at, 
 		       u.id, u.email, u.first_name, u.last_name, u.nickname, u.profile_picture, u.about_me,
 		       g.id, g.name, g.description
 		FROM posts p
@@ -110,7 +111,7 @@ func (m *ConnDB) GetPost(postId int) (*Post, error) {
 		Author: &User{},
 		Group:  &Group{},
 	}
-	err := row.Scan(&p.Id, &p.Title, &p.Content, &p.Privacy, &p.CreatedAt,
+	err := row.Scan(&p.Id, &p.Title, &p.Content, &p.Privacy, &p.ImageName, &p.CreatedAt,
 		&p.Author.Id, &p.Author.Email, &p.Author.FirstName, &p.Author.LastName, &p.Author.Nickname, &p.Author.ProfilePicture, &p.Author.AboutMe,
 		&p.Group.Id, &p.Group.Name, &p.Group.Description)
 	if err != nil {
@@ -145,7 +146,7 @@ func (m *ConnDB) GetPost(postId int) (*Post, error) {
 
 func (m *ConnDB) GetAllPost() ([]*Post, error) {
 	statement := `
-		SELECT p.id, p.title, p.content, p.privacy, p.created_at, 
+		SELECT p.id, p.title, p.content, p.privacy, p.image_name, p.created_at, 
 		       u.id, u.email, u.first_name, u.last_name, u.nickname, u.profile_picture, u.about_me,
 		       g.id, g.name, g.description
 		FROM posts p
@@ -165,7 +166,7 @@ func (m *ConnDB) GetAllPost() ([]*Post, error) {
 			Author: &User{},
 			Group:  &Group{},
 		}
-		err := rows.Scan(&p.Id, &p.Title, &p.Content, &p.Privacy, &p.CreatedAt,
+		err := rows.Scan(&p.Id, &p.Title, &p.Content, &p.Privacy, &p.ImageName ,&p.CreatedAt,
 			&p.Author.Id, &p.Author.Email, &p.Author.FirstName, &p.Author.LastName, &p.Author.Nickname, &p.Author.ProfilePicture, &p.Author.AboutMe,
 			&p.Group.Id, &p.Group.Name, &p.Group.Description)
 		if err != nil {
