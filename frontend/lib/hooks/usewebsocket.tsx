@@ -1,15 +1,13 @@
 'use client'
 
-import { Notification } from "@/models/notification.model";
 import { useEffect, useRef, useCallback, createContext, useContext } from "react";
-import { mapNotification } from "../modelmapper";
-import { json } from "stream/consumers";
+
 
 const WebSocketCtx = createContext<{
     sendObject: <T>(obj: T) => boolean,
     getReceived: <T>() => T[],
-    getApprouved: <T>() => T[]
-    removeObject: <T>(obj: T) => boolean
+    getApprouved: <T>() => T[],
+    removeObject: <T>(obj: T) => boolean,
 } | null>(null)
 
 
@@ -43,11 +41,11 @@ export const WsProvider: React.FC<{ uri: string; mapper: (obj: any) => any[]; ch
             }
         };
 
-        wsRef.current.onclose = () => {
+        /* wsRef.current.onclose = () => {
             console.log('WebSocket closed. Reconnecting...');
             setTimeout(() => WsProvider({ uri, mapper, children }), 3000);
         };
-
+ */
         return () => {
             wsRef.current?.close();
         };
@@ -64,14 +62,12 @@ export const WsProvider: React.FC<{ uri: string; mapper: (obj: any) => any[]; ch
 
     // Permet de voir les messages reçus non approuvés
     const getReceived = useCallback(() => {
-        console.log(receivedRef.current)
         return (receivedRef.current).filter((n) => n.approuved == false)
         // return receivedRef.current
     }, [])
 
     // Permet de voir les messages reçus et approuvés
     const getApprouved = useCallback(() => {
-        console.log(receivedRef.current)
         return (receivedRef.current).filter((n) => n.approuved == true)
     }, [])
 

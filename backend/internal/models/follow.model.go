@@ -1,7 +1,6 @@
 package models
 
 import (
-	"database/sql"
 	"errors"
 	"fmt"
 	"time"
@@ -16,41 +15,35 @@ type Follow struct {
 
 var ErrSelfFollow = errors.New("un utilisateur ne peut pas se suivre lui-même")
 
-func (m *ConnDB) SetFollower(followerID, followedID int, state string) error {
+func (m *ConnDB) SetFollower(followerID, followedID int, archived bool) error {
 	if followerID == followedID {
 		return ErrSelfFollow
 	}
-	// Vérifier d'abord si une relation archivée existe
-	query := `
-			SELECT id FROM follows
-			WHERE id_follower = ? AND id_followed = ?
-	`
-	var followID int
-	err := m.DB.QueryRow(query, followerID, followedID).Scan(&followID)
 
-	if err == nil {
-		updateQuery := `UPDATE follows
-					SET state = ?
-					WHERE id = ?
-			`
-		_, err = m.DB.Exec(updateQuery, state, followID)
+	if !archived {
+		stmt := `
+			INSERT INTO follows (id_follower, id_followed, archived, created_at)
+			VALUES (?, ?, 0, CURRENT_TIMESTAMP)
+		`
+		_, err := m.DB.Exec(stmt, followerID, followedID)
+		fmt.Println("errooorrrr ", err)
 		if err != nil {
-			return fmt.Errorf("error reactivating follow: %w", err)
+			return fmt.Errorf("error creating new follow: %w", err)
 		}
 		return nil
-	} else if err != sql.ErrNoRows {
-		return fmt.Errorf("error checking existing follow: %w", err)
+	} else {
+		stmt := `
+			UPDATE follows
+			SET archived = 1
+			WHERE id_follower = ? AND id_followed = ?
+		`
+		_, err := m.DB.Exec(stmt, followerID, followedID)
+		if err != nil {
+			return fmt.Errorf("error archiving follow: %w", err)
+		}
+		return nil
 	}
 
-	insertQuery := `
-			INSERT INTO follows (id_follower, id_followed, created_at, state)
-			VALUES (?, ?, CURRENT_TIMESTAMP, ?)
-	`
-	_, err = m.DB.Exec(insertQuery, followerID, followedID, state)
-	if err != nil {
-		return fmt.Errorf("error creating new follow: %w", err)
-	}
-	return nil
 }
 
 func (m *ConnDB) GetFollowers(userID int) ([]*Follow, error) {
@@ -58,7 +51,7 @@ func (m *ConnDB) GetFollowers(userID int) ([]*Follow, error) {
 	SELECT f.id, u.*
 	FROM users u
 	JOIN follows f ON u.id = f.id_follower
-	WHERE f.id_followed = ? AND f.state = ?
+	WHERE f.id_followed = ? AND f.archived = 0
 `
 
 	rows, err := m.DB.Query(query, userID, "follow")
@@ -93,7 +86,7 @@ func (m *ConnDB) GetFollowing(userID int) ([]*Follow, error) {
 	SELECT f.id, u.*
 	FROM users u
 	JOIN follows f ON u.id = f.id_followed
-	WHERE f.id_follower = ? AND f.state = ?
+	WHERE f.id_follower = ? AND f.archived = 0
 `
 
 	rows, err := m.DB.Query(query, userID, "follow")
@@ -131,12 +124,11 @@ func (m *ConnDB) GetSuggestedFriends(userID int) ([]*User, error) {
 		WHERE u.id NOT IN (
 			SELECT f.id_followed
 			FROM follows f
-			WHERE f.id_follower = ?
+			WHERE f.id_follower = ? AND f.archived = 0
 		) 
 		AND u.id != ? AND u.id != 0;
 	`
 
-	
 	rows, err := m.DB.Query(stmt, userID, userID)
 	if err != nil {
 		return nil, err
@@ -157,7 +149,7 @@ func (m *ConnDB) GetSuggestedFriends(userID int) ([]*User, error) {
 
 		friends = append(friends, f)
 	}
-	
+
 	return friends, nil
 }
 

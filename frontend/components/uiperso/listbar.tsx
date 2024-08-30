@@ -9,6 +9,7 @@ import postData from "@/lib/hooks/usepost";
 import { handleFollow, toggleIcons } from "@/services/follow.service";
 import { useEffect } from "react";
 import { useToast } from "../ui/use-toast";
+import Image from "next/image";
 
 export function ListBar({
     items,
@@ -57,12 +58,24 @@ export function ListBar({
                     </div>
                     {showAddButton && section == "friend" && (
                         <Button onClick={onFollow} value={item?.userId} variant="ghost" size="icon" className="h-6 w-6">
-                            <PlusIcon className="plusIcon h-4 w-4" />
+                            <Image
+                                src="add.svg"
+                                width={25}
+                                height={25}
+                                alt="home icon"
+                                className="h-6 w-6 mx-2"
+                            />
                         </Button>
                     )}
                     {showAddButton && section == "group" && (
                         <Button variant="ghost" size="icon" className="h-6 w-6">
-                            <PlusIcon className="plusIcon h-4 w-4" />
+                            <Image
+                                src="add.svg"
+                                width={25}
+                                height={25}
+                                alt="home icon"
+                                className="h-6 w-6 mx-2"
+                            />
                         </Button>
                     )}
                 </li>

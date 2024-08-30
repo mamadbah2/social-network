@@ -74,6 +74,7 @@ const posts = [
 ];
 
 export default function Home() {
+  
   return (
     <SocialMediaLayout
       header={<NavigationBar />}

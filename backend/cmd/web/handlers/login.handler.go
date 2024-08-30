@@ -31,7 +31,8 @@ func (hand *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	id, err := hand.ConnDB.Authenticate(EmailOrUsername, Password)
 	if err != nil {
 		if err.Error() == "models: invalid credentials" {
-			hand.Valid.AddFieldError("email/password", "credentials is incorrect")
+			hand.Valid.AddFieldError("emailNickname", "credentials is incorrect")
+			hand.Valid.AddFieldError("password", "credentials is incorrect")
 			hand.renderJSON(w, nil)
 			return
 		} else {

@@ -49,7 +49,7 @@ export default function CreatePostModal({
     // Only setItemUser if the data has changed
     if (data && data.length > 0 && ItemUser.length === 0) {
       setItemUser(
-        data.map((u) => ({
+        data.map((u:any) => ({
           id: u.id,
           name: u.firstname,
         }))

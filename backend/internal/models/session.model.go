@@ -80,10 +80,10 @@ func (m *ConnDB) GetSession(r *http.Request) (*Session, error) {
 		return nil, err
 	}
 
-	if time.Now().After(s.Expired_at) {
+	/* if time.Now().After(s.Expired_at) {
 		m.DeleteSession(cookie.Value)
 		return nil, nil
-	}
+	} */
 
 	return s, nil
 }
