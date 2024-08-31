@@ -21,7 +21,7 @@ export const handleFollow = (
     e.preventDefault();
     const suggestFriend = users.find((user) => user.id === suggestFriendId);
     if (!suggestFriend) return undefined;
-    
+    console.log('suggestFriend :>> ', suggestFriend);
     if (suggestFriend.private) {
         let notif: Notification = {
             content: "want follow you",
@@ -44,5 +44,5 @@ export const handleFollow = (
             if (res) return suggestFriend;
         });
     }
-
+    return suggestFriend;
 };
