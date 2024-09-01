@@ -53,7 +53,7 @@ func (hand *Handler) GroupsHandle(w http.ResponseWriter, r *http.Request) {
 				hand.Helpers.ServerError(w, idErr)
 				return
 			}
-			err := hand.ConnDB.SetGroupMember(session.UserId, groupId, "pending")
+			err := hand.ConnDB.SetGroupMember(session.UserId, groupId)
 			if err != nil {
 				http.Error(w, "Error Creating Member", 400)
 				return
@@ -78,34 +78,35 @@ func (hand *Handler) GroupsHandle(w http.ResponseWriter, r *http.Request) {
 }
 
 func (hand *Handler) GroupMembersHandle(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("inserting Members")
 	if r.Method == http.MethodPost {
 		GroupIdStr := r.URL.Query().Get("id")
 		if GroupIdStr == "" {
 			hand.Helpers.ClientError(w, http.StatusBadRequest)
 			return
 		}
-
+		
 		GroupId, err := strconv.Atoi(GroupIdStr)
 		if (err != nil) || GroupId < 1 {
 			hand.Helpers.ClientError(w, http.StatusNotFound)
 			return
 		}
-
+		
 		if err := r.ParseForm(); err != nil {
 			http.Error(w, "form parse error", 400)
 			return
 		}
-
+		
 		AllMembers := r.Form["MembersSelected"]
+		fmt.Println(AllMembers)
 		for _, Member := range AllMembers {
 			MemId, err := strconv.Atoi(Member)
 			if err != nil {
 				http.Error(w, "Not Found", 404)
 				return
 			}
-			err = hand.ConnDB.SetGroupMember(MemId, GroupId, "approved")
+			err = hand.ConnDB.SetGroupMember(MemId, GroupId)
 			if err != nil {
+				fmt.Println("error setting up member")
 				http.Error(w, "Error Creating Member", 400)
 				return
 			}

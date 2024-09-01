@@ -16,8 +16,9 @@ import AddMemberComponent from "@/components/uiperso/AddMember";
 import usePostData from "@/lib/hooks/usepost";
 
 export default function Home() {
+  const groupID = useParams().id
   const { expect: group, error: errGroups } = useGetData<Group[]>(
-    `/groups?id=${useParams().id}`,
+    `/groups?id=${groupID}`,
     mapGroup
   );
 
@@ -49,7 +50,7 @@ export default function Home() {
       selectedUserIds.forEach((id) => {
         formData.append('MembersSelected', id.toString());
       });
-      const [resp, err] = await usePostData(`/groupMembers?id=${useParams().id}`, formData, true)
+      const [resp, err] = await usePostData(`/groupMembers?id=${groupID}`, formData, false)
       console.log(resp, err)
       console.log('group Created');
     }
