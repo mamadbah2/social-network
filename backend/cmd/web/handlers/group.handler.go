@@ -9,7 +9,6 @@ import (
 
 func (hand *Handler) GroupsHandle(w http.ResponseWriter, r *http.Request) {
 	
-	fmt.Println("ok not okay")
 	session, ok := hand.ConnDB.GetSession(r)
 	if ok != nil {
 		hand.Helpers.ServerError(w, ok)
@@ -45,6 +44,7 @@ func (hand *Handler) GroupsHandle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if r.Method == http.MethodPost {
+		fmt.Println("ok not okay")
 		groupIdStr := r.FormValue("GroupId")
 		if groupIdStr != "" {
 			//for asking to join a group
@@ -58,8 +58,11 @@ func (hand *Handler) GroupsHandle(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, "Error Creating Member", 400)
 				return
 			}
+			return
 		}
-		g := &models.Group{}
+		g := &models.Group{
+			Creator: &models.User{},
+		}
 		//need Sessions here to take the userID
 		g.Name = r.FormValue("GroupName")
 		g.Description = r.FormValue("GroupDescrp")
@@ -69,11 +72,13 @@ func (hand *Handler) GroupsHandle(w http.ResponseWriter, r *http.Request) {
 			hand.Helpers.ServerError(w, err)
 			return
 		}
+		return
 	}
 	http.Error(w, "not allowed", http.StatusMethodNotAllowed)
 }
 
 func (hand *Handler) GroupMembersHandle(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("inserting Members")
 	if r.Method == http.MethodPost {
 		GroupIdStr := r.URL.Query().Get("id")
 		if GroupIdStr == "" {
@@ -116,7 +121,7 @@ func  (hand *Handler) GroupHomePageHandle(w http.ResponseWriter, r *http.Request
 		hand.Helpers.ServerError(w, ok)
 		return
 	}
-	groups, err := hand.ConnDB.GetGroups(session.UserId)
+	groups, err := hand.ConnDB.GetGroupsByUser(session.UserId)
 	if err != nil {
 		http.Error(w, "Not Found", 404)
 		return

@@ -80,8 +80,8 @@ func (m *ConnDB) GetGroup(id int) (*Group, error) {
 }
 
 func (m *ConnDB) SetGroup(g *Group) error {
-	stmt := `INSERT INTO groups (id_creator, name, description)
-		VALUES(?, ?, ?)
+	stmt := `INSERT INTO groups (id_creator, name, description, created_at)
+		VALUES(?, ?, ?, CURRENT_TIMESTAMP)
 	`
 
 	_, err := m.DB.Exec(stmt, g.Creator.Id, g.Name, g.Description)
@@ -121,6 +121,46 @@ func (m *ConnDB) GetAllGroups() ([]*Group, error) {
 	}
 
 	return AllGroups, nil
+}
+
+func (m *ConnDB) GetGroupsByUser(userID int) ([]*Group, error) {
+	query := `
+		SELECT g.id, g.name, g.description , g.created_at,
+		 u.id, u.email, u.first_name, u.last_name,  u.nickname,u.date_of_birth, 
+		 u.profile_picture, u.about_me, u.profile_privacy,
+		 u.created_at
+		FROM groups g
+		JOIN users u ON g.id_creator = u.id
+		JOIN groups_members gm ON g.id = gm.id_group
+		WHERE gm.id_member = ?
+    `
+
+	rows, err := m.DB.Query(query, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var groups []*Group
+
+	for rows.Next() {
+
+		g := &Group{Creator: &User{}}
+		var dateOfBirthStr string
+
+		err := rows.Scan(
+			&g.Id, &g.Name, &g.Description, &g.CreatedAt,
+			&g.Creator.Id, &g.Creator.Email, &g.Creator.FirstName, &g.Creator.LastName,
+			&g.Creator.Nickname, &dateOfBirthStr, &g.Creator.ProfilePicture,
+			&g.Creator.AboutMe, &g.Creator.Private, &g.Creator.CreatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		groups = append(groups, g)
+	}
+	return groups, nil
 }
 
 func (m *ConnDB) GetAllGroupsPosts(groups []*Group) []*Post {

@@ -4,17 +4,14 @@ import SocialMediaLayout from "@/app/socialMediaLayout";
 import CreateGroupForm from "@/components/uiperso/CreateGroupModal";
 import GroupBarComponent from "@/components/uiperso/GroupBar";
 import NavigationBar from "@/components/uiperso/NavigationBar";
-import SideBarList from "@/components/uiperso/SideBarList";
-import PostCard from "@/components/uiperso/SocialMediaPost";
+import SideBarList from "@/components/uiperso/sidebarlist";
+import PostCard from "@/components/uiperso/PostCard";
 import useGetData from "@/lib/hooks/useget";
 import usePostData from "@/lib/hooks/usepost";
 import { mapPost } from "@/lib/modelmapper";
 import { Post } from "@/models/post.model";
 import React, { useState } from "react";
 
-export function CreateGroupHandler() {
-  
-}
 
 export default function Home() {
   const { expect: posts, error: errPosts, isLoading } = useGetData<Post[]>("/groupHomePage", mapPost);
@@ -26,7 +23,7 @@ export default function Home() {
     const formData = new FormData();
     formData.append("GroupName", name);
     formData.append("GroupDescrp", description);
-    const [resp, err] = await usePostData('/groups', formData, true)
+    const [resp, err] = await usePostData('/groups', formData, false)
     console.log(resp, err)
     console.log('group Created');
     setShowForm(false);
@@ -41,16 +38,16 @@ export default function Home() {
       <SocialMediaLayout
         header={<NavigationBar />}
         aside={<SideBarList />}
+        groupNav={<GroupBarComponent
+          imgSrc=''
+          groupName=''
+          createdAt=''
+          descriptionLink=''
+          creator={false}
+          setShowForm={setShowForm}
+        />}
         section={
           <div className="pl-3 space-y-4">
-            <GroupBarComponent
-              imgSrc=''
-              groupName=''
-              createdAt=''
-              descriptionLink=''
-              creator={false}
-              setShowForm={setShowForm}
-            />
             {showForm && <CreateGroupForm onSave={handleSave} onCancel={handleCancel} />}
             <div className="space-y-4">
               <p>No posts Rn...</p>
@@ -85,7 +82,7 @@ export default function Home() {
               content={post.content}
               imageSrc={'post.imageSrc'}
               likes={post.numberLike}
-              shares={45}
+              dislikes={post.numberDislike}
               comments={76}
               />
             ))}

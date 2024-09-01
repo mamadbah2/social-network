@@ -4,9 +4,13 @@ import { mutate } from 'swr';
 async function postData(uri: string, data: FormData, enctyped: boolean) {
     let init: RequestInit
     if (enctyped) {
-        init = { method: 'POST', body: data }
+        init = { method: 'POST', credentials: "include", body: data }
     } else {
-        init = { method: 'POST', headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: convertFormat(data) }
+        init = {
+            method: 'POST', headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+            }, credentials: "include", body: convertFormat(data)
+        }
     }
     const response = await fetch("http://localhost:4000" + uri, init)
     console.log(response);

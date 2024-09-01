@@ -6,7 +6,7 @@ import { Event } from "@/models/event.model";
 export function mapSimpleUser(data: any): User {
     if (!data) {
         return {
-            Id: 0,
+            id: 0,
             email: "",
             firstname: "",
             lastname: "",
@@ -18,7 +18,7 @@ export function mapSimpleUser(data: any): User {
     }
 
     return {
-        Id: data.Id,
+        id: data.Id,
         email: data.Email,
         firstname: data.FirstName,
         lastname: data.LastName,
@@ -28,6 +28,7 @@ export function mapSimpleUser(data: any): User {
         private: data.Private,
         groups: mapGroup(data.Groups),
         createdGroups : mapGroup(data.CreatedGroups),
+        suggestedFriends : mapUser(data.SuggestedFriends)
     }
 
     // return som
@@ -42,7 +43,7 @@ export function mapUser(data: any): User[] {
         // console.log('u.Groups :>> ', mapGroup(u.Groups));
 
         return ({
-            Id: u.Id,
+            id: u.Id,
             email: u.Email,
             firstname: u.FirstName,
             lastname: u.LastName,
@@ -73,6 +74,8 @@ export function mapPost(data: any): Post[] {
         numberLike: p.NumberLike,
         numberDislike: p.NumberDislike,
         numberComment: p.NumberComment,
+        author: mapSimpleUser(p.Author),
+        viewers: mapUser(p.Viewers),
     }));
 }
 
@@ -83,27 +86,27 @@ export function mapGroup(data: any): Group[] {
     
     if (!Array.isArray(data)) {
         return [{
-            Id : data.Id,
-            Name : data.Name,
-            Description : data.Description,
-            Creator : data.Creator,
-            CreatedAt : data.CreatedAt,
-            Posts : mapPost(data.Posts),
-            Members : data.Members,
-            Events : mapEvent(data.Events),
+            id : data.Id,
+            name : data.Name,
+            description : data.Description,
+            creator : data.Creator,
+            createdAt : data.CreatedAt,
+            posts : mapPost(data.Posts),
+            members : data.Members,
+            events : mapEvent(data.Events),
         }];
     }
     
 
     return data.map((g: any): Group => ({
-        Id : g.Id,
-        Name : g.Name,
-        Description : g.Description,
-        Creator : g.Creator,
-        CreatedAt : g.CreatedAt,
-        Posts : mapPost(g.Posts),
-        Members : g.Members,
-        Events : mapEvent(g.Events),
+        id : g.Id,
+        name : g.Name,
+        description : g.Description,
+        creator : g.Creator,
+        createdAt : g.CreatedAt,
+        posts : mapPost(g.Posts),
+        members : g.Members,
+        events : mapEvent(g.Events),
     }));
 }
 

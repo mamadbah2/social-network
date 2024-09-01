@@ -55,29 +55,29 @@ Click on badges to get to the code...
 [![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)]()
 [![JAVASCRIPT](https://img.shields.io/badge/JavaScript-323330?style=for-the-badge&logo=javascript&logoColor=F7DF1E)]()
 [![TYPESCRIPT](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)]()  
-[![TAILWINDCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)]()
+[![TAILWINDCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](./frontend/tailwind.config.ts)
 [![REACT](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)]()
-[![NEXT.js](https://img.shields.io/badge/next%20js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)]()
-[![DOCKER](https://img.shields.io/badge/Docker-2CA5E0?style=for-the-badge&logo=docker&logoColor=white)]()
+[![NEXT.js](https://img.shields.io/badge/next%20js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)](./frontend/next.config.mjs)
+[![DOCKER](https://img.shields.io/badge/Docker-2CA5E0?style=for-the-badge&logo=docker&logoColor=white)](./frontend/Dockerfile)
 
 ### Back-End
 
 Click on badges to get to the code...
 
-[![GO](https://img.shields.io/badge/Go-00ADD8?style=for-the-badge&logo=go&logoColor=white)]()
-[![SQLITE](https://img.shields.io/badge/Sqlite-003B57?style=for-the-badge&logo=sqlite&logoColor=white)]()
-[![DOCKER](https://img.shields.io/badge/Docker-2CA5E0?style=for-the-badge&logo=docker&logoColor=white)]()
+[![GO](https://img.shields.io/badge/Go-00ADD8?style=for-the-badge&logo=go&logoColor=white)](./backend/cmd/web/main.go)
+[![SQLITE](https://img.shields.io/badge/Sqlite-003B57?style=for-the-badge&logo=sqlite&logoColor=white)](./backend/database/social.network.db)
+[![DOCKER](https://img.shields.io/badge/Docker-2CA5E0?style=for-the-badge&logo=docker&logoColor=white)](./backend/Dockerfile)
 
 ### Development
 
 [![NPM](https://img.shields.io/badge/npm-CB3837?style=for-the-badge&logo=npm&logoColor=white)]()
-[![SHELL SCRIPT](https://img.shields.io/badge/Shell_Script-121011?style=for-the-badge&logo=gnu-bash&logoColor=white)]()
+[![SHELL SCRIPT](https://img.shields.io/badge/Shell_Script-121011?style=for-the-badge&logo=gnu-bash&logoColor=white)](gitify.sh)
 [![GITHUB](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)]()
 
 ### Office
 
 [![TRELLO](https://img.shields.io/badge/Trello-0052CC?style=for-the-badge&logo=trello&logoColor=white)]()
-[![FIGMA](https://img.shields.io/badge/Figma-F24E1E?style=for-the-badge&logo=figma&logoColor=white)]()
+[![FIGMA](https://img.shields.io/badge/Figma-F24E1E?style=for-the-badge&logo=figma&logoColor=white)](https://www.figma.com/design/995XflZXhXqKloZs9wT2nx/social-network?node-id=0-1&t=KnNTiKHVFJnQhkQj-0)
 [![WARP](https://img.shields.io/badge/warp-01A4FF?style=for-the-badge&logo=warp&logoColor=white)]()
 
 ### Others
@@ -453,22 +453,19 @@ classDiagram
 
 ```mermaid
 sequenceDiagram
-    Participant User
     Participant Client
     Participant Server
     Participant Database
 
-    User ->> User: FILL Form
-    User ->> Client: SUBMIT Form
-    Client ->> Client: CHECK Inputs Format
-    Client ->> Server: POST Form Values
-    Server ->> Server: CHECK Request Method
-    Server ->> Server: GET Form Values
-    Server ->> Server: CHECK Values Format
-    Server ->> Database: INSERT INTO users
-    Database -->> Server: ADDED
-    Server -->> Client: Redirect to Login
-    Client -->> User: Login Form
+    Client ->> Server: r == HTTP Request - POST
+    Server ->> Server: r.ParseMultipartForm()
+    Server ->> Server: r.FormFile("profilPicture") ---> file
+    Server ->> Server: h.Helpers.Getfile(file) ---> tempFile
+    Server ->> Server: r.PostForm.Get() ---> ...
+    Server ->> Database: ConnDB.SetUser(u)
+    Database ->> Database: INSERT INTO users...
+    Database -->> Server: *sql.Result
+    Server -->> Client: renderJSON(w, u)
 ```
 
 <hr style="background: #111">
@@ -477,23 +474,16 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    Participant User
     Participant Client
     Participant Server
     Participant Database
 
-    User ->> User: FILL Form
-    User ->> Client: SUBMIT Form
-    Client ->> Client: CHECK Inputs Format
-    Client ->> Server: POST Form Values
-    Server ->> Server: CHECK Request Method
-    Server ->> Server: GET Form Values
     Server ->> Server: CHECK Values Format
     Server ->> Database: SELECT * FROM users
-    Database -->> Server: ROW: User
+    Database -->> Server: ROW: Client
     Server ->> Server: CHECK Password
     Server -->> Client: Session
-    Client -->> User: Home
+    Client -->> Client: Home
 ```
 
 <hr style="background: #111">
@@ -579,7 +569,7 @@ sequenceDiagram
 [![](https://img.shields.io/badge/Zone01-blue)](http://learn.zone01dakar.sn/git/)
 
 ### Testers
-
+[![drop](https://img.shields.io/badge/Zone01-drop-red)](https://github.com/pemora)
 [![mandaw](https://img.shields.io/badge/Zone01-mandaw-red)](http://learn.zone01dakar.sn/git/mandaw)
 [![bindoye](https://img.shields.io/badge/Zone01-bindoye-red)](http://learn.zone01dakar.sn/git/bindoye)
 

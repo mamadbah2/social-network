@@ -13,6 +13,7 @@ export interface Post {
     numberLike: number;
     numberDislike: number;
     numberComment: number;
+    imageSrc?: string;
     author?: User;         // Optional field for the author
     group?: Group;         // Optional field for the group
     comments?: Comment[];  // Optional array of comments

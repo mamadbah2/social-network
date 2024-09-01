@@ -6,7 +6,7 @@ import {
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
-import { HeartIcon, MessageCircleIcon, RepeatIcon } from "lucide-react";
+import { HeartCrack, HeartIcon, MessageCircleIcon, RepeatIcon } from "lucide-react";
 import Image from "next/image";
 
 interface PostCardProps {
@@ -17,7 +17,7 @@ interface PostCardProps {
   content: string;
   imageSrc: string;
   likes: number;
-  shares: number;
+  dislikes: number;
   comments: number;
 }
 
@@ -29,7 +29,7 @@ export default function PostCard({
   content,
   imageSrc,
   likes,
-  shares,
+  dislikes,
   comments,
 }: PostCardProps) {
   return (
@@ -64,8 +64,8 @@ export default function PostCard({
           {likes}
         </Button>
         <Button variant="ghost" size="sm" className="text-muted-foreground">
-          <RepeatIcon className="mr-1 h-6 w-6" />
-          {shares}
+          <HeartCrack className="mr-1 h-6 w-6" />
+          {dislikes}
         </Button>
         <Button variant="ghost" size="sm" className="text-muted-foreground">
           <MessageCircleIcon className="mr-1 h-6 w-6" />

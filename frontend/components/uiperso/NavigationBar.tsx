@@ -5,48 +5,25 @@ import CreatePostModal from "@/components/uiperso/CreatePostModal";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import useWS from "@/lib/hooks/usewebsocket";
+import { mapNotification } from "@/lib/modelmapper";
+import NotificationBar from "./notification";
+import Logout from "./logout";
 
 export default function NavigationBar() {
   const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false);
+  const [isOpenNotif, setIsOpenNotif] = useState(false)
   const handleCreatePostModalOpen = () => setIsCreatePostModalOpen(true);
   const handleCreatePostModalClose = () => setIsCreatePostModalOpen(false);
-  //const { resp, err, isLoad, post } = usePostData()
-  // const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  //   e.preventDefault();
-  //   await post("/post", new FormData(e.currentTarget), true);
-  //   console.log("data :>> ", resp);
-  //   console.log("error :>> ", err);
-  //   console.log("isLoading :>> ", isLoad);
-  // };
-  const handlePostFormSubmit = async (data: {
-    title: string;
-    content: string;
-    privacy: string;
-  }) => {
-    try {
-      const response = await fetch("/posts", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
+  const { getReceived } = useWS() 
 
-      if (response.ok) {
-        console.log("Event created successfully");
-      } else {
-        console.error("Failed to create event");
-      }
-    } catch (error) {
-      console.error("An error occurred while creating the event:", error);
-    }
-  };
+
   return (
     <nav className="flex items-center justify-between px-4 py-2 bg-background border rounded-lg">
       <CreatePostModal
         isOpen={isCreatePostModalOpen}
         onClose={handleCreatePostModalClose}
-        onSubmit={handlePostFormSubmit}
+        onSubmit={handleCreatePostModalClose}
       />
       <div className="flex items-center space-x-4 ">
         <Button
@@ -54,7 +31,7 @@ export default function NavigationBar() {
           onClick={handleCreatePostModalOpen}
         >
           <Image
-            src="add.svg"
+            src="/add.svg"
             width={25}
             height={25}
             alt="home icon"
@@ -68,7 +45,7 @@ export default function NavigationBar() {
         <Link href={"/"}>
           <Button variant="ghost" className="text-muted-foreground" size="icon">
             <Image
-              src="home.svg"
+              src="/home.svg"
               width={25}
               height={25}
               alt="home icon"
@@ -79,7 +56,7 @@ export default function NavigationBar() {
         <Link href={"/groups"}>
           <Button variant="ghost" className="text-muted-foreground" size="icon">
             <Image
-              src="group.svg"
+              src="/group.svg"
               width={25}
               height={25}
               alt="group icon"
@@ -89,34 +66,32 @@ export default function NavigationBar() {
         </Link>
       </div>
 
-      <div className="flex items-center justify-end  space-x-4">
+      <div className="relative flex items-center justify-end  space-x-4">
         <Button variant="ghost" className="text-muted-foreground" size="icon">
           <Image
-            src="chat.svg"
+            src="/chat.svg"
             width={25}
             height={25}
             alt="group icon"
             className="h-6 w-6"
           />
         </Button>
-        <Button variant="ghost" className="text-muted-foreground" size="icon">
+        <NotificationBar isOpen={isOpenNotif} notifs={getReceived()} />
+        <Button onClick={() => {
+          setIsOpenNotif(!isOpenNotif)
+          if (!isOpenNotif) {
+            console.log('initNotif :>> ', getReceived());
+          }
+        }} variant="ghost" className="text-muted-foreground" size="icon">
           <Image
-            src="notification.svg"
+            src="/notification.svg"
             width={25}
             height={25}
             alt="group icon"
             className="h-6 w-6"
           />
         </Button>
-        <Button variant="ghost" className="text-muted-foreground" size="icon">
-          <Image
-            src="logout.svg"
-            width={25}
-            height={25}
-            alt="group icon"
-            className="h-6 w-6"
-          />
-        </Button>
+        <Logout/>
         <Avatar className="h-8 w-8">
           <AvatarImage
             src="/placeholder.svg?height=32&width=32"

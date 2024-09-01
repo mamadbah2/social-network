@@ -1,7 +1,7 @@
 import { Group } from "./group.model"
 
 export interface User {
-    Id: number
+    id: number
     email: string
     firstname: string
     lastname: string
@@ -9,8 +9,10 @@ export interface User {
     dateOfBirth: Date
     aboutMe: string
     private: boolean
+    profilePicture?: string
     groups?: Group[]
     createdGroups?: Group[]
+    suggestedFriends?: User[]
 }
 
 // Id             int
