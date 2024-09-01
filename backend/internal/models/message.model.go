@@ -1,12 +1,12 @@
 package models
 
 type Message struct {
-	Id         int
+	ID         int
 	Content    string `json:"content"`
 	Type       string `json:"type"`
 	SenderID   int    `json:"senderID"`
 	ReceiverID int    `json:"receiverID"`
-	Date       string `json:"date"`
+	SentAt       string `json:"date"`
 }
 
 func (m *ConnDB) GetOldConversation(SenderID, ReceiverID int) ([]*Message, error) {
@@ -24,7 +24,7 @@ func (m *ConnDB) GetOldConversation(SenderID, ReceiverID int) ([]*Message, error
 	var messages []*Message
 	for rows.Next() {
 		m := &Message{}
-		err := rows.Scan(&m.Id, &m.SenderID, &m.ReceiverID, &m.Content, &m.Type, &m.Date)
+		err := rows.Scan(&m.ID, &m.SenderID, &m.ReceiverID, &m.Content, &m.Type, &m.SentAt)
 		if err != nil {
 			return nil, err
 		}

@@ -3,6 +3,7 @@ import { User } from "@/models/user.model";
 import { Group } from "@/models/group.model";
 import { Notification } from "@/models/notification.model";
 import { Session } from "@/models/session.model";
+import { Message } from "@/models/message";
 
 export function mapSimpleUser(data: any): User {
     if (!data) {
@@ -28,8 +29,8 @@ export function mapSimpleUser(data: any): User {
         aboutMe: data.AboutMe,
         private: data.Private,
         groups: mapGroup(data.Groups),
-        createdGroups : mapGroup(data.CreatedGroups),
-        suggestedFriends : mapUser(data.SuggestedFriends)
+        createdGroups: mapGroup(data.CreatedGroups),
+        suggestedFriends: mapUser(data.SuggestedFriends)
     }
 
     // return som
@@ -104,8 +105,8 @@ export function mapNotification(data: any): Notification[] {
 
     return data.map((n: any): Notification => ({
         id: n.Id,
-        content : n.Content,
-        approuved: n.Approuved, 
+        content: n.Content,
+        approuved: n.Approuved,
         createdAt: n.CreatedAt,
         entityType: n.EntityType,
         entityId: n.EntityID,
@@ -127,4 +128,18 @@ export function mapSimpleSession(data: any): Session {
         userId: data.UserId,
     }
 
+}
+
+export default function mapMessages(data: any): Message[] {
+    if (!data) {
+        return []
+    }
+
+    return data.map((msg: any): Message => ({
+        id: msg.ID,
+        sender: msg.Sender, // BUG: sender: User, msg.Sender int
+        content: msg.Content,
+        receiver: msg.Receiver, // BUG: receiver: User, msg.Receiver int
+        sentAt: msg.SentAt
+    }))
 }
