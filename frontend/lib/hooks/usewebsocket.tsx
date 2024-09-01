@@ -14,7 +14,6 @@ const WebSocketCtx = createContext<{
 export const WsProvider: React.FC<{ uri: string; mapper: (obj: any) => any[]; children: React.ReactNode;}> = ({ uri, mapper, children }) => {
     const receivedRef = useRef<any[]>([]);
     const wsRef = useRef<WebSocket | null>(null);
-
     useEffect(() => {
         wsRef.current = new WebSocket("ws://localhost:4000" + uri);
 
