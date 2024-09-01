@@ -62,12 +62,12 @@ func (m *ConnDB) GetSession(r *http.Request) (*Session, error) {
 	}
 
 	stmt := `
-		SELECT userId, expired_at, data FROM sessions WHERE id = ?
+		SELECT id, userId, expired_at, data FROM sessions WHERE id = ?
 	`
 	row := m.DB.QueryRow(stmt, cookie.Value)
 	s := &Session{}
 	dataBytes := []byte{}
-	err = row.Scan(&s.UserId, &s.Expired_at, &dataBytes)
+	err = row.Scan(&s.Id, &s.UserId, &s.Expired_at, &dataBytes)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
@@ -80,10 +80,10 @@ func (m *ConnDB) GetSession(r *http.Request) (*Session, error) {
 		return nil, err
 	}
 
-	if time.Now().After(s.Expired_at) {
+	/* if time.Now().After(s.Expired_at) {
 		m.DeleteSession(cookie.Value)
 		return nil, nil
-	}
+	} */
 
 	return s, nil
 }

@@ -3,7 +3,6 @@ package models
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 	"social-network/cmd/web/validators"
 
 	"golang.org/x/crypto/bcrypt"
@@ -21,10 +20,8 @@ func (m *ConnDB) Authenticate(emailOrUsername, password string) (int, error) {
 	err := m.DB.QueryRow(stmt, emailOrUsername).Scan(&id, &passwordeu)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			fmt.Println("error 1")
 			return 0, errors.New("models: invalid credentials")
 		} else {
-			fmt.Println("error 2")
 			return 0, err
 		}
 	}
@@ -33,7 +30,6 @@ func (m *ConnDB) Authenticate(emailOrUsername, password string) (int, error) {
 		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
 			return 0, errors.New("models: invalid credentials")
 		} else {
-			fmt.Println("error 4")
 			return 0, err
 		}
 	}

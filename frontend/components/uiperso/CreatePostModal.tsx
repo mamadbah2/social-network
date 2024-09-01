@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import useGetData from "@/lib/hooks/useget";
-import usePostData from "@/lib/hooks/usepost";
+import postData from "@/lib/hooks/usepost";
 import { mapUser } from "@/lib/modelmapper";
 import { User } from "@/models/user.model";
 import Image from "next/image";
@@ -49,7 +49,7 @@ export default function CreatePostModal({
     // Only setItemUser if the data has changed
     if (data && data.length > 0 && ItemUser.length === 0) {
       setItemUser(
-        data.map((u) => ({
+        data.map((u:any) => ({
           id: u.id,
           name: u.firstname,
         }))
@@ -82,7 +82,7 @@ export default function CreatePostModal({
     }
 
     console.log("Form Data:", data);
-    const [resp, err] = await usePostData('/posts', new FormData(e.currentTarget), true)
+    const [resp, err] = await postData('/posts', new FormData(e.currentTarget), true)
     // onSubmit(data);
     onClose();
   };

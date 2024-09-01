@@ -14,7 +14,7 @@ import { paginateTable } from "@/lib/utils";
 import { Group } from "@/models/group.model";
 import { Item } from "@/models/item.model";
 import { User } from "@/models/user.model";
-import React from "react";
+import React, { useEffect } from "react";
 import { ListBar } from "./listbar";
 
 // Voir si possible accordeon de maintenir...
@@ -23,15 +23,19 @@ let suivUser = 4, suivGroup = 4, suivJoin = 4, suivCreated = 4
 let step = 4
 
 export default function SideBarList() {
-    // const { expect: users, error: errUsers } = useGetData<User[]>('/users', mapUser)
-    // const { expect: user, error: errUser } = useGetData<User>(`/users?id=3`, mapSimpleUser)
-    const { expect: user, error: errUser } = useGetData<User>(`/users?id=${localStorage.getItem('userID')}`, mapSimpleUser)
+    const [userID, setUserID] = React.useState<string>("0")
+    useEffect(() => {
+        setUserID(localStorage.getItem('userID') || "0")
+    }, [])
+
+    const { expect: user, error: errUser, mutate } = useGetData<User>(`/users?id=${userID}`, mapSimpleUser)
     const { expect: groups, error: errGroups } = useGetData<Group[]>('/groups', mapGroup)
 
     const [ItemUser, setItemUser] = React.useState<Item[]>([])
     const [ItemGroup, setItemGroup] = React.useState<Item[]>([])
     const [ItemJoinedGroup, setItemJoinedGroup] = React.useState<Item[]>([])
     const [ItemCreatedGroup, setItemCreatedGroup] = React.useState<Item[]>([])
+    
 
     const handlePaginate = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault()
@@ -39,7 +43,6 @@ export default function SideBarList() {
         switch (e.currentTarget.id) {
             case "friendBtn":
                 const suggestedFriends = user.suggestedFriends || []
-                // console.log('suggestedFriends :>> ', suggestedFriends);
                 setItemUser(paginateTable(suggestedFriends, prevUser, suivUser))
                 if (suivUser <= suggestedFriends.length) {
                     prevUser = prevUser + step; suivUser = suivUser + step
@@ -85,7 +88,7 @@ export default function SideBarList() {
             <aside className="w-64">
                 <ScrollArea className="h-full">
                     <Accordion type="multiple" className="w-full">
-                        <AccordionItem onClick={()=> setItemUser(paginateTable(user.suggestedFriends || [], prevUser, suivUser))} value="suggested-friends">
+                        <AccordionItem onClick={() => {setItemUser(paginateTable(user.suggestedFriends || [], prevUser, suivUser))}} value="suggested-friends">
                             <AccordionTrigger className="px-4">
                                 Suggested Friends
                             </AccordionTrigger>
@@ -93,35 +96,38 @@ export default function SideBarList() {
                                 <ListBar
                                     items={ItemUser}
                                     showAddButton
+                                    section="friend"
+                                    mutation={mutate}
                                 />
                                 {((user.suggestedFriends)?.length || 0) > step && <Button onClick={handlePaginate} id="friendBtn" className="w-full mt-2" variant="secondary">View Other</Button>}
                             </AccordionContent>
                         </AccordionItem>
                         <AccordionItem value="suggested-groups">
-                            <AccordionTrigger onClick={()=>setItemGroup(paginateTable(groups, prevGroup, suivGroup))} className="px-4">
+                            <AccordionTrigger onClick={() => setItemGroup(paginateTable(groups, prevGroup, suivGroup))} className="px-4">
                                 Suggested groups
                             </AccordionTrigger>
                             <AccordionContent>
                                 <ListBar
                                     items={ItemGroup}
                                     showAddButton
+                                    section="group"
                                 />
-                                { (groups?.length || 0) > step && <Button onClick={handlePaginate} id="groupBtn" className="w-full mt-2" variant="secondary">View Other</Button>}
+                                {(groups?.length || 0) > step && <Button onClick={handlePaginate} id="groupBtn" className="w-full mt-2" variant="secondary">View Other</Button>}
                             </AccordionContent>
                         </AccordionItem>
                         <AccordionItem value="joined-groups">
-                            <AccordionTrigger onClick={()=>setItemJoinedGroup(paginateTable(user.groups || [], prevJoin, suivJoin))} className="px-4">
+                            <AccordionTrigger onClick={() => setItemJoinedGroup(paginateTable(user.groups || [], prevJoin, suivJoin))} className="px-4">
                                 Joined groups
                             </AccordionTrigger>
                             <AccordionContent>
                                 <ListBar
                                     items={ItemJoinedGroup}
                                 />
-                                {((user.groups)?.length || 0 )> step && <Button onClick={handlePaginate} id="joinedGroupBtn" className="w-full mt-2" variant="secondary">View Other</Button>}
+                                {((user.groups)?.length || 0) > step && <Button onClick={handlePaginate} id="joinedGroupBtn" className="w-full mt-2" variant="secondary">View Other</Button>}
                             </AccordionContent>
                         </AccordionItem>
                         <AccordionItem value="created-groups">
-                            <AccordionTrigger onClick={()=>setItemCreatedGroup(paginateTable(user.createdGroups || [], prevCreated, suivCreated))} className="px-4">
+                            <AccordionTrigger onClick={() => setItemCreatedGroup(paginateTable(user.createdGroups || [], prevCreated, suivCreated))} className="px-4">
                                 Created groups
                             </AccordionTrigger>
                             <AccordionContent>
