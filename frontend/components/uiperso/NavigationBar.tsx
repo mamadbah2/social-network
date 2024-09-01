@@ -127,14 +127,6 @@ export default function NavigationBar() {
             </AvatarFallback>
           </Avatar>
         </ProfileButton>
-        {/* Bouton pour le logout */}
-        <Logout />
-
-        {/* Bouton pour le profil */}
-        <Avatar className="h-8 w-8">
-          <AvatarImage src="" alt="User avatar" />
-          <AvatarFallback>CN</AvatarFallback>
-        </Avatar>
       </div>
     </nav>
   );
