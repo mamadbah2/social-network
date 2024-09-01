@@ -15,6 +15,7 @@ export function mapSimpleUser(data: any): User {
       dateOfBirth: new Date(),
       aboutMe: "",
       private: false,
+      profilePicture: "",
     };
   }
 
@@ -32,6 +33,7 @@ export function mapSimpleUser(data: any): User {
     posts: mapPost(data.Posts),
     followers: mapUser(data.Followers),
     followed: mapUser(data.Followed),
+    profilePicture: data.ProfilePicture,
   };
 
   // return som
@@ -55,6 +57,7 @@ export function mapUser(data: any): User[] {
       aboutMe: u.AboutMe,
       private: u.Private,
       groups: mapGroup(u.Groups),
+      profilePicture: u.ProfilePicture,
     };
   });
 
@@ -104,6 +107,8 @@ export function mapNotification(data: any): Notification[] {
     return [];
   }
 
+  data = !Array.isArray(data) ? [data] : data;
+
   return data.map(
     (n: any): Notification => ({
       id: n.Id,
@@ -111,7 +116,7 @@ export function mapNotification(data: any): Notification[] {
       approuved: n.Approuved,
       createdAt: n.CreatedAt,
       entityType: n.EntityType,
-      entityId: n.entityId,
+      entityId: n.EntityID,
       sender: mapSimpleUser(n.Sender),
       receiver: mapSimpleUser(n.Receiver),
     })

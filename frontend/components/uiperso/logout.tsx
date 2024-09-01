@@ -1,7 +1,7 @@
 "use client";
 
-import { setSessionToken } from "@/lib/cookie";
-import usePostData from "@/lib/hooks/usepost";
+import { removeSessionToken } from "@/lib/cookie";
+import postData from "@/lib/hooks/usepost";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Button } from "../ui/button";
@@ -10,14 +10,17 @@ export default function Logout() {
   const router = useRouter();
   const handleLogout = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    const [resp, err] = await usePostData("/logout", new FormData());
+    const [resp, err] = await postData("/logout", new FormData());
     if (resp != null) {
-      setSessionToken(resp?.Cookie.Value);
-      console.log("logout Successful :>> ", resp);
-      router.push("/login");
-    } else {
-      alert("failed to logout");
-      throw new Error("Failed to logout...");
+      if (Object.keys(resp).length != 0) {
+        removeSessionToken();
+        localStorage.removeItem("userID");
+        localStorage.removeItem("cookie");
+        router.push("/login");
+      } else {
+        alert("failed to logout");
+        throw new Error("Failed to logout...");
+      }
     }
   };
 
@@ -29,7 +32,7 @@ export default function Logout() {
       size="icon"
     >
       <Image
-        src="/logout.svg"
+        src="logout.svg"
         width={25}
         height={25}
         alt="group icon"

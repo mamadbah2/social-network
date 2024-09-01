@@ -3,8 +3,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import CreatePostModal from "@/components/uiperso/CreatePostModal";
 import useGetData from "@/lib/hooks/useget";
-import useWS from "@/lib/hooks/usewebsocket";
-import { mapNotification, mapSimpleUser } from "@/lib/modelmapper";
+import { default as UseWS } from "@/lib/hooks/usewebsocket";
+import { mapSimpleUser } from "@/lib/modelmapper";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -15,6 +15,7 @@ import ProfileButton from "./ProfileLink";
 export default function NavigationBar() {
   const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false);
   const [isOpenNotif, setIsOpenNotif] = useState(false);
+  const { getReceived } = UseWS();
   const handleCreatePostModalOpen = () => setIsCreatePostModalOpen(true);
   const handleCreatePostModalClose = () => setIsCreatePostModalOpen(false);
 
@@ -28,16 +29,14 @@ export default function NavigationBar() {
     `/users?id=${id}`,
     mapSimpleUser
   );
-
-  const { ws, initData: initNotif } =
-    useWS("/notification", mapNotification) || null;
-
   return (
     <nav className="flex items-center justify-between px-4 py-2 bg-background border rounded-lg">
+      {/* Le modal de création de post */}
       <CreatePostModal
         isOpen={isCreatePostModalOpen}
         onClose={handleCreatePostModalClose}
       />
+      {/* Le bouton de création de post */}
       <div className="flex items-center space-x-4 ">
         <Button
           className="bg-[#292929] text-white space-x-4"
@@ -55,6 +54,7 @@ export default function NavigationBar() {
       </div>
 
       <div className="flex items-center justify-end w-96  space-x-16">
+        {/* Lien pour la page d'accueil */}
         <Link href={"/"}>
           <Button variant="ghost" className="text-muted-foreground" size="icon">
             <Image
@@ -66,7 +66,9 @@ export default function NavigationBar() {
             />
           </Button>
         </Link>
-        <Link href={"/groups"}>
+
+        {/* Lien pour la page de groupe */}
+        <Link href={"/"}>
           <Button variant="ghost" className="text-muted-foreground" size="icon">
             <Image
               src="/group.svg"
@@ -79,6 +81,7 @@ export default function NavigationBar() {
         </Link>
       </div>
 
+      {/* Bouton pour le chat box */}
       <div className="relative flex items-center justify-end  space-x-4">
         <Button variant="ghost" className="text-muted-foreground" size="icon">
           <Image
@@ -89,13 +92,14 @@ export default function NavigationBar() {
             className="h-6 w-6"
           />
         </Button>
-        <NotificationBar isOpen={isOpenNotif} notifs={initNotif} />
+
+        {/* La petite bulle de notification */}
+        <NotificationBar isOpen={isOpenNotif} notifs={getReceived()} />
+
+        {/* Bouton pour les notifications */}
         <Button
           onClick={() => {
             setIsOpenNotif(!isOpenNotif);
-            if (!isOpenNotif) {
-              console.log("initNotif :>> ", initNotif);
-            }
           }}
           variant="ghost"
           className="text-muted-foreground"
@@ -123,6 +127,14 @@ export default function NavigationBar() {
             </AvatarFallback>
           </Avatar>
         </ProfileButton>
+        {/* Bouton pour le logout */}
+        <Logout />
+
+        {/* Bouton pour le profil */}
+        <Avatar className="h-8 w-8">
+          <AvatarImage src="" alt="User avatar" />
+          <AvatarFallback>CN</AvatarFallback>
+        </Avatar>
       </div>
     </nav>
   );

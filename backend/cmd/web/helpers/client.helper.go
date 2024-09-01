@@ -16,7 +16,7 @@ func (help *Helpers) ClientError(w http.ResponseWriter, status int) {
 }
 
 func (help *Helpers) Getfile(file multipart.File) (*os.File, error) {
-	tempFile, err := ioutil.TempFile("./../frontend/static/upload", "upload-*.jpg")
+	tempFile, err := ioutil.TempFile("./../frontend/public", "upload-*.jpg")
 	if err != nil {
 		fmt.Println(err)
 		return nil, err

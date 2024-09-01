@@ -20,12 +20,17 @@ func (hand *Handler) Follows(w http.ResponseWriter, r *http.Request) {
 	case http.MethodPost:
 		err := r.ParseForm()
 		if err != nil {
-			fmt.Println("yooo")
 			hand.Helpers.ClientError(w, http.StatusMethodNotAllowed)
 			return
 		}
+		
+		followedID, err := strconv.Atoi(r.PostForm.Get("followedID"))
+		if err != nil {
+			hand.Helpers.ServerError(w, err)
+			return
+		}
 
-		followedID, err := strconv.Atoi(r.PostForm.Get("id"))
+		followerID, err := strconv.Atoi(r.PostForm.Get("followerID"))
 		if err != nil {
 			hand.Helpers.ServerError(w, err)
 			return
@@ -33,7 +38,7 @@ func (hand *Handler) Follows(w http.ResponseWriter, r *http.Request) {
 
 		action := r.PostForm.Get("action")
 		fmt.Println(r.PostForm.Get("action"))
-		followed, err := hand.ConnDB.GetUser(followedID)
+		// followed, err := hand.ConnDB.GetUser(followedID)
 		if err != nil {
 			hand.Helpers.ServerError(w, err)
 			return
@@ -41,34 +46,14 @@ func (hand *Handler) Follows(w http.ResponseWriter, r *http.Request) {
 
 		switch action {
 		case "follow":
-			if followed.Private {
-				err = hand.ConnDB.SetFollower(actualUser, followedID, "pending")
-				if err != nil {
-					http.Error(w, "Cannot Set Follower", http.StatusBadRequest)
-					return
-				}
-			} else {
-				err = hand.ConnDB.SetFollower(actualUser, followedID, "follow")
-				if err != nil {
-					http.Error(w, "Cannot Set Follower", http.StatusBadRequest)
-					return
-				}
-			}
-		case "acceptRequest":
-			err = hand.ConnDB.SetFollower(followedID, actualUser, "follow")
+			err = hand.ConnDB.SetFollower(followerID, followedID, false)
 			if err != nil {
 				http.Error(w, "Cannot Set Follower", http.StatusBadRequest)
 				return
 			}
-		case "refuseRequest":
-			err = hand.ConnDB.SetFollower(followedID, actualUser, "unfollow")
-			if err != nil {
-				http.Error(w, "Cannot archive follower", http.StatusInternalServerError)
-				return
-			}
-
+			hand.renderJSON(w, true)
 		case "archive":
-			err = hand.ConnDB.SetFollower(actualUser, followedID, "unfollow")
+			err = hand.ConnDB.SetFollower(followerID, followedID, true)
 			if err != nil {
 				http.Error(w, "Cannot archive follower", http.StatusInternalServerError)
 				return
