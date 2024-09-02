@@ -1,9 +1,3 @@
 {
-  "/_not-found/page": "app/_not-found/page.js",
-  "/login/page": "app/login/page.js",
-  "/page": "app/page.js",
-  "/groups/page": "app/groups/page.js",
-  "/groups/[id]/page": "app/groups/[id]/page.js",
-  "/favicon.ico/route": "app/favicon.ico/route.js",
-  "/register/page": "app/register/page.js"
+  "/groups/[id]/page": "app/groups/[id]/page.js"
 }

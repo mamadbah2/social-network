@@ -7,7 +7,7 @@ import NavigationBar from "@/components/uiperso/NavigationBar";
 import SideBarList from "@/components/uiperso/sidebarlist";
 import PostCard from "@/components/uiperso/PostCard";
 import useGetData from "@/lib/hooks/useget";
-import usePostData from "@/lib/hooks/usepost";
+import postData from "@/lib/hooks/usepost";
 import { mapPost } from "@/lib/modelmapper";
 import { Post } from "@/models/post.model";
 import React, { useState } from "react";
@@ -23,7 +23,7 @@ export default function Home() {
     const formData = new FormData();
     formData.append("GroupName", name);
     formData.append("GroupDescrp", description);
-    const [resp, err] = await usePostData('/groups', formData, false)
+    const [resp, err] = await postData('/groups', formData, false)
     console.log(resp, err)
     console.log('group Created');
     setShowForm(false);
@@ -72,7 +72,7 @@ export default function Home() {
               creator={false}
               setShowForm={setShowForm}
             />
-          {posts.map((post) => (
+          {posts.map((post:Post) => (
             <PostCard
             key={post.id}
               username={post.author?.nickname || 'loading name failed.'}

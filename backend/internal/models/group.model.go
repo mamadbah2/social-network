@@ -94,7 +94,7 @@ func (m *ConnDB) SetGroup(g *Group) error {
 }
 
 func (m *ConnDB) GetAllGroups() ([]*Group, error) {
-	stmt := `SELECT * FROM groups`
+	stmt := `SELECT * FROM groups WHERE id != 0 ORDER BY created_at DESC`
 
 	rows, err := m.DB.Query(stmt)
 	if err != nil {

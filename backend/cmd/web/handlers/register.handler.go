@@ -26,10 +26,10 @@ func (hand *Handler) Register(w http.ResponseWriter, r *http.Request) {
 	
 	user := &models.User{}
 	//Recuperation du fichier image
-	file, _, _ := r.FormFile("profilPicture")
+	file, fileHeaderImg, _ := r.FormFile("profilPicture")
 	var tempFile *os.File
 	if file != nil {
-		tempFile, _ = hand.Helpers.Getfile(file)
+		tempFile, _ = hand.Helpers.Getfile(file, fileHeaderImg.Filename)
 	}
 	
 	// Gestion de la date anniversaire, conversion time.Time
@@ -60,6 +60,7 @@ func (hand *Handler) Register(w http.ResponseWriter, r *http.Request) {
 		hand.Helpers.ServerError(w, err)
 		return
 	}
+
 	if !exist {
 		hand.Valid.CheckField(false, "Nickname", "Nickname already taken")
 	}

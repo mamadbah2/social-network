@@ -52,9 +52,6 @@ func (hand *Handler) Notification(w http.ResponseWriter, r *http.Request) {
 		if err := senderConn.ReadJSON(&newNotif); err != nil {
 			hand.Helpers.ErrorLog.Println("error ReadJSON : ", err)
 			return
-			// senderConn.Close()
-			// delete(notifClients, senderID)
-			// break
 		}
 
 		if newNotif.Approuved == true {
@@ -80,17 +77,13 @@ func (hand *Handler) Notification(w http.ResponseWriter, r *http.Request) {
 				hand.Helpers.ServerError(w, err)
 				return
 			}
-
 			// Send the new messages to the receiver
 			// if the receiver has a connection in the chat box.
-			if receiverConn, exists := notifClients[newNotif.Receiver.Id]; exists {
-				if err = receiverConn.WriteJSON(newNotif); err != nil {
-					hand.Helpers.ErrorLog.Println("error Write JSON : ", err)
-					return
-					// receiverConn.Close()
-					// delete(notifClients, newNotif.Receiver.Id)
-					// break
-				}
+		}
+		if receiverConn, exists := notifClients[newNotif.Receiver.Id]; exists {
+			if err = receiverConn.WriteJSON(newNotif); err != nil {
+				hand.Helpers.ErrorLog.Println("error Write JSON : ", err)
+				return
 			}
 		}
 

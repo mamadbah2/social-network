@@ -1,590 +1,188 @@
-# social-network
+[![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/golang-migrate/migrate/CI/master)](https://github.com/golang-migrate/migrate/actions/workflows/ci.yaml?query=branch%3Amaster)
+[![GoDoc](https://pkg.go.dev/badge/github.com/golang-migrate/migrate)](https://pkg.go.dev/github.com/golang-migrate/migrate/v4)
+[![Coverage Status](https://img.shields.io/coveralls/github/golang-migrate/migrate/master.svg)](https://coveralls.io/github/golang-migrate/migrate?branch=master)
+[![packagecloud.io](https://img.shields.io/badge/deb-packagecloud.io-844fec.svg)](https://packagecloud.io/golang-migrate/migrate?filter=debs)
+[![Docker Pulls](https://img.shields.io/docker/pulls/migrate/migrate.svg)](https://hub.docker.com/r/migrate/migrate/)
+![Supported Go Versions](https://img.shields.io/badge/Go-1.16%2C%201.17-lightgrey.svg)
+[![GitHub Release](https://img.shields.io/github/release/golang-migrate/migrate.svg)](https://github.com/golang-migrate/migrate/releases)
+[![Go Report Card](https://goreportcard.com/badge/github.com/golang-migrate/migrate)](https://goreportcard.com/report/github.com/golang-migrate/migrate)
 
-## Table of Contents
+# migrate
 
-- [**Description**](#description)
-- [**Tech Stack**](#tech-stack)
-  - [Front-End](#front-end)
-  - [Back-End](#back-end)
-  - [Others](#others)
-- [**Installation**](#installation)
-  - [Cloning](#cloning)
-  - [File System](#file-system)
-    - [backend/](#backend)
-    - [frontend/](#frontend)
-- [**Usage**](#usage)
-  - [Next.js](#nextjs)
-    - [Getting started](#getting-started)
-    - [Learn more](#learn-more)
-    - [Deploy on Vercel](#deploy-on-vercel)
-  - [Go](#go)
-  - [Docker Compose](#docker-compose)
-    - [Building and running your application](#building-and-running-your-application)
-    - [Deploying your application to the cloud](#deploying-your-application-to-the-cloud)
-    - [References](#references)
-- [**Blueprints**](#blueprints)
-  - [Models](#models)
-  - [Register](#register)
-  - [Login](#login)
-  - [Profile](#profile)
-  - [Post](#post)
-  - [Comment](#comment)
-  - [Reaction](#reaction)
-  - [Chat](#chat)
-  - [Follow](#follow)
-  - [Group](#group)
-- [**Aknowlegments**](#aknowlegments)
-  - [Contributors](#contributors)
-  - [Peers](#peers)
-  - [Testers](#testers)
-  - [Auditors](#auditors)
-- [**Sources**](#sources)
-- [**License**](#license)
+__Database migrations written in Go. Use as [CLI](#cli-usage) or import as [library](#use-in-your-go-project).__
 
-## Description
+* Migrate reads migrations from [sources](#migration-sources)
+   and applies them in correct order to a [database](#databases).
+* Drivers are "dumb", migrate glues everything together and makes sure the logic is bulletproof.
+   (Keeps the drivers lightweight, too.)
+* Database drivers don't assume things or try to correct user input. When in doubt, fail.
 
-###### [_Table of Content ⤴️_](#table-of-contents)
+Forked from [mattes/migrate](https://github.com/mattes/migrate)
 
-## Tech Stack
+## Databases
 
-### Front-End
+Database drivers run migrations. [Add a new database?](database/driver.go)
 
-Click on badges to get to the code...
+* [PostgreSQL](database/postgres)
+* [PGX](database/pgx)
+* [Redshift](database/redshift)
+* [Ql](database/ql)
+* [Cassandra](database/cassandra)
+* [SQLite](database/sqlite)
+* [SQLite3](database/sqlite3) ([todo #165](https://github.com/mattes/migrate/issues/165))
+* [SQLCipher](database/sqlcipher)
+* [MySQL/ MariaDB](database/mysql)
+* [Neo4j](database/neo4j)
+* [MongoDB](database/mongodb)
+* [CrateDB](database/crate) ([todo #170](https://github.com/mattes/migrate/issues/170))
+* [Shell](database/shell) ([todo #171](https://github.com/mattes/migrate/issues/171))
+* [Google Cloud Spanner](database/spanner)
+* [CockroachDB](database/cockroachdb)
+* [ClickHouse](database/clickhouse)
+* [Firebird](database/firebird)
+* [MS SQL Server](database/sqlserver)
 
-[![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)]()
-[![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)]()
-[![JAVASCRIPT](https://img.shields.io/badge/JavaScript-323330?style=for-the-badge&logo=javascript&logoColor=F7DF1E)]()
-[![TYPESCRIPT](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)]()  
-[![TAILWINDCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](./frontend/tailwind.config.ts)
-[![REACT](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)]()
-[![NEXT.js](https://img.shields.io/badge/next%20js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)](./frontend/next.config.mjs)
-[![DOCKER](https://img.shields.io/badge/Docker-2CA5E0?style=for-the-badge&logo=docker&logoColor=white)](./frontend/Dockerfile)
+### Database URLs
 
-### Back-End
+Database connection strings are specified via URLs. The URL format is driver dependent but generally has the form: `dbdriver://username:password@host:port/dbname?param1=true&param2=false`
 
-Click on badges to get to the code...
+Any [reserved URL characters](https://en.wikipedia.org/wiki/Percent-encoding#Percent-encoding_reserved_characters) need to be escaped. Note, the `%` character also [needs to be escaped](https://en.wikipedia.org/wiki/Percent-encoding#Percent-encoding_the_percent_character)
 
-[![GO](https://img.shields.io/badge/Go-00ADD8?style=for-the-badge&logo=go&logoColor=white)](./backend/cmd/web/main.go)
-[![SQLITE](https://img.shields.io/badge/Sqlite-003B57?style=for-the-badge&logo=sqlite&logoColor=white)](./backend/database/social.network.db)
-[![DOCKER](https://img.shields.io/badge/Docker-2CA5E0?style=for-the-badge&logo=docker&logoColor=white)](./backend/Dockerfile)
+Explicitly, the following characters need to be escaped:
+`!`, `#`, `$`, `%`, `&`, `'`, `(`, `)`, `*`, `+`, `,`, `/`, `:`, `;`, `=`, `?`, `@`, `[`, `]`
 
-### Development
-
-[![NPM](https://img.shields.io/badge/npm-CB3837?style=for-the-badge&logo=npm&logoColor=white)]()
-[![SHELL SCRIPT](https://img.shields.io/badge/Shell_Script-121011?style=for-the-badge&logo=gnu-bash&logoColor=white)](gitify.sh)
-[![GITHUB](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)]()
-
-### Office
-
-[![TRELLO](https://img.shields.io/badge/Trello-0052CC?style=for-the-badge&logo=trello&logoColor=white)]()
-[![FIGMA](https://img.shields.io/badge/Figma-F24E1E?style=for-the-badge&logo=figma&logoColor=white)](https://www.figma.com/design/995XflZXhXqKloZs9wT2nx/social-network?node-id=0-1&t=KnNTiKHVFJnQhkQj-0)
-[![WARP](https://img.shields.io/badge/warp-01A4FF?style=for-the-badge&logo=warp&logoColor=white)]()
-
-### Others
-
-[![MARKDOWN](https://img.shields.io/badge/Markdown-000000?style=for-the-badge&logo=markdown&logoColor=white)](#table-of-contents)
-
-###### [_Table of Content ⤴️_](#table-of-contents)
-
-## Installation
-
-### Cloning
-
-```shell
-git clone http://learn.zone01dakar.sn/git/jefaye/social-network.git
-cd social-network
-```
-
-### File System
-
-    |
-    + -- backend/
-    |
-    + -- frontend/
-    |
-    + -- .dockerignore
-    + -- .gitignore
-    + -- audit.todo
-    + -- docker-compose.yml
-    + -- gitify.sh
-    + -- LICENSE
-    + -- Makefile
-    + -- README.md
-
-#### backend/
-
-    |
-    + --- cmd/
-    |       |
-    |       + --- web/
-    |               |
-    |               + -- handlers/
-    |               |       + -- config.handler.go
-    |               |       + -- home.handler.go
-    |               |       + -- login.handler.go
-    |               |       + -- register.handler.go
-    |               |       + -- user.handler.go
-    |               |
-    |               + -- helpers/
-    |               |       + -- client.helper.go
-    |               |       + -- config.helper.go
-    |               |       + -- server.helper.go
-    |               |
-    |               + -- middleware/
-    |               |       + -- config.middleware.go
-    |               |       + -- log.middleware.go
-    |               |       + -- panic.middleware.go
-    |               |
-    |               + -- validators/
-    |               |       + -- config.validator.go
-    |               |       + -- user.validator.go
-    |               |
-    |               + -- main.go
-    |               + -- routes.go
-    |
-    + -- database/
-    |       |
-    |       + -- data/
-    |       |       + -- follows.data.sql
-    |       |       + -- groups.data.sql
-    |       |       + -- posts.data.sql
-    |       |       + -- users.data.sql
-    |       |
-    |       + -- migrations/
-    |       |       |
-    |       |       + -- sqlite/
-    |       |               + -- 000001_create_users_table.down.sql
-    |       |               + -- 000001_create_users_table.up.sql
-    |       |               + -- 000002_create_posts_table.down.sql
-    |       |               + -- 000002_create_posts_table.up.sql
-    |       |               + -- 000003_create_comments_table.down.sql
-    |       |               + -- 000003_create_comments_table.up.sql
-    |       |               + -- 000005_create_messages_table.down.sql
-    |       |               + -- 000005_create_messages_table.up.sql
-    |       |               + -- 000006_create_post_visibility_table.down.sql
-    |       |               + -- 000006_create_post_visibility_table.up.sql
-    |       |               + -- 000007_create_reactions_table.down.sql
-    |       |               + -- 000007_create_reactions_table.up.sql
-    |       |               + -- 000008_create_groups_table.down.sql
-    |       |               + -- 000008_create_groups_table.up.sql
-    |       |               + -- 000009_create_groups_members_table.up.sql
-    |       |               + -- 000010_create_follows_table.down.sql
-    |       |               + -- 000010_create_follows_table.up.sql
-    |       |               + -- 000011_create_events_table.down.sql
-    |       |               + -- 000011_create_events_table.up.sql
-    |       |
-    |       + -- social-network.db
-    |
-    + -- internal/
-    |       |
-    |       + -- models/
-    |       |       + -- comment.model.go
-    |       |       + -- config.model.go
-    |       |       + -- event.model.go
-    |       |       + -- follow.model.go
-    |       |       + -- group.model.go
-    |       |       + -- message.model.go
-    |       |       + -- post.model.go
-    |       |       + -- reaction.model.go
-    |       |       + -- user.model.go
-    |       |
-    |       + -- utils/
-    |               + -- db.manager.go
-    |
-    + -- backend.Dockerfile
-    + -- go.mod
-    + -- go.sum
-
-#### frontend/
-
-    |
-    + --- app/
-    |       |
-    |       + -- login/
-    |       |       |
-    |       |       + -- page.tsx
-    |       |
-    |       + -- register/
-    |       |       |
-    |       |       + -- page.tsx
-    |       |
-    |       + -- favicon.ico
-    |       + -- global.css
-    |       + -- layout.tsx
-    |       + -- page.tsx
-    |       + -- securelayout.tsx
-    |
-    + -- components/
-    |       |
-    |       + --- ui/
-    |               + -- button.tsx
-    |               + -- checkbox.tsx
-    |               + -- checker.tsx
-    |               + -- input.tsx
-    |               + -- textarea.tsx
-    |
-    + --- lib/
-    |       |
-    |       + -- hooks/
-    |       |       + -- useget.ts
-    |       |       + -- usepost.ts
-    |       |
-    |       + -- cookie.ts
-    |       + -- utils.ts
-    |
-    + -- public/
-    |       |
-    |       + -- upload/
-    |       |       + -- ...
-    |       |
-    |       + -- next.svg
-    |       + -- vercel.svg
-    |
-    + -- .eslintrc.json
-    + -- .gitignore
-    + -- components.json
-    + -- frontend.Dockerfile
-    + -- next.config.mjs
-    + -- package-lock.json
-    + -- package.json
-    + -- postcss.config.mjs
-    + -- tailwind.config.ts
-    + -- tsconfig.json
-
-###### [_Table of Content ⤴️_](#table-of-contents)
-
-## Usage
-
-### Next.js
-
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
-
-#### Getting Started
-
-First, run the development server:
+It's easiest to always run the URL parts of your DB connection URL (e.g. username, password, etc) through an URL encoder. See the example Python snippets below:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+$ python3 -c 'import urllib.parse; print(urllib.parse.quote(input("String to encode: "), ""))'
+String to encode: FAKEpassword!#$%&'()*+,/:;=?@[]
+FAKEpassword%21%23%24%25%26%27%28%29%2A%2B%2C%2F%3A%3B%3D%3F%40%5B%5D
+$ python2 -c 'import urllib; print urllib.quote(raw_input("String to encode: "), "")'
+String to encode: FAKEpassword!#$%&'()*+,/:;=?@[]
+FAKEpassword%21%23%24%25%26%27%28%29%2A%2B%2C%2F%3A%3B%3D%3F%40%5B%5D
+$
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Migration Sources
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Source drivers read migrations from local or remote sources. [Add a new source?](source/driver.go)
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+* [Filesystem](source/file) - read from filesystem
+* [io/fs](source/iofs) - read from a Go [io/fs](https://pkg.go.dev/io/fs#FS)
+* [Go-Bindata](source/go_bindata) - read from embedded binary data ([jteeuwen/go-bindata](https://github.com/jteeuwen/go-bindata))
+* [pkger](source/pkger) - read from embedded binary data ([markbates/pkger](https://github.com/markbates/pkger))
+* [GitHub](source/github) - read from remote GitHub repositories
+* [GitHub Enterprise](source/github_ee) - read from remote GitHub Enterprise repositories
+* [Bitbucket](source/bitbucket) - read from remote Bitbucket repositories
+* [Gitlab](source/gitlab) - read from remote Gitlab repositories
+* [AWS S3](source/aws_s3) - read from Amazon Web Services S3
+* [Google Cloud Storage](source/google_cloud_storage) - read from Google Cloud Platform Storage
 
-#### Learn More
+## CLI usage
 
-To learn more about Next.js, take a look at the following resources:
+* Simple wrapper around this library.
+* Handles ctrl+c (SIGINT) gracefully.
+* No config search paths, no config files, no magic ENV var injections.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+__[CLI Documentation](cmd/migrate)__
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+### Basic usage
 
-#### Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
-
-### Go
-
-```shell
-cd backend
-go run ./cmd/web/.
-INFO	16:54:48.394607 server on http://localhost:4000
+```bash
+$ migrate -source file://path/to/migrations -database postgres://localhost:5432/database up 2
 ```
 
-### Docker Compose
+### Docker usage
 
-#### Building and running your application
-
-When you're ready, start your application by running:
-
-```shell
-docker compose up --build
+```bash
+$ docker run -v {{ migration dir }}:/migrations --network host migrate/migrate
+    -path=/migrations/ -database postgres://localhost:5432/database up 2
 ```
 
-Your application will be available at http://localhost:3000.
+## Use in your Go project
 
-#### Deploying your application to the cloud
+* API is stable and frozen for this release (v3 & v4).
+* Uses [Go modules](https://golang.org/cmd/go/#hdr-Modules__module_versions__and_more) to manage dependencies.
+* To help prevent database corruptions, it supports graceful stops via `GracefulStop chan bool`.
+* Bring your own logger.
+* Uses `io.Reader` streams internally for low memory overhead.
+* Thread-safe and no goroutine leaks.
 
-First, build your image, e.g.:
+__[Go Documentation](https://godoc.org/github.com/golang-migrate/migrate)__
 
-```shell
-docker build -t myapp .
+```go
+import (
+    "github.com/golang-migrate/migrate/v4"
+    _ "github.com/golang-migrate/migrate/v4/database/postgres"
+    _ "github.com/golang-migrate/migrate/v4/source/github"
+)
+
+func main() {
+    m, err := migrate.New(
+        "github://mattes:personal-access-token@mattes/migrate_test",
+        "postgres://localhost:5432/database?sslmode=enable")
+    m.Steps(2)
+}
 ```
 
-If your cloud uses a different CPU architecture than your development
-machine (e.g., you are on a Mac M1 and your cloud provider is amd64),
-you'll want to build the image for that platform, e.g.:
+Want to use an existing database client?
 
-```shell
-docker build --platform=linux/amd64 -t myapp .
+```go
+import (
+    "database/sql"
+    _ "github.com/lib/pq"
+    "github.com/golang-migrate/migrate/v4"
+    "github.com/golang-migrate/migrate/v4/database/postgres"
+    _ "github.com/golang-migrate/migrate/v4/source/file"
+)
+
+func main() {
+    db, err := sql.Open("postgres", "postgres://localhost:5432/database?sslmode=enable")
+    driver, err := postgres.WithInstance(db, &postgres.Config{})
+    m, err := migrate.NewWithDatabaseInstance(
+        "file:///migrations",
+        "postgres", driver)
+    m.Up() // or m.Step(2) if you want to explicitly set the number of migrations to run
+}
 ```
 
-Then, push it to your registry, e.g.
+## Getting started
 
-```shell
-docker push myregistry.com/myapp
+Go to [getting started](GETTING_STARTED.md)
+
+## Tutorials
+
+* [CockroachDB](database/cockroachdb/TUTORIAL.md)
+* [PostgreSQL](database/postgres/TUTORIAL.md)
+
+(more tutorials to come)
+
+## Migration files
+
+Each migration has an up and down migration. [Why?](FAQ.md#why-two-separate-files-up-and-down-for-a-migration)
+
+```bash
+1481574547_create_users_table.up.sql
+1481574547_create_users_table.down.sql
 ```
 
-Consult Docker's [getting started](https://docs.docker.com/go/get-started-sharing/)
-docs for more detail on building and pushing.
+[Best practices: How to write migrations.](MIGRATIONS.md)
 
-#### References
+## Versions
 
-- [Docker's Node.js guide](https://docs.docker.com/language/nodejs/)
+Version | Supported? | Import | Notes
+--------|------------|--------|------
+**master** | :white_check_mark: | `import "github.com/golang-migrate/migrate/v4"` | New features and bug fixes arrive here first |
+**v4** | :white_check_mark: | `import "github.com/golang-migrate/migrate/v4"` | Used for stable releases |
+**v3** | :x: | `import "github.com/golang-migrate/migrate"` (with package manager) or `import "gopkg.in/golang-migrate/migrate.v3"` (not recommended) | **DO NOT USE** - No longer supported |
 
-###### [_Table of Content ⤴️_](#table-of-contents)
+## Development and Contributing
 
-## Blueprints
+Yes, please! [`Makefile`](Makefile) is your friend,
+read the [development guide](CONTRIBUTING.md).
 
-### Models
+Also have a look at the [FAQ](FAQ.md).
 
-```mermaid
-classDiagram
-    class User {
-        ~ id: int
-        - email: String
-        # password: String
-        - first_name: String
-        - last_name: String
-        - date_of_birth: Time
-        - profile_picture: String
-        - nickname: String
-        - about_me: String
-        - profile_privacy: Boolean
-        - created_at: Time
-        + Set(): void
-        + Follow(user): void
-        + Unfollow(user): void
-        + IsFollowing(user): Boolean
-        + IsFollowedBy(user): Boolean
-    }
+---
 
-    class Post {
-        ~ id: int
-        - id_author: int
-        - id_group: int
-        - title: String
-        - content: String
-        - privacy: String
-        - created_at: Time
-        + Set(): void
-    }
-
-    class Comment {
-        ~ id: int
-        - id_author: int
-        - id_post: int
-        - content: String
-        - created_at: Time
-        + Set(): void
-    }
-
-    class Reaction {
-        ~ id: int
-        - id_user: int
-        - id_post: int
-        - id_comment: int
-        - like: Boolean
-        - dislike: Boolean
-        + Set(): void
-    }
-
-    class Group {
-        ~ id: int
-        - id_creator: int
-        - name: String
-        - description: String
-        - created_at: Time
-        + Set(): void
-    }
-
-    class Event {
-        ~ id: int
-        - id_creator: int
-        - id_group: int
-        - title: String
-        - description: String
-        - event_date: Time
-        + Set(): void
-    }
-
-    class Message {
-        ~ id: int
-        - id_sender: int
-        - id_receiver: int
-        - content: String
-        - message_type: String
-        - created_at: Time
-        + Set(): void
-    }
-
-    User "0..*" -- "0..*" User: Follows
-    User "1" -- "0..*" Post: Publishes
-    User "1" -- "0..*" Comment: Writes
-    Comment "0..*" ..> "1" Post: on
-    User "1" -- "0..*" Reaction: Sends
-    Reaction "0..*" ..> "1" Post: on
-    Post "0..*" --o "1" Group: in
-
-    User "1" -- "0..*" Group: Creates
-    User "0..*" --o "0..*" Group: Joins
-    User "1" -- "0..*" Event: Creates
-    Event "0..*" ..> "1" Group: in
-
-    User "1" -- "0..*" Message: Sends
-    User "1..*" -- "0..*" Message: Receives
-    Message "0..*" --o "1" Group: in
-```
-
-<hr style="background: #111">
-
-### Register
-
-```mermaid
-sequenceDiagram
-    Participant Client
-    Participant Server
-    Participant Database
-
-    Client ->> Server: r == HTTP Request - POST
-    Server ->> Server: r.ParseMultipartForm()
-    Server ->> Server: r.FormFile("profilPicture") ---> file
-    Server ->> Server: h.Helpers.Getfile(file) ---> tempFile
-    Server ->> Server: r.PostForm.Get() ---> ...
-    Server ->> Database: ConnDB.SetUser(u)
-    Database ->> Database: INSERT INTO users...
-    Database -->> Server: *sql.Result
-    Server -->> Client: renderJSON(w, u)
-```
-
-<hr style="background: #111">
-
-### Login
-
-```mermaid
-sequenceDiagram
-    Participant Client
-    Participant Server
-    Participant Database
-
-    Server ->> Server: CHECK Values Format
-    Server ->> Database: SELECT * FROM users
-    Database -->> Server: ROW: Client
-    Server ->> Server: CHECK Password
-    Server -->> Client: Session
-    Client -->> Client: Home
-```
-
-<hr style="background: #111">
-
-### Profile
-
-<hr style="background: #111">
-
-### Post
-
-<hr style="background: #111">
-
-### Comment
-
-<hr style="background: #111">
-
-### Reaction
-
-<hr style="background: #111">
-
-### Chat
-
-```mermaid
-sequenceDiagram
-    Participant Sender
-    Participant Server
-    Participant Database
-    Participant Receiver
-
-    Sender ->> Server: r == HTTP Request { Upgrade: websocket }
-    Server ->> Server: ConnDb.GetSession(r) ---> id_sender
-    Server ->> Server: r.URL.Query().Get("id") ---> id_receiver
-    Server ->> Server: upgrader.Upgrade(w, r, nil) ---> conn_sender
-    Server -->> Sender: HTTP Response(101 Switching Protocols)
-    Sender ->> Sender: socket.onopen
-    Server ->> Server: chatbox[id_sender] = conn_sender
-
-    Server ->> Database: ConnDB.Get(...)
-    Database ->> Database: SELECT * FROM messages...
-    Database -->> Server: old_messages <--- *sql.Rows
-    Server ->> Sender: conn_sender.WriteJSON(old_messages)
-
-    loop Sending...
-        Note left of Sender: INPUT
-        Sender ->> Sender: button.onclick
-        Sender ->> Server: socket.send() ---> new_message
-        Server ->> Server: conn_sender.ReadJSON(&new_message)
-        Server ->> Database: ConnDB.Set(new_message)
-        Database ->> Database: INSERT INTO messages...
-        Database -->> Server: sql.Result
-        Server ->> Server: chatbox[id_receiver] exists ?
-        opt true
-            Server ->> Receiver: conn_receiver.WriteJSON(new_message)
-            Receiver ->> Receiver: socket.onmessage
-            Note right of Receiver: OUPTPUT
-        end
-    end
-```
-
-<hr style="background: #111">
-
-### Follow
-
-<hr style="background: #111">
-
-### Group
-
-###### [_Table of Content ⤴️_](#table-of-contents)
-
-## Aknowlegments
-
-### Contributors
-
-[![muciss](https://img.shields.io/badge/Zone01-muciss-yellow)](http://learn.zone01dakar.sn/git/muciss)
-[![cnzale](https://img.shields.io/badge/Zone01-cnzale-yellow)](http://learn.zone01dakar.sn/git/cnzale)
-[![mamadbah2](https://img.shields.io/badge/Zone01-mamadbah2-yellow)](http://learn.zone01dakar.sn/git/mamadbah2)
-[![belhadjs](https://img.shields.io/badge/Zone01-belhadjs-yellow)](http://learn.zone01dakar.sn/git/belhadjs)
-[![adiane](https://img.shields.io/badge/Zone01-adiane-yellow)](http://learn.zone01dakar.sn/git/adiane)
-[![jefaye](https://img.shields.io/badge/Zone01-jefaye-yellow)](http://learn.zone01dakar.sn/git/jefaye)
-
-### Peers
-
-[![](https://img.shields.io/badge/Zone01-blue)](http://learn.zone01dakar.sn/git/)
-
-### Testers
-[![drop](https://img.shields.io/badge/Zone01-drop-red)](https://github.com/pemora)
-[![mandaw](https://img.shields.io/badge/Zone01-mandaw-red)](http://learn.zone01dakar.sn/git/mandaw)
-[![bindoye](https://img.shields.io/badge/Zone01-bindoye-red)](http://learn.zone01dakar.sn/git/bindoye)
-
-### Auditors
-
-[![](https://img.shields.io/badge/Zone01-green)](http://learn.zone01dakar.sn/git/)
-[![](https://img.shields.io/badge/Zone01-green)](http://learn.zone01dakar.sn/git/)
-[![](https://img.shields.io/badge/Zone01-green)](http://learn.zone01dakar.sn/git/)
-[![](https://img.shields.io/badge/Zone01-green)](http://learn.zone01dakar.sn/git/)
-[![](https://img.shields.io/badge/Zone01-green)](http://learn.zone01dakar.sn/git/)
-
-###### [_Table of Content ⤴️_](#table-of-contents)
-
-## Sources
-
-###### [_Table of Content ⤴️_](#table-of-contents)
-
-## License
+Looking for alternatives? [https://awesome-go.com/#database](https://awesome-go.com/#database).

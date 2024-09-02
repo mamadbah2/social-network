@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"social-network/cmd/web/validators"
 	"social-network/internal/models"
@@ -15,7 +16,7 @@ func (hand *Handler) Events(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	actualUser, err := hand.ConnDB.GetUser(session.UserId) 
+	actualUser, err := hand.ConnDB.GetUser(session.UserId)
 	if err != nil {
 		hand.Helpers.ServerError(w, err)
 		return
@@ -51,6 +52,7 @@ func (hand *Handler) Events(w http.ResponseWriter, r *http.Request) {
 		}
 
 	case http.MethodPost:
+		fmt.Println("adding Event")
 		err := r.ParseForm()
 		if err != nil {
 			hand.Helpers.ClientError(w, http.StatusBadRequest)
@@ -61,6 +63,7 @@ func (hand *Handler) Events(w http.ResponseWriter, r *http.Request) {
 		groupID, err := strconv.Atoi(gID)
 		if err != nil {
 			hand.Helpers.ClientError(w, http.StatusBadRequest)
+			return
 		}
 
 		title := r.PostForm.Get("title")
@@ -69,13 +72,25 @@ func (hand *Handler) Events(w http.ResponseWriter, r *http.Request) {
 		description := r.PostForm.Get("description")
 		hand.Valid.CheckField(validators.NotBlank(description), "description", "This field cannot be blank")
 
+		date := r.PostForm.Get("date")
+		hand.Valid.CheckField(validators.NotBlank(date), "date", "This field cannot be blank")
+
+		time := r.PostForm.Get("time")
+		hand.Valid.CheckField(validators.NotBlank(time), "time", "This field cannot be blank")
+
 		event := &models.Event{
 			Title:       title,
 			Description: description,
+			Date:        date,
+			Time:        time,
 			Creator:     actualUser,
 			Group:       &models.Group{Id: groupID},
 		}
 
-		hand.ConnDB.SetEvent(event)
+		_, err = hand.ConnDB.SetEvent(event)
+		if err != nil {
+			hand.Helpers.ServerError(w, err)
+			return
+		}
 	}
 }

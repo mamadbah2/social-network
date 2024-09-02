@@ -39,6 +39,23 @@ export function mapUser(data: any): User[] {
         return []
     }
 
+    if (!Array.isArray(data)) {
+        return [{
+            id: data.Id,
+            email: data.Email,
+            firstname: data.FirstName,
+            lastname: data.LastName,
+            nickname: data.Nickname,
+            dateOfBirth: data.DateOfBirth,
+            aboutMe: data.AboutMe,
+            private: data.Private,
+            groups: mapGroup(data.Groups),
+            createdGroups : mapGroup(data.CreatedGroups),
+            suggestedFriends : mapUser(data.SuggestedFriends)
+        }];
+    }
+    
+
     return data.map((u: any): User => {
         // console.log('u.Groups :>> ', mapGroup(u.Groups));
 
@@ -115,13 +132,26 @@ export function mapEvent(data: any): Event[] {
         return [];
     }
 
+    if (!Array.isArray(data)) {
+        return [{
+            Id : data.Id,
+            Title : data.Title,
+            Description : data.Description,
+            Date : data.Date,
+            Time : data.Time,
+            Creator : mapUser(data.Creator)[0],
+            Group : mapGroup(data.Group)[0],
+        }];
+    }
+
     return data.map((e: any): Event => ({
-        id : e.Id,
-        title : e.Tittle,
-        description : e.Description,
-        date  : e.Date,
-        creator: e.Creator,
-        group : e.Group,
+        Id : e.Id,
+        Title : e.Title,
+        Description : e.Description,
+        Date : e.Date,
+        Time : e.Time,
+        Creator : mapUser(e.Creator)[0],
+        Group : mapGroup(e.Group)[0],
     }));
 }
 

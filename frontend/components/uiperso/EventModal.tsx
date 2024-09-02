@@ -1,33 +1,33 @@
+import postData from "@/lib/hooks/usepost";
 import { FormEvent } from "react";
 
 interface EventModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: {
-    eventName: string;
-    date: string;
-    time: string;
-    description: string;
-  }) => void;
+  GroupId: string;
 }
 
 export default function EventModal({
   isOpen,
   onClose,
-  onSubmit,
+  GroupId,
 }: EventModalProps) {
   if (!isOpen) return null;
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const data = {
-      eventName: formData.get("eventName") as string,
+      title: formData.get("title") as string,
       date: formData.get("date") as string,
       time: formData.get("time") as string,
       description: formData.get("description") as string,
     };
-    onSubmit(data);
+    formData.set("group_id", GroupId);
+    console.log(data);
+    const [resp, err] = await postData('/events', formData, false)
+    console.log(resp, err);
+    
     onClose();
   };
 
@@ -42,7 +42,7 @@ export default function EventModal({
             </label>
             <input
               type="text"
-              name="eventName"
+              name="title"
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               required
             />

@@ -10,8 +10,8 @@ export default function SocialMediaLayout({
   groupNav,
 }: {
   header: React.ReactNode;
-  aside: React.ReactNode;
-  section: React.ReactNode;
+  aside?: React.ReactNode;
+  section?: React.ReactNode;
   groupNav?: React.ReactNode;
 }) {
   return (

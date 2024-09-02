@@ -13,18 +13,31 @@ import { Post } from "@/models/post.model";
 import { User } from "@/models/user.model";
 import GroupBarComponent from "@/components/uiperso/GroupBar";
 import AddMemberComponent from "@/components/uiperso/AddMember";
-import usePostData from "@/lib/hooks/usepost";
+import postData from "@/lib/hooks/usepost";
+import CreatePostGroupModal from "@/components/uiperso/CreatePostGroupModal";
+import EventModal from "@/components/uiperso/EventModal";
+import { Event } from "@/models/event.model";
+import EventCard from "@/components/uiperso/EventCard";
 
-export default function Home() {
-  const groupID = useParams().id
+export default function Home({ params }: { params: { id: string } }) {
+  const groupID = params.id;
   const { expect: group, error: errGroups } = useGetData<Group[]>(
     `/groups?id=${groupID}`,
     mapGroup
   );
 
-  const { expect: Allusers, error: errUser } = useGetData<User[]>(`/users`, mapUser);
+  const { expect: Allusers, error: errUser } = useGetData<User[]>(
+    `/users`,
+    mapUser
+  );
 
   const [showAddMemberForm, setShowAddMemberForm] = useState(false);
+  const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false);
+  const [isEventModalOpen, setIsEventModalOpen] = useState(false);
+  const handleCreatePostModalOpen = () => setIsCreatePostModalOpen(true);
+  const handleCreatePostModalClose = () => setIsCreatePostModalOpen(false);
+  const handleOpenEventModal = () => setIsEventModalOpen(true);
+  const handleCloseEventModal = () => setIsEventModalOpen(false);
 
   if (!group || group.length === 0 || !Allusers || Allusers.length === 0) {
     console.log("LOADING");
@@ -42,17 +55,24 @@ export default function Home() {
   }
 
   const posts = group && group.length > 0 ? group[0].posts || [] : [];
+  const events = group && group.length > 0 ? group[0].events || [] : [];
+  console.log(events);
+  
 
   const handleAddMembers = async (selectedUserIds: number[]) => {
     console.log("Selected User IDs:", selectedUserIds);
     if (selectedUserIds.length > 0) {
       const formData = new FormData();
       selectedUserIds.forEach((id) => {
-        formData.append('MembersSelected', id.toString());
+        formData.append("MembersSelected", id.toString());
       });
-      const [resp, err] = await usePostData(`/groupMembers?id=${groupID}`, formData, false)
-      console.log(resp, err)
-      console.log('group Created');
+      const [resp, err] = await postData(
+        `/groupMembers?id=${groupID}`,
+        formData,
+        false
+      );
+      console.log(resp, err);
+      console.log("group Created");
     }
     setShowAddMemberForm(false);
   };
@@ -71,8 +91,16 @@ export default function Home() {
           groupName={group[0]?.name || "Loading..."}
           createdAt={group[0]?.createdAt.toString() || "Loading..."}
           descriptionLink={group[0]?.description || "Loading..."}
-          creator={!!(group[0]?.creator?.Id && localStorage.getItem("userID") === group[0]?.creator?.Id.toString())}
+          creator={
+            !!(
+              group[0]?.creator?.Id &&
+              localStorage.getItem("userID") ===
+                group[0]?.creator?.Id.toString()
+            )
+          }
           setShowForm={setShowAddMemberForm}
+          handleCreatePost={handleCreatePostModalOpen}
+          handleCreateEvent={handleOpenEventModal}
         />
       }
       section={
@@ -84,6 +112,16 @@ export default function Home() {
               onCancel={handleCancel}
             />
           )}
+          <CreatePostGroupModal
+            isOpen={isCreatePostModalOpen}
+            group_Id={groupID}
+            onClose={handleCreatePostModalClose}
+          />
+          <EventModal
+            isOpen={isEventModalOpen}
+            onClose={handleCloseEventModal}
+            GroupId={groupID}
+          />
           <div className="space-y-4 pl-3 pt-24">
             {posts.map((post: Post) => (
               <PostCard
@@ -95,8 +133,21 @@ export default function Home() {
                 content={post.content}
                 imageSrc={"/img"}
                 likes={post.numberLike}
-                dislikes={34}
-                comments={30}
+                dislikes={post.numberDislike}
+                comments={post.numberComment}
+              />
+            ))}
+            {events.map((e: Event) => (
+              <EventCard
+                username={e.Creator.firstname}
+                avatarSrc=""
+                date={e.Date}
+                time={e.Time}
+                title={e.Title}
+                description={e.Description}
+                imageSrc=""
+                onJoin={() => console.log("Join event")}
+                onDismiss={() => console.log("Dismiss event")}
               />
             ))}
           </div>

@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react"
 import { mutate } from 'swr';
 
-async function postData(uri: string, data: FormData, enctyped: boolean) {
+async function postDatas(uri: string, data: FormData, enctyped: boolean) {
     let init: RequestInit
     if (enctyped) {
         init = { method: 'POST', credentials: "include", body: data }
@@ -37,9 +36,9 @@ export function convertFormat(formData: FormData) {
 // Ceci fonctionne comme un useState hook
 
 
-const usePostData = async (uri: string, data: FormData, enctyped = false) => {
+const postData = async (uri: string, data: FormData, enctyped = false) => {
     try {
-        const response = await postData(uri, data, enctyped)
+        const response = await postDatas(uri, data, enctyped)
 
         mutate(uri, response, false);
         return [
@@ -51,4 +50,4 @@ const usePostData = async (uri: string, data: FormData, enctyped = false) => {
     }
 }
 
-export default usePostData;
+export default postData;

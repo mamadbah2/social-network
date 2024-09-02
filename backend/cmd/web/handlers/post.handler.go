@@ -3,12 +3,9 @@ package handlers
 import (
 	"fmt"
 	"html"
-	"io"
 	"net/http"
-	"os"
 	"strconv"
 	"strings"
-	"time"
 )
 
 func (hand *Handler) Post(w http.ResponseWriter, r *http.Request) {
@@ -66,44 +63,50 @@ func (hand *Handler) Post(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		fileImg, fileHeaderImg, err := r.FormFile("imagePost")
+		fileImg, fileHeaderImg, _ := r.FormFile("imagePost")
+		fmt.Println(fileImg)
 		var nameImg string
-		if err == nil {
-			if int(fileHeaderImg.Size) > 20000000 || !hand.Valid.ImageValidation(fileImg) {
-				hand.renderJSON(w, &data)
-				if int(fileHeaderImg.Size) > 20000000 || !hand.Valid.ImageValidation(fileImg) {
-					fmt.Println("5555555")
-					hand.Helpers.ClientError(w, http.StatusBadRequest)
-					return
-				}
-				if _, err := fileImg.Seek(0, io.SeekStart); err != nil {
-					fmt.Println("Error resetting file reader position:", err)
-					return
-				}
-				nameImg = time.Now().Format("20060102_150405") + fileHeaderImg.Filename
-				dst, err := os.Create("./ui/static/uploads/" + nameImg)
-				if err != nil {
-					hand.Helpers.ServerError(w, err)
-					return
-				}
-				defer dst.Close()
-				_, err = io.Copy(dst, fileImg)
-				if err != nil {
-					hand.Helpers.ServerError(w, err)
-					return
-				}
-
-			}
-		} else {
-			hand.Helpers.InfoLog.Println(err, " --Pas d'image set")
+		// var TempFile *os.File
+		if fileImg != nil {
+			_, _ = hand.Helpers.Getfile(fileImg, fileHeaderImg.Filename)
 		}
+		nameImg = fileHeaderImg.Filename
+		// if err == nil {
+		// 	if int(fileHeaderImg.Size) > 20000000 || !hand.Valid.ImageValidation(fileImg) {
+		// 		hand.renderJSON(w, &data)
+		// 		if int(fileHeaderImg.Size) > 20000000 || !hand.Valid.ImageValidation(fileImg) {
+		// 			fmt.Println("5555555")
+		// 			hand.Helpers.ClientError(w, http.StatusBadRequest)
+		// 			return
+		// 		}
+		// 		if _, err := fileImg.Seek(0, io.SeekStart); err != nil {
+		// 			fmt.Println("Error resetting file reader position:", err)
+		// 			return
+		// 		}
+		// 		nameImg = time.Now().Format("20060102_150405") + fileHeaderImg.Filename
+		// 		dst, err := os.Create("./ui/static/uploads/" + nameImg)
+		// 		if err != nil {
+		// 			hand.Helpers.ServerError(w, err)
+		// 			return
+		// 		}
+		// 		defer dst.Close()
+		// 		_, err = io.Copy(dst, fileImg)
+		// 		if err != nil {
+		// 			hand.Helpers.ServerError(w, err)
+		// 			return
+		// 		}
+
+		// 	}
+		// } else {
+		// 	hand.Helpers.InfoLog.Println(err, " --Pas d'image set")
+		// }
 		title := r.PostForm.Get("title")
 		content := r.PostForm.Get("content")
 		privacy := r.PostForm.Get("privacy")
 		groupIdStr := r.PostForm.Get("group_id")
 		escapedContent := html.EscapeString(content)
 
-		if strings.TrimSpace(escapedContent) == "" || strings.TrimSpace(title) == "" || strings.TrimSpace(privacy) == "" {
+		if (strings.TrimSpace(escapedContent) == "" || strings.TrimSpace(title) == "" || strings.TrimSpace(privacy) == "") && groupIdStr == "" {
 			http.Error(w, "Title, content, and privacy fields must not be empty.", http.StatusBadRequest)
 			return
 		}
@@ -115,6 +118,12 @@ func (hand *Handler) Post(w http.ResponseWriter, r *http.Request) {
 				hand.Helpers.ClientError(w, http.StatusBadRequest)
 				return
 			}
+			_, err = hand.ConnDB.SetPost(title, escapedContent, nameImg, "group", actualUser.Id, groupId, []int{})
+			if err != nil {
+				hand.Helpers.ServerError(w, err)
+				return
+			}
+			hand.renderJSON(w, nil)
 		}
 
 		selectedFollowers := []int{}

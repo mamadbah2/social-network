@@ -2,6 +2,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import CreatePostModal from "./CreatePostModal";
 
 type IconProps = React.SVGProps<SVGSVGElement>;
 
@@ -47,9 +48,11 @@ interface GroupBarProps {
   descriptionLink: string;
   creator: boolean;
   setShowForm?: React.Dispatch<React.SetStateAction<boolean>>;
+  handleCreatePost?: () => void;
+  handleCreateEvent?: () => void;
 }
 
-const GroupBarComponent: React.FC<GroupBarProps> = ({ imgSrc, groupName, createdAt, descriptionLink, creator, setShowForm }) => {
+const GroupBarComponent: React.FC<GroupBarProps> = ({ imgSrc, groupName, createdAt, descriptionLink, creator, setShowForm, handleCreatePost, handleCreateEvent }) => {
   return (
     <div className="flex items-center justify-between p-4 bg-white border rounded-md">
       {groupName ? (
@@ -74,11 +77,15 @@ const GroupBarComponent: React.FC<GroupBarProps> = ({ imgSrc, groupName, created
             <Button variant="outline" className="flex items-center space-x-1">
               <MessageSquareIcon className="w-4 h-4" />
             </Button>
-            <Button variant="default" className="flex items-center space-x-1">
+            <Button
+            onClick={handleCreatePost}
+            variant="default" className="flex items-center space-x-1">
               <PlusIcon className="w-4 h-4" />
               <span>Create Post</span>
             </Button>
-            <Button variant="default" className="flex items-center space-x-1">
+            <Button
+              onClick={handleCreateEvent}
+              variant="default" className="flex items-center space-x-1">
               <PlusIcon className="w-4 h-4" />
               <span>Create Event</span>
             </Button>
