@@ -1,17 +1,14 @@
-'use client'
+"use client";
 
 import NavigationBar from "@/components/uiperso/NavigationBar";
-import SocialMediaLayout from "./socialMediaLayout";
-import handAuth from "@/lib/utils";
 import SideBarList from "@/components/uiperso/sidebarlist";
+import HandAuth from "@/lib/utils";
+import SocialMediaLayout from "./socialMediaLayout";
 
 export default function Home() {
-  handAuth();
-  
+  HandAuth();
+
   return (
-    <SocialMediaLayout
-      header={<NavigationBar />}
-      aside={<SideBarList />}
-    />
+    <SocialMediaLayout header={<NavigationBar />} aside={<SideBarList />} />
   );
 }
