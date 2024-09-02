@@ -5,5 +5,5 @@ export interface Message {
     sender?: User
     content: string
     receiver?: User
-    date: string
+    sentAt: string
 }

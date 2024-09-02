@@ -13,6 +13,7 @@ import Logout from "./logout";
 export default function NavigationBar() {
   const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false);
   const [isOpenNotif, setIsOpenNotif] = useState(false)
+  const [isChatboxOpen, setIsChatboxOpen] = useState(false);
   const { getReceived } = UseWS() 
   const handleCreatePostModalOpen = () => setIsCreatePostModalOpen(true);
   const handleCreatePostModalClose = () => setIsCreatePostModalOpen(false);
@@ -75,7 +76,9 @@ export default function NavigationBar() {
         
         {/* Bouton pour le chat box */}
       <div className="relative flex items-center justify-end  space-x-4">
-        <Button variant="ghost" className="text-muted-foreground" size="icon">
+        <Button onClick={() => {
+          setIsChatboxOpen(!isChatboxOpen)
+        }} variant="ghost" className="text-muted-foreground" size="icon">
           <Image
             src="chat.svg"
             width={25}
