@@ -93,9 +93,9 @@ export default function Home({ params }: { params: { id: string } }) {
           descriptionLink={group[0]?.description || "Loading..."}
           creator={
             !!(
-              group[0]?.creator?.Id &&
+              group[0]?.creator.id &&
               localStorage.getItem("userID") ===
-                group[0]?.creator?.Id.toString()
+                group[0]?.creator.id.toString()
             )
           }
           setShowForm={setShowAddMemberForm}
@@ -125,7 +125,7 @@ export default function Home({ params }: { params: { id: string } }) {
           <div className="space-y-4 pl-3 pt-24">
             {posts.map((post: Post) => (
               <PostCard
-                key={post.id}
+                postId={post.id}
                 username={post.author?.nickname || ""}
                 avatarSrc={"/iron"}
                 date={post.createdAt.toString()}

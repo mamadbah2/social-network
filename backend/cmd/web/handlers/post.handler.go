@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"html"
 	"net/http"
 	"strconv"
@@ -64,13 +63,12 @@ func (hand *Handler) Post(w http.ResponseWriter, r *http.Request) {
 		}
 
 		fileImg, fileHeaderImg, _ := r.FormFile("imagePost")
-		fmt.Println(fileImg)
 		var nameImg string
 		// var TempFile *os.File
 		if fileImg != nil {
 			_, _ = hand.Helpers.Getfile(fileImg, fileHeaderImg.Filename)
 		}
-		nameImg = fileHeaderImg.Filename
+		nameImg = fileHeaderImg.Filename;
 		// if err == nil {
 		// 	if int(fileHeaderImg.Size) > 20000000 || !hand.Valid.ImageValidation(fileImg) {
 		// 		hand.renderJSON(w, &data)

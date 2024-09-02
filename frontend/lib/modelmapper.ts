@@ -1,37 +1,36 @@
-import { Post } from "@/models/post.model";
-import { User } from "@/models/user.model";
 import { Group } from "@/models/group.model";
 import { Event } from "@/models/event.model";
-
+import { User } from "@/models/user.model";
+import { Post } from "@/models/post.model";
 export function mapSimpleUser(data: any): User {
-    if (!data) {
-        return {
-            id: 0,
-            email: "",
-            firstname: "",
-            lastname: "",
-            nickname: " ",
-            dateOfBirth: new Date(),
-            aboutMe: "",
-            private: false,
-        }
-    }
-
+  if (!data) {
     return {
-        id: data.Id,
-        email: data.Email,
-        firstname: data.FirstName,
-        lastname: data.LastName,
-        nickname: data.Nickname,
-        dateOfBirth: data.DateOfBirth,
-        aboutMe: data.AboutMe,
-        private: data.Private,
-        groups: mapGroup(data.Groups),
-        createdGroups : mapGroup(data.CreatedGroups),
-        suggestedFriends : mapUser(data.SuggestedFriends)
-    }
+      id: 0,
+      email: "",
+      firstname: "",
+      lastname: "",
+      nickname: " ",
+      dateOfBirth: new Date(),
+      aboutMe: "",
+      private: false,
+    };
+  }
 
-    // return som
+  return {
+    id: data.Id,
+    email: data.Email,
+    firstname: data.FirstName,
+    lastname: data.LastName,
+    nickname: data.Nickname,
+    dateOfBirth: data.DateOfBirth,
+    aboutMe: data.AboutMe,
+    private: data.Private,
+    groups: mapGroup(data.Groups),
+    createdGroups: mapGroup(data.CreatedGroups),
+    suggestedFriends: mapUser(data.SuggestedFriends),
+  };
+
+  // return som
 }
 
 export function mapUser(data: any): User[] {
@@ -56,23 +55,23 @@ export function mapUser(data: any): User[] {
     }
     
 
-    return data.map((u: any): User => {
-        // console.log('u.Groups :>> ', mapGroup(u.Groups));
+  return data.map((u: any): User => {
+    // console.log('u.Groups :>> ', mapGroup(u.Groups));
 
-        return ({
-            id: u.Id,
-            email: u.Email,
-            firstname: u.FirstName,
-            lastname: u.LastName,
-            nickname: u.Nickname,
-            dateOfBirth: u.DateOfBirth,
-            aboutMe: u.AboutMe,
-            private: u.Private,
-            groups: mapGroup(u.Groups)
-        })
-    })
+    return {
+      id: u.Id,
+      email: u.Email,
+      firstname: u.FirstName,
+      lastname: u.LastName,
+      nickname: u.Nickname,
+      dateOfBirth: u.DateOfBirth,
+      aboutMe: u.AboutMe,
+      private: u.Private,
+      groups: mapGroup(u.Groups),
+    };
+  });
 
-    // return som
+  // return som
 }
 
 export function mapPost(data: any): Post[] {
@@ -86,14 +85,19 @@ export function mapPost(data: any): Post[] {
         content: p.Content,
         createdAt: new Date(p.CreatedAt),
         privacy: p.Privacy,
+        imageName: p.imageName,
         liked: p.Liked,
         disliked: p.Disliked,
         numberLike: p.NumberLike,
         numberDislike: p.NumberDislike,
         numberComment: p.NumberComment,
-        author: mapSimpleUser(p.Author),
-        viewers: mapUser(p.Viewers),
+        imageSrc: p.ImageSrc || undefined, // Handle optional imageSrc field
+        author: p.Author ? mapSimpleUser(p.Author) : undefined, // Optional field for the author
+        group: p.Group ? mapGroup(p.Group)[0] : undefined, // Optional field for the group
+        comments: p.Comments ? p.Comments : undefined, // Optional array of comments
+        viewers: p.Viewers ? mapUser(p.Viewers) : undefined, // Optional array of viewers
     }));
+    
 }
 
 export function mapGroup(data: any): Group[] {
@@ -106,7 +110,7 @@ export function mapGroup(data: any): Group[] {
             id : data.Id,
             name : data.Name,
             description : data.Description,
-            creator : data.Creator,
+            creator : mapSimpleUser(data.Creator),
             createdAt : data.CreatedAt,
             posts : mapPost(data.Posts),
             members : data.Members,
@@ -119,7 +123,7 @@ export function mapGroup(data: any): Group[] {
         id : g.Id,
         name : g.Name,
         description : g.Description,
-        creator : g.Creator,
+        creator : mapSimpleUser(g.Creator),
         createdAt : g.CreatedAt,
         posts : mapPost(g.Posts),
         members : g.Members,
