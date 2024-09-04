@@ -1,3 +1,4 @@
+import { Comment } from "@/models/comment.model";
 import { Group } from "@/models/group.model";
 import { Notification } from "@/models/notification.model";
 import { Post } from "@/models/post.model";
@@ -16,6 +17,7 @@ export function mapSimpleUser(data: any): User {
       dateOfBirth: new Date(),
       aboutMe: "",
       private: false,
+      profilePicture: "",
     };
   }
 
@@ -30,7 +32,10 @@ export function mapSimpleUser(data: any): User {
     private: data.Private,
     groups: mapGroup(data.Groups),
     createdGroups: mapGroup(data.CreatedGroups),
-    suggestedFriends: mapUser(data.SuggestedFriends),
+    posts: mapPost(data.Posts),
+    followers: mapUser(data.Followers),
+    followed: mapUser(data.Followed),
+    profilePicture: data.ProfilePicture,
   };
 
   // return som
@@ -54,10 +59,44 @@ export function mapUser(data: any): User[] {
       aboutMe: u.AboutMe,
       private: u.Private,
       groups: mapGroup(u.Groups),
+      profilePicture: u.ProfilePicture,
     };
   });
-
   // return som
+}
+
+export function mapSimplePost(data: any): Post {
+  if (!data) {
+    return {
+      id: 0,
+      title: "",
+      content: "",
+      createdAt: new Date(),
+      privacy: "",
+      imageName: "",
+      liked: false,
+      disliked: false,
+      numberLike: 0,
+      numberDislike: 0,
+      numberComment: 0,
+    };
+  }
+  return {
+    id: data.Id,
+    title: data.Title,
+    content: data.Content,
+    createdAt: new Date(data.CreatedAt),
+    privacy: data.Privacy,
+    imageName: data.ImageName,
+    liked: data.Liked,
+    disliked: data.Disliked,
+    numberLike: data.NumberLike,
+    numberDislike: data.NumberDislike,
+    numberComment: data.NumberComment,
+    author: mapSimpleUser(data.Author),
+    viewers: mapUser(data.Viewers),
+    comments: mapComments(data.Comments),
+  };
 }
 
 export function mapPost(data: any): Post[] {
@@ -134,18 +173,23 @@ export function mapSimpleSession(data: any): Session {
   };
 }
 
-export default function mapMessages(data: any): Message[] {
+export function mapComments(data: any): Comment[] {
+  console.log("dataaaa", data);
   if (!data) {
     return [];
   }
 
   return data.map(
-    (msg: any): Message => ({
-      id: msg.ID,
-      sender: msg.Sender, // BUG: sender: User, msg.Sender int
-      content: msg.Content,
-      receiver: msg.Receiver, // BUG: receiver: User, msg.Receiver int
-      sentAt: msg.SentAt,
+    (c: any): Comment => ({
+      id: c.Id,
+      content: c.Content,
+      author: mapSimpleUser(c.Author),
+      createdAt: new Date(c.Date),
+      liked: c.Liked,
+      disliked: c.Disliked,
+      numberLike: c.NumberLike,
+      numberDislike: c.NumberDislike,
+      post: mapSimplePost(c.Post),
     })
   );
 }

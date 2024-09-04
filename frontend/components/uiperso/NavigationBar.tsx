@@ -2,12 +2,15 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import CreatePostModal from "@/components/uiperso/CreatePostModal";
+import useGetData from "@/lib/hooks/useget";
 import UseWS from "@/lib/hooks/usewebsocket";
+import { mapSimpleUser } from "@/lib/modelmapper";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Logout from "./logout";
 import NotificationBar from "./notification";
+import ProfileLink from "./ProfileLink";
 
 export default function NavigationBar() {
   const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false);
@@ -17,6 +20,16 @@ export default function NavigationBar() {
   const handleCreatePostModalOpen = () => setIsCreatePostModalOpen(true);
   const handleCreatePostModalClose = () => setIsCreatePostModalOpen(false);
 
+  const [id, setId] = useState<number | undefined>(undefined);
+
+  useEffect(() => {
+    const storedId = localStorage.getItem("userID"); // Remplacez 'userId' par la clé appropriée
+    setId(Number(storedId));
+  }, []);
+  const { expect: user, error: errUser } = useGetData(
+    `/users?id=${id}`,
+    mapSimpleUser
+  );
   return (
     <nav className="flex items-center justify-between px-4 py-2 bg-background border rounded-lg">
       {/* Le modal de création de post */}
@@ -31,7 +44,7 @@ export default function NavigationBar() {
           onClick={handleCreatePostModalOpen}
         >
           <Image
-            src="add.svg"
+            src="/add.svg"
             width={25}
             height={25}
             alt="home icon"
@@ -46,7 +59,7 @@ export default function NavigationBar() {
         <Link href={"/"}>
           <Button variant="ghost" className="text-muted-foreground" size="icon">
             <Image
-              src="home.svg"
+              src="/home.svg"
               width={25}
               height={25}
               alt="home icon"
@@ -59,7 +72,7 @@ export default function NavigationBar() {
         <Link href={"/"}>
           <Button variant="ghost" className="text-muted-foreground" size="icon">
             <Image
-              src="group.svg"
+              src="/group.svg"
               width={25}
               height={25}
               alt="group icon"
@@ -80,7 +93,7 @@ export default function NavigationBar() {
           size="icon"
         >
           <Image
-            src="chat.svg"
+            src="/chat.svg"
             width={25}
             height={25}
             alt="group icon"
@@ -101,22 +114,23 @@ export default function NavigationBar() {
           size="icon"
         >
           <Image
-            src="notification.svg"
+            src="/notification.svg"
             width={25}
             height={25}
             alt="group icon"
             className="h-6 w-6"
           />
         </Button>
-
-        {/* Bouton pour le logout */}
         <Logout />
-
-        {/* Bouton pour le profil */}
-        <Avatar className="h-8 w-8">
-          <AvatarImage src="" alt="User avatar" />
-          <AvatarFallback>CN</AvatarFallback>
-        </Avatar>
+        <ProfileLink id={id}>
+          <Avatar className="h-8 w-8">
+            <AvatarImage alt="User avatar" />
+            <AvatarFallback>
+              {user.firstname.charAt(0).toUpperCase()}
+              {user.lastname.charAt(0).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+        </ProfileLink>
       </div>
     </nav>
   );

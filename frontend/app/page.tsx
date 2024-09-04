@@ -1,14 +1,13 @@
 "use client";
 
-import NavigationBar from "@/components/uiperso/NavigationBar";
-import SideBarList from "@/components/uiperso/sidebarlist";
-import HandAuth from "@/lib/utils";
-import SocialMediaLayout from "./socialMediaLayout";
+import PostSection from "@/components/uiperso/PostSection";
+import useGetData from "@/lib/hooks/useget";
+import { mapPost } from "@/lib/modelmapper";
+import handAuth from "@/lib/utils";
 
 export default function Home() {
-  HandAuth();
+  handAuth();
+  const { expect: posts } = useGetData("/posts", mapPost);
 
-  return (
-    <SocialMediaLayout header={<NavigationBar />} aside={<SideBarList />} />
-  );
+  return <PostSection posts={posts} />;
 }

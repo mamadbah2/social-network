@@ -1,18 +1,22 @@
-import { Group } from "./group.model"
+import { Group } from "./group.model";
+import { Post } from "./post.model";
 
 export interface User {
-    id: number
-    email: string
-    firstname: string
-    lastname: string
-    nickname: string
-    dateOfBirth: Date
-    aboutMe: string
-    private: boolean
-    profilePicture?: string
-    groups?: Group[]
-    createdGroups?: Group[]
-    suggestedFriends?: User[]
+  id: number;
+  email: string;
+  firstname: string;
+  lastname: string;
+  nickname: string;
+  dateOfBirth: Date;
+  aboutMe: string;
+  private: boolean;
+  profilePicture: string;
+  groups?: Group[];
+  createdGroups?: Group[];
+  suggestedFriends?: User[];
+  posts?: Post[];
+  followers?: User[];
+  followed?: User[];
 }
 
 // Id             int

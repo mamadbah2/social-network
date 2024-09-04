@@ -42,7 +42,7 @@ export default function CreatePostModal({ isOpen, onClose }: PostModalProps) {
         }))
       );
     }
-  }, [data, ItemUser]);
+  }, [data, ItemUser]); // Add data as a dependency
 
   if (!isOpen) return null;
 

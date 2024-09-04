@@ -13,13 +13,13 @@ func (hand *Handler) ComsHandle(w http.ResponseWriter, r *http.Request) {
 		hand.Helpers.ServerError(w, err)
 		return
 	}
-
 	switch r.Method {
 	case http.MethodPost:
 		c := &models.Comment{
 			Post:   &models.Post{},   // Initialize Post
 			Author: &models.User{},   // Initialize Author
-	}
+		
+	   }
 		c.Author.Id = session.UserId
 		c.Content = r.FormValue("CommentContent")
 		IDPost, err := strconv.Atoi(r.URL.Query().Get("Id"))

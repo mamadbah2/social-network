@@ -1,5 +1,5 @@
 import { FormEvent, useState } from "react";
-import usePostData from "./usepost";
+import postData from "./usepost";
 
 type ReactionOptions = {
   entityId: number;
@@ -24,7 +24,7 @@ export const useReaction = () => {
     formData.append("reaction_type", reactionType);
 
     const endpoint = isLike ? "/like" : "/dislike";
-    const [resp, err] = await usePostData(endpoint, formData, false);
+    const [resp, err] = await postData(endpoint, formData, false);
 
     setLoading(false);
 

@@ -124,7 +124,6 @@ func (m *ConnDB) GetPost(postId int) (*Post, error) {
 		return nil, err
 	}
 	p.Comments = comments
-
 	// Fetch viewers
 	viewers, err := m.getViewersByPostId(p.Id)
 	if err != nil {
@@ -140,7 +139,6 @@ func (m *ConnDB) GetPost(postId int) (*Post, error) {
 	}
 
 	p.NumberComment = len(p.Comments)
-
 	return p, nil
 }
 

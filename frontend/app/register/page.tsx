@@ -88,7 +88,11 @@ export default function Register() {
           Sign In{" "}
         </Button>
         <p className="text-gray-600 text-sm">
+<<<<<<< HEAD
           You don&apos;t have an account?
+=======
+          You dont have an account?
+>>>>>>> origin/murielle
           <Link
             href="/login"
             className="text-blue-500 hover:text-blue-700 underline"
