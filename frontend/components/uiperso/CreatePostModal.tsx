@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import useGetData from "@/lib/hooks/useget";
-import usePostData from "@/lib/hooks/usepost";
+import postData from "@/lib/hooks/usepost";
 import { mapUser } from "@/lib/modelmapper";
 import { User } from "@/models/user.model";
 import Image from "next/image";
@@ -36,7 +36,7 @@ export default function CreatePostModal({ isOpen, onClose }: PostModalProps) {
   useEffect(() => {
     if (data && data.length > 0 && ItemUser.length === 0) {
       setItemUser(
-        data.map((u) => ({
+        data.map((u: any) => ({
           id: u.id,
           name: u.firstname,
         }))
@@ -58,7 +58,7 @@ export default function CreatePostModal({ isOpen, onClose }: PostModalProps) {
         formData.append(`followers`, id.toString());
       });
     }
-    const [resp, err] = await usePostData("/posts", formData, true);
+    const [resp, err] = await postData("/posts", formData, true);
     setSelectedUsers([]);
     setPrivacy("");
     onClose();

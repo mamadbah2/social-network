@@ -1,39 +1,39 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import Checker from "@/components/ui/checker";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import usePostData from "@/lib/hooks/usepost";
+import postData from "@/lib/hooks/usepost";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import SecurityLayout from "../securelayout";
 
 export default function Register() {
-  const [firstname, setFirstname] = useState("");
-  const [lastname, setLastname] = useState("");
-  const [nickname, setNickname] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [date, setDate] = useState("");
-  const [aboutMe, setAboutMe] = useState("");
   const [file, setFile] = useState(undefined);
-  const [privacy, setPrivacy] = useState("");
+  const [privacy, setPrivacy] = useState(false);
 
   const router = useRouter();
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const [resp, err] = await usePostData(
-      "/register",
-      new FormData(e.currentTarget),
-      true
-    );
+    const target = e.currentTarget;
+    const formData = new FormData(target);
+    if (!privacy) formData.append("privacy", "public");
+    const [, err] = await postData("/register", formData, true);
+
     if (Object.keys(err).length == 0) {
-      console.log("data :>> ", resp);
       router.push("/login");
+    } else {
+      Object.keys(err).forEach((key) => {
+        target.querySelector(`[name=${key}]`)?.classList.add("border-red-500");
+        setTimeout(() => {
+          target
+            .querySelector(`[name=${key}]`)
+            ?.classList.remove("border-red-500");
+        }, 2000);
+      });
     }
-    console.log("error :>> ", err);
-    // console.log('isLoading :>> ', isLoad);
   };
 
   return (
@@ -41,6 +41,7 @@ export default function Register() {
       <form
         onSubmit={handleSubmit}
         encType="multipart/form-data"
+        method="POST"
         className="max-w-[500px] flex flex-wrap gap-4 bg-white p-5 justify-between rounded-lg text-center  "
       >
         <h1 className="block font-bold text-4xl w-full">Sign In</h1>
@@ -49,63 +50,52 @@ export default function Register() {
             type="text"
             name="firstname"
             placeholder="Enter your firstname"
-            value={firstname}
-            onChange={(e) => setFirstname(e.target.value)}
           />
           <Input
             type="text"
             name="lastname"
             placeholder="Enter your lastname"
-            value={lastname}
-            onChange={(e) => setLastname(e.target.value)}
           />
         </div>
-        <Input
-          type="text"
-          name="nickname"
-          placeholder="Enter your nickname"
-          value={nickname}
-          onChange={(e) => setNickname(e.target.value)}
-        />
-        <Input
-          type="mail"
-          name="email"
-          placeholder="Enter your email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+        <Input type="text" name="nickname" placeholder="Enter your nickname" />
+        <Input type="mail" name="email" placeholder="Enter your email" />
         <Input
           type="password"
           name="password"
           placeholder="Enter your password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
         />
-        <Input
-          type="date"
-          name="dateOfBirth"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-        />
-        <Textarea
-          placeholder="About Me"
-          name="aboutMe"
-          value={aboutMe}
-          onChange={(e) => setAboutMe(e.target.value)}
-        />
-        <Input type="file" name="profilPicture" value={file} />
+        <Input type="date" name="dateOfBirth" />
+        <Textarea placeholder="About Me" name="aboutMe" />
+        <Input type="file" value={file} />
         <div className="flex items-center space-x-2">
-          <Checker
-            label="Private Account"
-            name="privacy"
-            onChange={(e) => setPrivacy(e.currentTarget.value)}
-            value={privacy}
-          />
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="terms"
+              onClick={() => {
+                setPrivacy(!privacy);
+              }}
+            />
+            <label
+              htmlFor="terms"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              Private account
+            </label>
+          </div>
         </div>
         <Button type="submit" className="w-full">
           {" "}
           Sign In{" "}
         </Button>
+        <p className="text-gray-600 text-sm">
+          You don&apos;t have an account?
+          <Link
+            href="/login"
+            className="text-blue-500 hover:text-blue-700 underline"
+          >
+            Login
+          </Link>
+        </p>
       </form>
     </SecurityLayout>
   );

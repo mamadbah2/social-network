@@ -54,6 +54,8 @@ func (m *ConnDB) GetNotifications(receiverID int) ([]*Notification, error) {
 }
 
 func (m *ConnDB) SetNotification(notif *Notification) (int, error) {
+	
+
 	stmt := `
 		INSERT INTO notifications (content, created_at, entity_type, entity_id, sender_id, receiver_id)
 		VALUES (?, CURRENT_TIMESTAMP, ?, ?, ?, ?)

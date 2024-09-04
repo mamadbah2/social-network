@@ -3,6 +3,7 @@ import { Notification } from "@/models/notification.model";
 import { Post } from "@/models/post.model";
 import { Session } from "@/models/session.model";
 import { User } from "@/models/user.model";
+import { Message } from "@/models/message";
 
 export function mapSimpleUser(data: any): User {
   if (!data) {
@@ -131,4 +132,20 @@ export function mapSimpleSession(data: any): Session {
     id: data.Id,
     userId: data.UserId,
   };
+}
+
+export default function mapMessages(data: any): Message[] {
+  if (!data) {
+    return [];
+  }
+
+  return data.map(
+    (msg: any): Message => ({
+      id: msg.ID,
+      sender: msg.Sender, // BUG: sender: User, msg.Sender int
+      content: msg.Content,
+      receiver: msg.Receiver, // BUG: receiver: User, msg.Receiver int
+      sentAt: msg.SentAt,
+    })
+  );
 }

@@ -9,8 +9,8 @@ export default function SocialMediaLayout({
   section,
 }: {
   header: React.ReactNode;
-  aside: React.ReactNode;
-  section: React.ReactNode;
+  aside?: React.ReactNode;
+  section?: React.ReactNode;
 }) {
   return (
     <WsProvider uri="/notification" mapper={mapNotification} >

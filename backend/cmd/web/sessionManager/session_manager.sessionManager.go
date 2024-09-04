@@ -27,11 +27,11 @@ func (sess *SessionManager) NewSession(w http.ResponseWriter, iduser int) (*mode
 		UserId:     iduser,
 		IsActive:   true,
 		Data:       make(map[string]interface{}),
-		Expired_at: time.Now().Add(120 * time.Minute),
+		Expired_at: time.Now().AddDate(100, 0, 0),
 		Cookie: &http.Cookie{
 			Name:     "session",
 			Value:    sessionId,
-			MaxAge:   3600,
+			MaxAge:   0,
 			Path:     "/",
 			HttpOnly: true,
 			Secure:   true,
