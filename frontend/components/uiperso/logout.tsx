@@ -32,7 +32,7 @@ export default function Logout() {
       size="icon"
     >
       <Image
-        src="logout.svg"
+        src="/logout.svg"
         width={25}
         height={25}
         alt="group icon"

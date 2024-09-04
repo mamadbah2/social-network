@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { PropsWithChildren } from "react";
 export type profileProps = PropsWithChildren<{
-  id: number | null;
+  id: number | undefined;
 }>;
 
 export default function ProfileLink({ id, children }: profileProps) {

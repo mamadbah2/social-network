@@ -13,54 +13,6 @@ export default function Home() {
   const handleOpenGroupModal = () => setIsGroupModalOpen(true);
   const handleCloseGroupModal = () => setIsGroupModalOpen(false);
 
-  const handleEventFormSubmit = async (data: {
-    eventName: string;
-    date: string;
-    time: string;
-    description: string;
-  }) => {
-    try {
-      const response = await fetch("/api/events", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (response.ok) {
-        console.log("Event created successfully");
-      } else {
-        console.error("Failed to create event");
-      }
-    } catch (error) {
-      console.error("An error occurred while creating the event:", error);
-    }
-  };
-
-  const handleGroupFormSubmit = async (data: {
-    groupName: string;
-    description: string;
-  }) => {
-    try {
-      const response = await fetch("/api/groups", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (response.ok) {
-        console.log("Group created successfully");
-      } else {
-        console.error("Failed to create group");
-      }
-    } catch (error) {
-      console.error("An error occurred while creating the group:", error);
-    }
-  };
-
   return (
     <div className="flex flex-col items-center justify-center min-h-screen py-2">
       <h1 className="text-4xl font-bold">Manager Dashboard</h1>
@@ -79,17 +31,9 @@ export default function Home() {
         </button>
       </div>
 
-      <EventModal
-        isOpen={isEventModalOpen}
-        onClose={handleCloseEventModal}
-        onSubmit={handleEventFormSubmit}
-      />
+      <EventModal isOpen={isEventModalOpen} onClose={handleCloseEventModal} />
 
-      <GroupModal
-        isOpen={isGroupModalOpen}
-        onClose={handleCloseGroupModal}
-        onSubmit={handleGroupFormSubmit}
-      />
+      <GroupModal isOpen={isGroupModalOpen} onClose={handleCloseGroupModal} />
     </div>
   );
 }

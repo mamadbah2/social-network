@@ -3,19 +3,9 @@ import { FormEvent } from "react";
 interface EventModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: {
-    eventName: string;
-    date: string;
-    time: string;
-    description: string;
-  }) => void;
 }
 
-export default function EventModal({
-  isOpen,
-  onClose,
-  onSubmit,
-}: EventModalProps) {
+export default function EventModal({ isOpen, onClose }: EventModalProps) {
   if (!isOpen) return null;
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
@@ -27,7 +17,6 @@ export default function EventModal({
       time: formData.get("time") as string,
       description: formData.get("description") as string,
     };
-    onSubmit(data);
     onClose();
   };
 

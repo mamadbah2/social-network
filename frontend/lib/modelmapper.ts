@@ -1,3 +1,4 @@
+import { Comment } from "@/models/comment.model";
 import { Group } from "@/models/group.model";
 import { Notification } from "@/models/notification.model";
 import { Post } from "@/models/post.model";
@@ -60,8 +61,41 @@ export function mapUser(data: any): User[] {
       profilePicture: u.ProfilePicture,
     };
   });
-
   // return som
+}
+
+export function mapSimplePost(data: any): Post {
+  if (!data) {
+    return {
+      id: 0,
+      title: "",
+      content: "",
+      createdAt: new Date(),
+      privacy: "",
+      imageName: "",
+      liked: false,
+      disliked: false,
+      numberLike: 0,
+      numberDislike: 0,
+      numberComment: 0,
+    };
+  }
+  return {
+    id: data.Id,
+    title: data.Title,
+    content: data.Content,
+    createdAt: new Date(data.CreatedAt),
+    privacy: data.Privacy,
+    imageName: data.ImageName,
+    liked: data.Liked,
+    disliked: data.Disliked,
+    numberLike: data.NumberLike,
+    numberDislike: data.NumberDislike,
+    numberComment: data.NumberComment,
+    author: mapSimpleUser(data.Author),
+    viewers: mapUser(data.Viewers),
+    comments: mapComments(data.Comments),
+  };
 }
 
 export function mapPost(data: any): Post[] {
@@ -76,6 +110,7 @@ export function mapPost(data: any): Post[] {
       content: p.Content,
       createdAt: new Date(p.CreatedAt),
       privacy: p.Privacy,
+      imageName: p.ImageName,
       liked: p.Liked,
       disliked: p.Disliked,
       numberLike: p.NumberLike,
@@ -135,4 +170,25 @@ export function mapSimpleSession(data: any): Session {
     id: data.Id,
     userId: data.UserId,
   };
+}
+
+export function mapComments(data: any): Comment[] {
+  console.log("dataaaa", data);
+  if (!data) {
+    return [];
+  }
+
+  return data.map(
+    (c: any): Comment => ({
+      id: c.Id,
+      content: c.Content,
+      author: mapSimpleUser(c.Author),
+      createdAt: new Date(c.Date),
+      liked: c.Liked,
+      disliked: c.Disliked,
+      numberLike: c.NumberLike,
+      numberDislike: c.NumberDislike,
+      post: mapSimplePost(c.Post),
+    })
+  );
 }

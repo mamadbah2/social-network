@@ -19,7 +19,7 @@ export default function NavigationBar() {
   const handleCreatePostModalOpen = () => setIsCreatePostModalOpen(true);
   const handleCreatePostModalClose = () => setIsCreatePostModalOpen(false);
 
-  const [id, setId] = useState<number | null>(null);
+  const [id, setId] = useState<number | undefined>(undefined);
 
   useEffect(() => {
     const storedId = localStorage.getItem("userID"); // Remplacez 'userId' par la clé appropriée

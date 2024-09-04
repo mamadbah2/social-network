@@ -31,11 +31,9 @@ export default function CreatePostModal({ isOpen, onClose }: PostModalProps) {
   const { expect: data, error } = useGetData<User[]>("/users", mapUser);
   const [privacy, setPrivacy] = useState<string>("");
   const [selectedUsers, setSelectedUsers] = useState<Item[]>([]);
-  // const [selectedUsersId, setSelectedUsersId] = useState<string[]>([]);
   const [search, setSearch] = useState<string>("");
   const [ItemUser, setItemUser] = React.useState<Item[]>([]);
   useEffect(() => {
-    // Only setItemUser if the data has changed
     if (data && data.length > 0 && ItemUser.length === 0) {
       setItemUser(
         data.map((u: any) => ({
@@ -52,29 +50,17 @@ export default function CreatePostModal({ isOpen, onClose }: PostModalProps) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     formData.set("privacy", privacy);
-    const data: any = {
-      title: formData.get("title") as string,
-      content: formData.get("content") as string,
-      privacy: formData.get("privacy") as string,
-    };
 
-    // If "Almost Private" is selected, include the selected users
     if (privacy === "almost private") {
       const selectedUserIds = selectedUsers.map((user) => user.id);
-      // Append the array of user IDs to the formData (as a string)
-      formData.append("selectedUserIds", JSON.stringify(selectedUserIds));
 
-      // Add the selectedUserIds to data for logging purposes
-      data.selectedUserIds = selectedUserIds;
+      selectedUserIds.forEach((id, index) => {
+        formData.append(`followers`, id.toString());
+      });
     }
-
-    console.log("Form Data:", data);
-    const [resp, err] = await postData(
-      "/posts",
-      new FormData(e.currentTarget),
-      true
-    );
-    // onSubmit(data);
+    const [resp, err] = await postData("/posts", formData, true);
+    setSelectedUsers([]);
+    setPrivacy("");
     onClose();
   };
 
@@ -82,7 +68,7 @@ export default function CreatePostModal({ isOpen, onClose }: PostModalProps) {
     if (!selectedUsers.some((u) => u.name === user.name)) {
       setSelectedUsers([...selectedUsers, user]);
     }
-    setSearch(""); // Clear the search field after adding a user
+    setSearch("");
   };
 
   const handleRemoveUser = (user: Item) => {

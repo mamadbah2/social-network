@@ -39,7 +39,7 @@ export default function ProfileComponent({ id }: { id: string }) {
       follow: [],
     });
 
-  console.log(user);
+  console.log(user.posts);
 
   return (
     <>
