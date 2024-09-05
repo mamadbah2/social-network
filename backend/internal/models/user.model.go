@@ -130,7 +130,7 @@ func (m *ConnDB) GetAllUsers() ([]*User, error) {
 func (m *ConnDB) GetUser(userID int) (*User, error) {
 	statement := `
 		SELECT u.id, u.email,
-		u.password, u.first_name, u.last_name, u.date_of_birth, 
+		 u.first_name, u.last_name, u.date_of_birth, 
 		u.profile_picture, u.nickname, u.about_me, u.profile_privacy,
 		u.created_at FROM users u WHERE u.id = ?
 	`
@@ -138,7 +138,7 @@ func (m *ConnDB) GetUser(userID int) (*User, error) {
 
 	u := &User{}
 
-	err := row.Scan(&u.Id, &u.Email, &u.Password, &u.FirstName, &u.LastName, &u.DateOfBirth, &u.ProfilePicture, &u.Nickname, &u.AboutMe, &u.Private, &u.CreatedAt)
+	err := row.Scan(&u.Id, &u.Email, &u.FirstName, &u.LastName, &u.DateOfBirth, &u.ProfilePicture, &u.Nickname, &u.AboutMe, &u.Private, &u.CreatedAt)
 	if err != nil {
 		fmt.Println("bobo choked")
 		return nil, err

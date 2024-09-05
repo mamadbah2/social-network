@@ -1,3 +1,4 @@
+"use client";
 import { Post } from "@/models/post.model"; // Adjust path if necessary
 import React from "react";
 import PostCard from "./PostCard";
@@ -8,8 +9,6 @@ interface PostSectionProps {
 }
 
 const ViewPost: React.FC<PostSectionProps> = ({ post }) => {
-  console.log(post);
-
   return (
     <div className="space-y-4">
       <PostCard

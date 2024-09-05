@@ -8,13 +8,13 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import useGetData from "@/lib/hooks/useGet";
-import { mapGroup, mapSimpleUser } from "@/lib/modelmapper";
-import { paginateTable } from "@/lib/utils";
-import { Group } from "@/models/group.model";
 import { Item } from "@/models/item.model";
 import { User } from "@/models/user.model";
 import React, { useEffect } from "react";
+import useGetData from "../../lib/hooks/useGet";
+import { mapGroup, mapSimpleUser } from "../../lib/modelmapper";
+import { paginateTable } from "../../lib/utils";
+import { Group } from "../../models/group.model";
 import { ListBar } from "./listbar";
 
 // Voir si possible accordeon de maintenir...
@@ -34,20 +34,15 @@ export default function SideBarList() {
     setUserID(localStorage.getItem("userID") || "0");
   }, []);
 
-  console.log("hereee", userID);
-
   const {
     expect: user,
     error: errUser,
     refetch: mutate,
   } = useGetData<User>(`/users?id=${userID}`, mapSimpleUser);
-  console.log("user", user);
   const { expect: groups, error: errGroups } = useGetData<Group[]>(
     "/groups",
     mapGroup
   );
-
-  console.log("data", user);
 
   const [ItemUser, setItemUser] = React.useState<Item[]>([]);
   const [ItemGroup, setItemGroup] = React.useState<Item[]>([]);
@@ -56,7 +51,6 @@ export default function SideBarList() {
 
   const handlePaginate = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    console.log(e.currentTarget.id);
     switch (e.currentTarget.id) {
       case "friendBtn":
         const suggestedFriends = user?.suggestedFriends || [];

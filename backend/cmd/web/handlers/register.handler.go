@@ -2,8 +2,8 @@ package handlers
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
-	"os"
 	"social-network/cmd/web/validators"
 	"social-network/internal/models"
 	"time"
@@ -26,11 +26,13 @@ func (hand *Handler) Register(w http.ResponseWriter, r *http.Request) {
 	user := &models.User{}
 	//Recuperation du fichier image
 	file, fileHeaderImg, _ := r.FormFile("profilPicture")
-	var tempFile *os.File
+	var nameImg string
 	if file != nil {
-		tempFile, _ = hand.Helpers.Getfile(file, fileHeaderImg.Filename)
+		_, _ = hand.Helpers.Getfile(file, fileHeaderImg.Filename)
 	}
 
+	nameImg = fileHeaderImg.Filename
+	fmt.Println("name image", nameImg)
 	// Gestion de la date anniversaire, conversion time.Time
 	dateStr := r.PostForm.Get("dateOfBirth")
 	if dateStr != "" {
@@ -76,10 +78,8 @@ func (hand *Handler) Register(w http.ResponseWriter, r *http.Request) {
 		hand.Valid.CheckField(false, "email", "Email already taken")
 	}
 
-	if tempFile != nil {
-		user.ProfilePicture = tempFile.Name()
-		hand.Valid.CheckField(validators.VerifyImg(user.ProfilePicture), "profilPicture", "choose a valid image")
-		hand.Valid.CheckField(validators.CheckFileSize(user.ProfilePicture), "profilPicture", "max size image should be 20 mb")
+	if file != nil {
+		user.ProfilePicture = nameImg
 	}
 
 	hand.Valid.CheckField(validators.NotBlank(user.FirstName), "firstname", "This field cannot be blank")

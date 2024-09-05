@@ -1,9 +1,10 @@
+"use client";
 import { Post } from "@/models/post.model"; // Adjust path if necessary
 import React from "react";
 import PostCard from "./PostCard";
 
 interface PostSectionProps {
-  posts?: Post[]; // Ensure this matches the Post type
+  posts: Post[] | null; // Ensure this matches the Post type
 }
 
 const PostSection: React.FC<PostSectionProps> = ({ posts }) => {

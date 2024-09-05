@@ -1,13 +1,13 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { setSessionToken } from "@/lib/cookie";
-import postData from "@/lib/hooks/usepost";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React from "react";
-import SecurityLayout from "../securelayout";
+import { Button } from "../../../components/ui/button";
+import { Input } from "../../../components/ui/input";
+import { setSessionToken } from "../../../lib/cookie";
+import postData from "../../../lib/hooks/usepost";
+import AuthLayout from "../layout";
 
 export let socketNotif: WebSocket;
 
@@ -28,8 +28,6 @@ export default function Login() {
         }, 2000);
       });
     } else if (Object.keys(resp).length != 0 && Object.keys(err).length == 0) {
-      console.log("login -> session", resp?.Cookie?.Value);
-
       setSessionToken(resp?.Cookie?.Value);
       localStorage.setItem("userID", `${resp?.UserId}`);
       localStorage.setItem("cookie", `${resp?.Cookie?.Value}`);
@@ -38,7 +36,7 @@ export default function Login() {
   };
 
   return (
-    <SecurityLayout>
+    <AuthLayout>
       <form
         onSubmit={handleSubmit}
         className="max-w-[500px] flex flex-wrap gap-4 bg-white p-5 justify-center rounded-lg"
@@ -65,6 +63,6 @@ export default function Login() {
           </Link>
         </p>
       </form>
-    </SecurityLayout>
+    </AuthLayout>
   );
 }

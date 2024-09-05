@@ -1,5 +1,4 @@
 "use client";
-
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -7,8 +6,8 @@ import { Textarea } from "@/components/ui/textarea";
 import postData from "@/lib/hooks/usepost";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import SecurityLayout from "../securelayout";
+import React, { useState } from "react";
+import AuthLayout from "../layout";
 
 export default function Register() {
   const [file, setFile] = useState(undefined);
@@ -37,12 +36,12 @@ export default function Register() {
   };
 
   return (
-    <SecurityLayout>
+    <AuthLayout>
       <form
         onSubmit={handleSubmit}
         encType="multipart/form-data"
         method="POST"
-        className="max-w-[500px] flex flex-wrap gap-4 bg-white p-5 justify-between rounded-lg text-center  "
+        className="max-w-[500px] flex flex-wrap gap-4 bg-white p-5 justify-between rounded-lg text-center border border-gray-200"
       >
         <h1 className="block font-bold text-4xl w-full">Sign In</h1>
         <div className="flex justify-between w-full gap-4">
@@ -66,7 +65,7 @@ export default function Register() {
         />
         <Input type="date" name="dateOfBirth" />
         <Textarea placeholder="About Me" name="aboutMe" />
-        <Input type="file" value={file} />
+        <Input type="file" name="profilPicture" value={file} />
         <div className="flex items-center space-x-2">
           <div className="flex items-center space-x-2">
             <Checkbox
@@ -88,11 +87,7 @@ export default function Register() {
           Sign In{" "}
         </Button>
         <p className="text-gray-600 text-sm">
-<<<<<<< HEAD
           You don&apos;t have an account?
-=======
-          You dont have an account?
->>>>>>> origin/murielle
           <Link
             href="/login"
             className="text-blue-500 hover:text-blue-700 underline"
@@ -101,6 +96,6 @@ export default function Register() {
           </Link>
         </p>
       </form>
-    </SecurityLayout>
+    </AuthLayout>
   );
 }

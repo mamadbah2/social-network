@@ -11,7 +11,6 @@ export default function ViewComment({
 }: {
   comments: Comment[] | undefined;
 }) {
-  console.log("helloooo", comments);
   const { handleReactionSubmit, loading, error } = useReaction();
 
   return (

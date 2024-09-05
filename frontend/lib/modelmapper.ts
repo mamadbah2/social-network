@@ -47,8 +47,6 @@ export function mapUser(data: any): User[] {
   }
 
   return data.map((u: any): User => {
-    // console.log('u.Groups :>> ', mapGroup(u.Groups));
-
     return {
       id: u.Id,
       email: u.Email,
@@ -174,7 +172,6 @@ export function mapSimpleSession(data: any): Session {
 }
 
 export function mapComments(data: any): Comment[] {
-  console.log("dataaaa", data);
   if (!data) {
     return [];
   }

@@ -1,11 +1,12 @@
+"use client";
 import useGetData from "@/lib/hooks/useGet";
 import postData from "@/lib/hooks/usepost";
-import UseWS from "@/lib/hooks/usewebsocket";
-import { mapUser } from "@/lib/modelmapper";
-import { Item } from "@/models/item.model";
-import { handleFollow } from "@/services/follow.service";
 import { PlusSquareIcon } from "lucide-react";
 import React, { useEffect } from "react";
+import UseWS from "../../lib/hooks/usewebsocket";
+import { mapUser } from "../../lib/modelmapper";
+import { Item } from "../../models/item.model";
+import { handleFollow } from "../../services/follow.service";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { useToast } from "../ui/use-toast";
@@ -71,7 +72,7 @@ export function ListBar({
         <li key={item?.userId} className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Avatar className="h-8 w-8">
-              <AvatarImage src={item.image} alt={item.name} />
+              <AvatarImage src={`/upload/${item.image}`} alt={item.name} />
               <AvatarFallback>{item.name[0].toUpperCase()}</AvatarFallback>
             </Avatar>
             <span className="text-sm">{item.name}</span>

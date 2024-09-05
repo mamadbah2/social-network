@@ -39,8 +39,6 @@ export default function ProfileComponent({ id }: { id: string }) {
       follow: [],
     });
 
-  console.log(user?.posts);
-
   return (
     <>
       <FollowModal
@@ -52,7 +50,7 @@ export default function ProfileComponent({ id }: { id: string }) {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between max-w-2xl w-full mx-auto p-4 space-y-4 sm:space-y-0 sm:space-x-4 bg-background rounded-lg mb-2">
         <div className="flex items-center space-x-4">
           <Avatar className="w-12 h-12">
-            <AvatarImage src="/placeholder.svg?height=48&width=48" alt="{" />
+            <AvatarImage src={`/upload/${user?.profilePicture}`} alt="{" />
             <AvatarFallback>
               {user?.firstname.charAt(0).toUpperCase()}
               {user?.lastname.charAt(0).toUpperCase()}

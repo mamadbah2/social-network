@@ -28,6 +28,10 @@ migrate_friends:
 	sqlite3 backend/database/social.network.db < backend/database/datas/notifications.data.sql;
 
 
+migrate_posts:
+	sqlite3 social.network.db < migrations/sqlite/000002_create_posts_table.down.sql 
+	sqlite3 social.network.db < migrations/sqlite/000002_create_posts_table.up.sql 
+	sqlite3 social.network.db < datas/posts.data.sql 
 
 # insertion de données fictive dans la bdd s'appelle du datebase_seeding
 datebase_seeding:
