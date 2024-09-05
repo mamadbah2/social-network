@@ -1,6 +1,6 @@
 "use client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import useGetData from "@/lib/hooks/useget";
+import useGetData from "@/lib/hooks/useGet";
 import { mapSimpleUser } from "@/lib/modelmapper";
 import { User } from "@/models/user.model";
 import Link from "next/link";
@@ -39,7 +39,7 @@ export default function ProfileComponent({ id }: { id: string }) {
       follow: [],
     });
 
-  console.log(user.posts);
+  console.log(user?.posts);
 
   return (
     <>
@@ -54,13 +54,13 @@ export default function ProfileComponent({ id }: { id: string }) {
           <Avatar className="w-12 h-12">
             <AvatarImage src="/placeholder.svg?height=48&width=48" alt="{" />
             <AvatarFallback>
-              {user.firstname.charAt(0).toUpperCase()}
-              {user.lastname.charAt(0).toUpperCase()}
+              {user?.firstname.charAt(0).toUpperCase()}
+              {user?.lastname.charAt(0).toUpperCase()}
             </AvatarFallback>
           </Avatar>
           <div>
             <div className="flex items-center space-x-2">
-              <h2 className="text-lg font-semibold">{user.nickname}</h2>
+              <h2 className="text-lg font-semibold">{user?.nickname}</h2>
               <Link href="#" className="text-sm text-blue-600 hover:underline">
                 View About me
               </Link>
@@ -70,28 +70,28 @@ export default function ProfileComponent({ id }: { id: string }) {
         </div>
         <div className="flex space-x-4 sm:space-x-6 text-sm sm:text-base">
           <button
-            onClick={() => handleOpenFollowModal("Followers", user.followers)}
+            onClick={() => handleOpenFollowModal("Followers", user?.followers)}
           >
             <div className="flex flex-col items-center sm:items-center">
-              <span className="font-semibold">{user.followers?.length}</span>
+              <span className="font-semibold">{user?.followers?.length}</span>
               <span className="text-gray-500">Followers</span>
             </div>
           </button>
           <button
-            onClick={() => handleOpenFollowModal("Following", user.followed)}
+            onClick={() => handleOpenFollowModal("Following", user?.followed)}
           >
             <div className="flex flex-col items-center sm:items-center">
-              <span className="font-semibold">{user.followed?.length}</span>
+              <span className="font-semibold">{user?.followed?.length}</span>
               <span className="text-gray-500">Following</span>
             </div>
           </button>
           <div className="flex flex-col items-center sm:items-center">
-            <span className="font-semibold">{user.posts?.length}</span>
+            <span className="font-semibold">{user?.posts?.length}</span>
             <span className="text-gray-500">Post</span>
           </div>
         </div>
       </div>
-      <PostSection posts={user.posts} />
+      <PostSection posts={user?.posts ?? []} />
     </>
   );
 }

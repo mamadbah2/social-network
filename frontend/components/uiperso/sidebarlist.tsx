@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import useGetData from "@/lib/hooks/useget";
+import useGetData from "@/lib/hooks/useGet";
 import { mapGroup, mapSimpleUser } from "@/lib/modelmapper";
 import { paginateTable } from "@/lib/utils";
 import { Group } from "@/models/group.model";
@@ -39,8 +39,9 @@ export default function SideBarList() {
   const {
     expect: user,
     error: errUser,
-    mutate,
+    refetch: mutate,
   } = useGetData<User>(`/users?id=${userID}`, mapSimpleUser);
+  console.log("user", user);
   const { expect: groups, error: errGroups } = useGetData<Group[]>(
     "/groups",
     mapGroup
@@ -58,7 +59,7 @@ export default function SideBarList() {
     console.log(e.currentTarget.id);
     switch (e.currentTarget.id) {
       case "friendBtn":
-        const suggestedFriends = user.suggestedFriends || [];
+        const suggestedFriends = user?.suggestedFriends || [];
         setItemUser(paginateTable(suggestedFriends, prevUser, suivUser));
         if (suivUser <= suggestedFriends.length) {
           prevUser = prevUser + step;
@@ -69,8 +70,8 @@ export default function SideBarList() {
         }
         break;
       case "groupBtn":
-        setItemGroup(paginateTable(groups, prevGroup, suivGroup));
-        if (suivGroup <= groups.length) {
+        setItemGroup(paginateTable(groups ?? [], prevGroup, suivGroup));
+        if (suivGroup <= (groups?.length ?? 0)) {
           prevGroup = prevGroup + step;
           suivGroup = suivGroup + step;
         } else {
@@ -79,7 +80,7 @@ export default function SideBarList() {
         }
         break;
       case "joinedGroupBtn":
-        const joinedGroup = user.groups || [];
+        const joinedGroup = user?.groups || [];
         setItemJoinedGroup(paginateTable(joinedGroup, prevJoin, suivJoin));
         if (suivJoin <= joinedGroup.length) {
           prevJoin = prevJoin + step;
@@ -90,7 +91,7 @@ export default function SideBarList() {
         }
         break;
       case "createdGroupBtn":
-        const createdGroup = user.createdGroups || [];
+        const createdGroup = user?.createdGroups || [];
         setItemCreatedGroup(
           paginateTable(createdGroup, prevCreated, suivCreated)
         );
@@ -115,7 +116,11 @@ export default function SideBarList() {
             <AccordionItem
               onClick={() => {
                 setItemUser(
-                  paginateTable(user.suggestedFriends || [], prevUser, suivUser)
+                  paginateTable(
+                    user?.suggestedFriends || [],
+                    prevUser,
+                    suivUser
+                  )
                 );
               }}
               value="suggested-friends"
@@ -128,9 +133,9 @@ export default function SideBarList() {
                   items={ItemUser}
                   showAddButton
                   section="friend"
-                  mutation={mutate}
+                  mutation={() => mutate().then(() => true)}
                 />
-                {(user.suggestedFriends?.length || 0) > step && (
+                {(user?.suggestedFriends?.length || 0) > step && (
                   <Button
                     onClick={handlePaginate}
                     id="friendBtn"
@@ -145,7 +150,9 @@ export default function SideBarList() {
             <AccordionItem value="suggested-groups">
               <AccordionTrigger
                 onClick={() =>
-                  setItemGroup(paginateTable(groups, prevGroup, suivGroup))
+                  setItemGroup(
+                    paginateTable(groups || [], prevGroup, suivGroup)
+                  )
                 }
                 className="px-4"
               >
@@ -169,7 +176,7 @@ export default function SideBarList() {
               <AccordionTrigger
                 onClick={() =>
                   setItemJoinedGroup(
-                    paginateTable(user.groups || [], prevJoin, suivJoin)
+                    paginateTable(user?.groups || [], prevJoin, suivJoin)
                   )
                 }
                 className="px-4"
@@ -178,7 +185,7 @@ export default function SideBarList() {
               </AccordionTrigger>
               <AccordionContent>
                 <ListBar items={ItemJoinedGroup} />
-                {(user.groups?.length || 0) > step && (
+                {(user?.groups?.length || 0) > step && (
                   <Button
                     onClick={handlePaginate}
                     id="joinedGroupBtn"
@@ -195,7 +202,7 @@ export default function SideBarList() {
                 onClick={() =>
                   setItemCreatedGroup(
                     paginateTable(
-                      user.createdGroups || [],
+                      user?.createdGroups || [],
                       prevCreated,
                       suivCreated
                     )

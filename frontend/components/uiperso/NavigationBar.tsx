@@ -2,7 +2,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import CreatePostModal from "@/components/uiperso/CreatePostModal";
-import useGetData from "@/lib/hooks/useget";
+import useGetData from "@/lib/hooks/useGet";
 import UseWS from "@/lib/hooks/usewebsocket";
 import { mapSimpleUser } from "@/lib/modelmapper";
 import Image from "next/image";
@@ -23,8 +23,10 @@ export default function NavigationBar() {
   const [id, setId] = useState<number | undefined>(undefined);
 
   useEffect(() => {
-    const storedId = localStorage.getItem("userID"); // Remplacez 'userId' par la clé appropriée
-    setId(Number(storedId));
+    const storedId = localStorage.getItem("userID");
+    if (storedId) {
+      setId(Number(storedId));
+    }
   }, []);
   const { expect: user, error: errUser } = useGetData(
     `/users?id=${id}`,
@@ -126,8 +128,8 @@ export default function NavigationBar() {
           <Avatar className="h-8 w-8">
             <AvatarImage alt="User avatar" />
             <AvatarFallback>
-              {user.firstname.charAt(0).toUpperCase()}
-              {user.lastname.charAt(0).toUpperCase()}
+              {user?.firstname?.charAt(0)?.toUpperCase() ?? ""}
+              {user?.lastname?.charAt(0)?.toUpperCase() ?? ""}
             </AvatarFallback>
           </Avatar>
         </ProfileLink>

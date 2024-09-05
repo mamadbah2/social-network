@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import useGetData from "@/lib/hooks/useget";
+import useGetData from "@/lib/hooks/useGet";
 import postData from "@/lib/hooks/usepost";
 import { mapUser } from "@/lib/modelmapper";
 import { User } from "@/models/user.model";

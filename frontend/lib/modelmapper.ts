@@ -4,7 +4,6 @@ import { Notification } from "@/models/notification.model";
 import { Post } from "@/models/post.model";
 import { Session } from "@/models/session.model";
 import { User } from "@/models/user.model";
-import { Message } from "@/models/message";
 
 export function mapSimpleUser(data: any): User {
   if (!data) {
@@ -36,6 +35,7 @@ export function mapSimpleUser(data: any): User {
     followers: mapUser(data.Followers),
     followed: mapUser(data.Followed),
     profilePicture: data.ProfilePicture,
+    suggestedFriends: mapUser(data.SuggestedFriends),
   };
 
   // return som
