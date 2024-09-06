@@ -1,2 +1,1 @@
-DELETE FROM posts
-WHERE "id" = 20;
+DELETE FROM posts;

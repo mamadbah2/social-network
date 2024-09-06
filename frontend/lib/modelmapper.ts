@@ -1,7 +1,11 @@
+import { Comment } from "@/models/comment.model";
 import { Group } from "@/models/group.model";
 import { Event } from "@/models/event.model";
-import { User } from "@/models/user.model";
 import { Post } from "@/models/post.model";
+import { Reaction } from "@/models/reaction.model";
+import { Session } from "@/models/session.model";
+import { User } from "@/models/user.model";
+
 export function mapSimpleUser(data: any): User {
   if (!data) {
     return {
@@ -13,6 +17,7 @@ export function mapSimpleUser(data: any): User {
       dateOfBirth: new Date(),
       aboutMe: "",
       private: false,
+      profilePicture: "",
     };
   }
 
@@ -27,6 +32,10 @@ export function mapSimpleUser(data: any): User {
     private: data.Private,
     groups: mapGroup(data.Groups),
     createdGroups: mapGroup(data.CreatedGroups),
+    posts: mapPost(data.Posts),
+    followers: mapUser(data.Followers),
+    followed: mapUser(data.Followed),
+    profilePicture: data.ProfilePicture,
     suggestedFriends: mapUser(data.SuggestedFriends),
   };
 
@@ -37,27 +46,8 @@ export function mapUser(data: any): User[] {
     if (!data) {
         return []
     }
-
-    if (!Array.isArray(data)) {
-        return [{
-            id: data.Id,
-            email: data.Email,
-            firstname: data.FirstName,
-            lastname: data.LastName,
-            nickname: data.Nickname,
-            dateOfBirth: data.DateOfBirth,
-            aboutMe: data.AboutMe,
-            private: data.Private,
-            groups: mapGroup(data.Groups),
-            createdGroups : mapGroup(data.CreatedGroups),
-            suggestedFriends : mapUser(data.SuggestedFriends)
-        }];
-    }
     
-
   return data.map((u: any): User => {
-    // console.log('u.Groups :>> ', mapGroup(u.Groups));
-
     return {
       id: u.Id,
       email: u.Email,
@@ -68,10 +58,44 @@ export function mapUser(data: any): User[] {
       aboutMe: u.AboutMe,
       private: u.Private,
       groups: mapGroup(u.Groups),
+      profilePicture: u.ProfilePicture,
     };
   });
-
   // return som
+}
+
+export function mapSimplePost(data: any): Post {
+  if (!data) {
+    return {
+      id: 0,
+      title: "",
+      content: "",
+      createdAt: new Date(),
+      privacy: "",
+      imageName: "",
+      liked: false,
+      disliked: false,
+      numberLike: 0,
+      numberDislike: 0,
+      numberComment: 0,
+    };
+  }
+  return {
+    id: data.Id,
+    title: data.Title,
+    content: data.Content,
+    createdAt: new Date(data.CreatedAt),
+    privacy: data.Privacy,
+    imageName: data.ImageName,
+    liked: data.Liked,
+    disliked: data.Disliked,
+    numberLike: data.NumberLike,
+    numberDislike: data.NumberDislike,
+    numberComment: data.NumberComment,
+    author: mapSimpleUser(data.Author),
+    viewers: mapUser(data.Viewers),
+    comments: mapComments(data.Comments),
+  };
 }
 
 export function mapPost(data: any): Post[] {
@@ -131,6 +155,41 @@ export function mapGroup(data: any): Group[] {
     }));
 }
 
+export function mapNotification(data: any): Notification[] {
+  if (!data) {
+    return [];
+  }
+
+  data = !Array.isArray(data) ? [data] : data;
+
+  return data.map(
+    (n: any): Notification => ({
+      id: n.Id,
+      content: n.Content,
+      approuved: n.Approuved,
+      createdAt: n.CreatedAt,
+      entityType: n.EntityType,
+      entityId: n.EntityID,
+      sender: mapSimpleUser(n.Sender),
+      receiver: mapSimpleUser(n.Receiver),
+    })
+  );
+}
+
+export function mapSimpleSession(data: any): Session {
+  if (!data) {
+    return {
+      id: 0,
+      userId: 0,
+    };
+  }
+
+  return {
+    id: data.Id,
+    userId: data.UserId,
+  };
+}
+
 export function mapEvent(data: any): Event[] {
     if (!data) {
         return [];
@@ -159,3 +218,36 @@ export function mapEvent(data: any): Event[] {
     }));
 }
 
+export function mapComments(data: any): Comment[] {
+  if (!data) {
+    return [];
+  }
+
+  return data.map(
+    (c: any): Comment => ({
+      id: c.Id,
+      content: c.Content,
+      author: mapSimpleUser(c.Author),
+      createdAt: new Date(c.Date),
+      liked: c.Liked,
+      disliked: c.Disliked,
+      numberLike: c.NumberLike,
+      numberDislike: c.NumberDislike,
+      post: mapSimplePost(c.Post),
+    })
+  );
+}
+
+export function mapReactionType(data: any): Reaction {
+  if (!data) {
+    return {
+      liked: false,
+      disliked: false,
+    };
+  }
+
+  return {
+    liked: data.Liked,
+    disliked: data.Disliked,
+  };
+}

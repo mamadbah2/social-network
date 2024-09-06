@@ -1,8 +1,10 @@
 package handlers
 
 import (
+	"fmt"
 	"html"
 	"net/http"
+	"social-network/internal/models"
 	"strconv"
 	"strings"
 )
@@ -65,39 +67,14 @@ func (hand *Handler) Post(w http.ResponseWriter, r *http.Request) {
 		fileImg, fileHeaderImg, _ := r.FormFile("imagePost")
 		var nameImg string
 		// var TempFile *os.File
+		fmt.Println("fileImg", fileImg, fileHeaderImg)
 		if fileImg != nil {
 			_, _ = hand.Helpers.Getfile(fileImg, fileHeaderImg.Filename)
+			nameImg = fileHeaderImg.Filename;
+		}else{
+			nameImg = ""
 		}
-		nameImg = fileHeaderImg.Filename;
-		// if err == nil {
-		// 	if int(fileHeaderImg.Size) > 20000000 || !hand.Valid.ImageValidation(fileImg) {
-		// 		hand.renderJSON(w, &data)
-		// 		if int(fileHeaderImg.Size) > 20000000 || !hand.Valid.ImageValidation(fileImg) {
-		// 			fmt.Println("5555555")
-		// 			hand.Helpers.ClientError(w, http.StatusBadRequest)
-		// 			return
-		// 		}
-		// 		if _, err := fileImg.Seek(0, io.SeekStart); err != nil {
-		// 			fmt.Println("Error resetting file reader position:", err)
-		// 			return
-		// 		}
-		// 		nameImg = time.Now().Format("20060102_150405") + fileHeaderImg.Filename
-		// 		dst, err := os.Create("./ui/static/uploads/" + nameImg)
-		// 		if err != nil {
-		// 			hand.Helpers.ServerError(w, err)
-		// 			return
-		// 		}
-		// 		defer dst.Close()
-		// 		_, err = io.Copy(dst, fileImg)
-		// 		if err != nil {
-		// 			hand.Helpers.ServerError(w, err)
-		// 			return
-		// 		}
-
-		// 	}
-		// } else {
-		// 	hand.Helpers.InfoLog.Println(err, " --Pas d'image set")
-		// }
+	
 		title := r.PostForm.Get("title")
 		content := r.PostForm.Get("content")
 		privacy := r.PostForm.Get("privacy")
@@ -137,12 +114,23 @@ func (hand *Handler) Post(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		_, err = hand.ConnDB.SetPost(title, escapedContent, nameImg, privacy, actualUser.Id, groupId, selectedFollowers)
+		idPost, err := hand.ConnDB.SetPost(title, escapedContent, nameImg, privacy, actualUser.Id, groupId, selectedFollowers)
 		if err != nil {
 			hand.Helpers.ServerError(w, err)
 			return
 		}
-		hand.renderJSON(w, nil)
+		lastPost:= models.Post{
+			Id: idPost,
+			Title: title,
+			Content: escapedContent,
+			ImageName: nameImg,
+			Privacy: privacy,
+			Author: actualUser,
+			Group: &models.Group{
+				Id: groupId,
+			},
+		}
+		hand.renderJSON(w, lastPost)
 
 	default:
 		hand.Helpers.ClientError(w, http.StatusMethodNotAllowed)

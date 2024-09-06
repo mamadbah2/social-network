@@ -25,6 +25,7 @@ type User struct {
 	Private          bool
 	CreatedAt        time.Time
 	Followers        []*User
+	Followed				 []*User
 	Groups           []*Group
 	Posts            []*Post
 	SuggestedFriends []*User
@@ -32,7 +33,7 @@ type User struct {
 
 func (m *ConnDB) GetPosts(userID int) ([]*Post, error) {
 	query := `
-        SELECT p.id, p.title, p.content, p.privacy, p.created_at,
+        SELECT p.id, p.title, p.content, p.privacy, p.image_name, p.created_at,
 		 g.id, g.name, g.description, p.created_at, u.id, u.email,
 		 u.password, u.first_name, u.last_name, u.date_of_birth, 
 		 u.profile_picture, u.nickname, u.about_me, u.profile_privacy,
@@ -58,7 +59,7 @@ func (m *ConnDB) GetPosts(userID int) ([]*Post, error) {
 		// var dateOfBirthStr string
 
 		err := rows.Scan(
-			&p.Id, &p.Title, &p.Content, &p.Privacy, &p.CreatedAt,
+			&p.Id, &p.Title, &p.Content, &p.Privacy, &p.ImageName, &p.CreatedAt,
 			&p.Group.Id, &p.Group.Name, &p.Group.Description, &p.Group.CreatedAt,
 			&p.Author.Id, &p.Author.Email, &p.Author.Password, &p.Author.FirstName, &p.Author.LastName,
 			&p.Author.DateOfBirth, &p.Author.ProfilePicture, &p.Author.Nickname,
@@ -129,7 +130,7 @@ func (m *ConnDB) GetAllUsers() ([]*User, error) {
 func (m *ConnDB) GetUser(userID int) (*User, error) {
 	statement := `
 		SELECT u.id, u.email,
-		u.password, u.first_name, u.last_name, u.date_of_birth, 
+		 u.first_name, u.last_name, u.date_of_birth, 
 		u.profile_picture, u.nickname, u.about_me, u.profile_privacy,
 		u.created_at FROM users u WHERE u.id = ?
 	`
@@ -137,7 +138,7 @@ func (m *ConnDB) GetUser(userID int) (*User, error) {
 
 	u := &User{}
 
-	err := row.Scan(&u.Id, &u.Email, &u.Password, &u.FirstName, &u.LastName, &u.DateOfBirth, &u.ProfilePicture, &u.Nickname, &u.AboutMe, &u.Private, &u.CreatedAt)
+	err := row.Scan(&u.Id, &u.Email, &u.FirstName, &u.LastName, &u.DateOfBirth, &u.ProfilePicture, &u.Nickname, &u.AboutMe, &u.Private, &u.CreatedAt)
 	if err != nil {
 		fmt.Println("bobo choked")
 		return nil, err
@@ -148,6 +149,12 @@ func (m *ConnDB) GetUser(userID int) (*User, error) {
 		return nil, err
 	}
 	u.Followers = followers
+
+	followed, err := m.GetFollowedByUser(u.Id)
+	if err != nil {
+		return nil, err
+	}
+	u.Followed = followed
 
 	groups, err := m.GetGroupsByUser(u.Id)
 	if err != nil {

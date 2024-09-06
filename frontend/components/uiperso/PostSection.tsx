@@ -1,25 +1,23 @@
+"use client";
 import { Post } from "@/models/post.model"; // Adjust path if necessary
 import React from "react";
 import PostCard from "./PostCard";
 
 interface PostSectionProps {
-  posts: Post[]; // Ensure this matches the Post type
+  posts: Post[] | null; // Ensure this matches the Post type
 }
 
 const PostSection: React.FC<PostSectionProps> = ({ posts }) => {
-  {
-    posts.map((post) => {
-      console.log(post.imageName);
-    });
-  }
-
   return (
     <div className="space-y-4">
-      {posts.map((post) => (
+      {posts?.map((post) => (
         <PostCard
           key={post.id}
+          author={post.author?.id}
           postId={post.id}
           username={post.author?.nickname || "Unknown User"}
+          firstname={post.author?.firstname || "Unknown User"}
+          lastname={post.author?.lastname || "Unknown User"}
           avatarSrc={post.author?.profilePicture || "/avatar2.jpg"}
           date={
             post.createdAt

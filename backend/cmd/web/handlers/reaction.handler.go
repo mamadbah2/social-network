@@ -48,18 +48,36 @@ func (hand *Handler) LikeReaction(w http.ResponseWriter, r *http.Request) {
 				hand.Helpers.ServerError(w, err)
 				return
 			}
+			hand.renderJSON(
+				w, models.Reaction{
+					Liked: true,
+					Disliked: false,
+				},
+			)
 		} else if check.Liked {
 			err := hand.ConnDB.UpdateReaction(id_entity, actualUser.Id, reaction_type, false, false)
 			if err != nil {
 				hand.Helpers.ServerError(w, err)
 				return
 			}
+			hand.renderJSON(
+				w, models.Reaction{
+					Liked: false,
+					Disliked: false,
+				},
+			)
 		} else if !check.Liked {
 			err := hand.ConnDB.UpdateReaction(id_entity, actualUser.Id, reaction_type, true, false)
 			if err != nil {
 				hand.Helpers.ServerError(w, err)
 				return
 			}
+			hand.renderJSON(
+				w, models.Reaction{
+					Liked: true,
+					Disliked: false,
+				},
+			)
 		}
 
 	default:
@@ -107,12 +125,24 @@ func (hand *Handler) DislikeReaction(w http.ResponseWriter, r *http.Request) {
 				hand.Helpers.ServerError(w, err)
 				return
 			}
+			hand.renderJSON(
+				w, models.Reaction{
+					Liked: false,
+					Disliked: true,
+				},
+			)
 		} else if check.Disliked {
 			err := hand.ConnDB.UpdateReaction(id_entity, actualUser.Id, reaction_type, false, false)
 			if err != nil {
 				hand.Helpers.ServerError(w, err)
 				return
 			}
+			hand.renderJSON(
+				w, models.Reaction{
+					Liked: false,
+					Disliked: false,
+				},
+			)
 
 		} else if !check.Disliked {
 			err := hand.ConnDB.UpdateReaction(id_entity, actualUser.Id, reaction_type, false, true)
@@ -120,6 +150,12 @@ func (hand *Handler) DislikeReaction(w http.ResponseWriter, r *http.Request) {
 				hand.Helpers.ServerError(w, err)
 				return
 			}
+			hand.renderJSON(
+				w, models.Reaction{
+					Liked: false,
+					Disliked: true,
+				},
+			)
 		}
 
 	default:

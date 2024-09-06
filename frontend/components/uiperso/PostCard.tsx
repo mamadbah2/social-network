@@ -7,15 +7,21 @@ import {
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
-import { useReaction } from "@/lib/hooks/useReaction";
+import { ReactionOptions, useReaction } from "@/lib/hooks/useReaction";
+import { Reaction } from "@/models/reaction.model";
 import { HeartCrack, HeartIcon, MessageCircleIcon } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import Link from "next/link";
+import { FormEvent, useState } from "react";
 import CommentModal from "./CommentModal";
+import ProfileButton from "./ProfileLink";
 
 interface PostCardProps {
+  author?: number;
   postId: number;
   username: string;
+  firstname: string;
+  lastname: string;
   avatarSrc: string;
   date: string;
   title: string;
@@ -27,8 +33,11 @@ interface PostCardProps {
 }
 
 export default function PostCard({
+  author,
   postId,
   username,
+  firstname,
+  lastname,
   avatarSrc,
   date,
   title,
@@ -41,8 +50,37 @@ export default function PostCard({
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
   const handleOpenCommentModal = () => setIsCommentModalOpen(true);
   const handleCloseCommentModal = () => setIsCommentModalOpen(false);
+  const [liked, setLiked] = useState(likes);
+  const [disliked, setDisliked] = useState(dislikes);
   const { handleReactionSubmit, loading, error } = useReaction();
-
+  const handleReact = (
+    e: FormEvent<HTMLButtonElement>,
+    { entityId, reactionType, isLike }: ReactionOptions
+  ) => {
+    let reactionBefore: Reaction = {
+      liked: false,
+      disliked: false,
+    };
+    handleReactionSubmit(e, {
+      entityId: entityId,
+      reactionType: reactionType,
+      isLike: isLike,
+    }).then((resp) => {
+      if (resp.liked) {
+        setLiked((prev) => prev + 1);
+      } else if (resp.disliked) {
+        setDisliked((prev) => prev + 1);
+      } else if (!resp.liked && !resp.disliked) {
+        if (reactionBefore.liked) {
+          setLiked((prev) => prev - 1);
+        } else if (reactionBefore.disliked) {
+          setDisliked((prev) => prev - 1);
+        }
+      }
+      reactionBefore.liked = resp.liked;
+      reactionBefore.disliked = resp.disliked;
+    });
+  };
   return (
     <Card className="max-w-2xl mx-auto">
       <CommentModal
@@ -56,37 +94,44 @@ export default function PostCard({
         postDate={date}
       />
       <CardHeader className="flex flex-row items-center gap-4 pb-2">
-        <Avatar>
-          <AvatarImage src={avatarSrc} alt={username} />
-          <AvatarFallback>{username.charAt(0).toUpperCase()}</AvatarFallback>
-        </Avatar>
+        <ProfileButton id={author}>
+          <Avatar>
+            <AvatarImage src={avatarSrc} alt={firstname} />
+            <AvatarFallback>
+              {firstname.charAt(0).toUpperCase()}
+              {lastname.charAt(0).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+        </ProfileButton>
         <div className="flex flex-col">
           <span className="font-semibold">{username}</span>
           <span className="text-sm text-muted-foreground">{date}</span>
         </div>
       </CardHeader>
-      <CardContent className="pb-2">
-        <h2 className="text-xl font-bold mb-2">{title}</h2>
-        <p className="text-muted-foreground">{content}</p>
-      </CardContent>
-      {imageSrc && (
-        <CardContent className="pb-2 max-h-[450px] h-[420px] bg-contain w-full rounded-lg">
-          <div className="relative w-full h-full rounded-lg">
-            <Image
-              src={`/upload/${imageSrc}`}
-              alt={title}
-              fill
-              className="object-cover rounded-lg"
-            />
-          </div>
+      <Link href={`/post/${postId}`}>
+        <CardContent className="pb-2">
+          <h2 className="text-xl font-bold mb-2">{title}</h2>
+          <p className="text-muted-foreground">{content}</p>
         </CardContent>
-      )}
+        {imageSrc && (
+          <CardContent className="pb-2 max-h-[450px] h-[420px] bg-contain w-full rounded-lg">
+            <div className="relative w-full h-full rounded-lg">
+              <Image
+                src={`/upload/${imageSrc}`}
+                alt={title}
+                fill
+                className="object-cover rounded-lg"
+              />
+            </div>
+          </CardContent>
+        )}
+      </Link>
       <CardFooter className="flex justify-start pt-2">
         <Button
           variant="ghost"
           size="sm"
           onClick={(e) =>
-            handleReactionSubmit(e, {
+            handleReact(e, {
               entityId: postId,
               reactionType: "post",
               isLike: true,
@@ -95,12 +140,12 @@ export default function PostCard({
           className="text-muted-foreground"
         >
           <HeartIcon className="mr-1 h-6 w-6" />
-          {likes}
+          {liked}
         </Button>
         <Button
           variant="ghost"
           onClick={(e) =>
-            handleReactionSubmit(e, {
+            handleReact(e, {
               entityId: postId,
               reactionType: "post",
               isLike: false,
@@ -110,7 +155,7 @@ export default function PostCard({
           className="text-muted-foreground"
         >
           <HeartCrack className="mr-1 h-6 w-6" />
-          {dislikes}
+          {disliked}
         </Button>
         <Button
           variant="ghost"

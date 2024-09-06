@@ -10,9 +10,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import useGetData from "@/lib/hooks/useget";
-import usePostData from "@/lib/hooks/usepost";
-import { mapUser } from "@/lib/modelmapper";
+import { usePostContext } from "@/lib/hooks/postctx";
+import useGetData from "@/lib/hooks/useGet";
+import postData from "@/lib/hooks/usepost";
+import { mapSimplePost, mapUser } from "@/lib/modelmapper";
 import { User } from "@/models/user.model";
 import Image from "next/image";
 import React, { FormEvent, useEffect, useState } from "react";
@@ -33,16 +34,18 @@ export default function CreatePostModal({ isOpen, onClose }: PostModalProps) {
   const [selectedUsers, setSelectedUsers] = useState<Item[]>([]);
   const [search, setSearch] = useState<string>("");
   const [ItemUser, setItemUser] = React.useState<Item[]>([]);
+  const { postTable, setPostTable } = usePostContext();
+
   useEffect(() => {
     if (data && data.length > 0 && ItemUser.length === 0) {
       setItemUser(
-        data.map((u) => ({
+        data.map((u: any) => ({
           id: u.id,
           name: u.firstname,
         }))
       );
     }
-  }, [data, ItemUser]);
+  }, [data, ItemUser]); // Add data as a dependency
 
   if (!isOpen) return null;
 
@@ -58,9 +61,12 @@ export default function CreatePostModal({ isOpen, onClose }: PostModalProps) {
         formData.append(`followers`, id.toString());
       });
     }
-    const [resp, err] = await usePostData("/posts", formData, true);
+    const [resp, err] = await postData("/posts", formData, true);
+    console.log("lastPost", resp);
     setSelectedUsers([]);
     setPrivacy("");
+    let onePost = mapSimplePost(resp);
+    setPostTable((prev) => [onePost, ...(prev ?? [])]);
     onClose();
   };
 

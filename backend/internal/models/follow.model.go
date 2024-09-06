@@ -120,16 +120,17 @@ func (m *ConnDB) GetFollowing(userID int) ([]*Follow, error) {
 		f := &Follow{
 			Followed: &User{},
 		}
+		var dateOfBirthFollowerStr string
 		err := rows.Scan(
 			&f.Id, &f.Followed.Id, &f.Followed.Email, &f.Followed.Password, &f.Followed.FirstName, &f.Followed.LastName, &f.Followed.DateOfBirth, &f.Followed.ProfilePicture, &f.Followed.Nickname, &f.Followed.AboutMe, &f.Followed.Private, &f.Followed.CreatedAt,
 		)
 		if err != nil {
 			return nil, err
 		}
-		/* f.Followed.DateOfBirth, err = time.Parse("2006-01-02", dateOfBirthFollowedStr)
+		f.Followed.DateOfBirth, err = time.Parse("2006-01-02", dateOfBirthFollowerStr)
 		if err != nil {
 			return nil, err
-		} */
+		} 
 		Followed = append(Followed, f)
 	}
 	return Followed, nil
@@ -235,4 +236,33 @@ func (m *ConnDB) GetFollowersByUser(userID int) ([]*User, error) {
 		followers = append(followers, f)
 	}
 	return followers, nil
+}
+
+func (m *ConnDB) GetFollowedByUser(userID int) ([]*User, error) {
+	query := `
+        SELECT u.*
+        FROM users u
+        JOIN follows f ON u.id = f.id_followed
+        WHERE f.id_follower = ?
+    `
+
+	rows, err := m.DB.Query(query, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var followed []*User
+
+	for rows.Next() {
+		f := &User{}
+		var dateOfBirthStr string
+		err := rows.Scan(
+			&f.Id, &f.Email, &f.Password, &f.FirstName, &f.LastName, &dateOfBirthStr, &f.ProfilePicture, &f.Nickname, &f.AboutMe, &f.Private, &f.CreatedAt)
+		if err != nil {
+			return nil, err
+		}
+		followed = append(followed, f)
+	}
+	return followed, nil
 }

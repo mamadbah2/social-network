@@ -1,12 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useParams } from "next/navigation";
-import SocialMediaLayout from "@/app/socialMediaLayout";
 import NavigationBar from "@/components/uiperso/NavigationBar";
 import SideBarList from "@/components/uiperso/sidebarlist";
 import PostCard from "@/components/uiperso/PostCard";
-import useGetData from "@/lib/hooks/useget";
 import { mapGroup, mapUser } from "@/lib/modelmapper";
 import { Group } from "@/models/group.model";
 import { Post } from "@/models/post.model";
@@ -18,6 +15,7 @@ import CreatePostGroupModal from "@/components/uiperso/CreatePostGroupModal";
 import EventModal from "@/components/uiperso/EventModal";
 import { Event } from "@/models/event.model";
 import EventCard from "@/components/uiperso/EventCard";
+import useGetData from "@/lib/hooks/useGet";
 
 export default function Home({ params }: { params: { id: string } }) {
   const groupID = params.id;
@@ -42,22 +40,15 @@ export default function Home({ params }: { params: { id: string } }) {
   if (!group || group.length === 0 || !Allusers || Allusers.length === 0) {
     console.log("LOADING");
     return (
-      <SocialMediaLayout
-        header={<NavigationBar />}
-        aside={<SideBarList />}
-        section={
-          <div className="space-y-4">
-            <p>LOADING.....</p>
-          </div>
-        }
-      />
+      <div className="space-y-4">
+        <p>LOADING.....</p>
+      </div>
     );
   }
 
   const posts = group && group.length > 0 ? group[0].posts || [] : [];
   const events = group && group.length > 0 ? group[0].events || [] : [];
   console.log(events);
-  
 
   const handleAddMembers = async (selectedUserIds: number[]) => {
     console.log("Selected User IDs:", selectedUserIds);
@@ -82,10 +73,7 @@ export default function Home({ params }: { params: { id: string } }) {
   };
 
   return (
-    <SocialMediaLayout
-      header={<NavigationBar />}
-      aside={<SideBarList />}
-      groupNav={
+    <>
         <GroupBarComponent
           imgSrc="https://image.api.playstation.com/vulcan/ap/rnd/202306/2400/ac505d57a46e24dd96712263d89a150cb443af288c025ff2.jpg"
           groupName={group[0]?.name || "Loading..."}
@@ -93,17 +81,15 @@ export default function Home({ params }: { params: { id: string } }) {
           descriptionLink={group[0]?.description || "Loading..."}
           creator={
             !!(
-              group[0]?.creator.id &&
-              localStorage.getItem("userID") ===
-                group[0]?.creator.id.toString()
+              group[0].creator?.id &&
+              localStorage.getItem("userID") === group[0].creator.id.toString()
             )
           }
           setShowForm={setShowAddMemberForm}
           handleCreatePost={handleCreatePostModalOpen}
           handleCreateEvent={handleOpenEventModal}
         />
-      }
-      section={
+      
         <div className="relative">
           {showAddMemberForm && (
             <AddMemberComponent
@@ -125,16 +111,19 @@ export default function Home({ params }: { params: { id: string } }) {
           <div className="space-y-4 pl-3 pt-24">
             {posts.map((post: Post) => (
               <PostCard
-                postId={post.id}
-                username={post.author?.nickname || ""}
-                avatarSrc={"/iron"}
-                date={post.createdAt.toString()}
-                title={post.title}
-                content={post.content}
-                imageSrc={"/img"}
-                likes={post.numberLike}
-                dislikes={post.numberDislike}
-                comments={post.numberComment}
+              author={post.author?.id}
+              postId={post.id}
+              username={post.author?.nickname || 'username'}
+              firstname={post.author?.firstname || 'firstname'}
+              lastname={post.author?.lastname || 'lastname'}
+              avatarSrc={post.author?.profilePicture || 'avatarSrc'}
+              date={post.createdAt.toDateString()}
+              title={post.title}
+              content={post.content}
+              imageSrc={post.imageSrc || 'imgSrc'}
+              likes={post.numberLike}
+              dislikes={post.numberDislike}
+              comments={post.comments?.length || 2}
               />
             ))}
             {events.map((e: Event) => (
@@ -152,7 +141,7 @@ export default function Home({ params }: { params: { id: string } }) {
             ))}
           </div>
         </div>
-      }
-    />
+      
+    </>
   );
 }

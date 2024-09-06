@@ -2,23 +2,41 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import CreatePostModal from "@/components/uiperso/CreatePostModal";
-import useWS from "@/lib/hooks/usewebsocket";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import useGetData from "../../lib/hooks/useGet";
+import UseWS from "../../lib/hooks/usewebsocket";
+import { mapSimpleUser } from "../../lib/modelmapper";
 import Logout from "./logout";
 import NotificationBar from "./notification";
+import ProfileLink from "./ProfileLink";
 
 export default function NavigationBar() {
   const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false);
   const [isOpenNotif, setIsOpenNotif] = useState(false);
+  const [isChatboxOpen, setIsChatboxOpen] = useState(false);
+  const { getReceived } = UseWS();
   const handleCreatePostModalOpen = () => setIsCreatePostModalOpen(true);
   const handleCreatePostModalClose = () => setIsCreatePostModalOpen(false);
-  const { getReceived } = useWS();
 
+  const [id, setId] = useState<number | undefined>(undefined);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storedId = localStorage.getItem("userID");
+      if (storedId) {
+        setId(Number(storedId));
+      }
+    }
+  }, []);
+  const { expect: user, error: errUser } = useGetData(
+    `/users?id=${id}`,
+    mapSimpleUser
+  );
+  console.log("user", user);
   return (
     <nav className="flex items-center justify-between px-4 py-2 bg-background border rounded-lg">
-
       {/* Le modal de création de post */}
       <CreatePostModal
         isOpen={isCreatePostModalOpen}
@@ -42,7 +60,6 @@ export default function NavigationBar() {
       </div>
 
       <div className="flex items-center justify-end w-96  space-x-16">
-
         {/* Lien pour la page d'accueil */}
         <Link href={"/"}>
           <Button variant="ghost" className="text-muted-foreground" size="icon">
@@ -69,10 +86,17 @@ export default function NavigationBar() {
           </Button>
         </Link>
       </div>
-        
-        {/* Bouton pour le chat box */}
+
+      {/* Bouton pour le chat box */}
       <div className="relative flex items-center justify-end  space-x-4">
-        <Button variant="ghost" className="text-muted-foreground" size="icon">
+        <Button
+          onClick={() => {
+            setIsChatboxOpen(!isChatboxOpen);
+          }}
+          variant="ghost"
+          className="text-muted-foreground"
+          size="icon"
+        >
           <Image
             src="/chat.svg"
             width={25}
@@ -84,12 +108,11 @@ export default function NavigationBar() {
 
         {/* La petite bulle de notification */}
         <NotificationBar isOpen={isOpenNotif} notifs={getReceived()} />
+
+        {/* Bouton pour les notifications */}
         <Button
           onClick={() => {
             setIsOpenNotif(!isOpenNotif);
-            if (!isOpenNotif) {
-              console.log("initNotif :>> ", getReceived());
-            }
           }}
           variant="ghost"
           className="text-muted-foreground"
@@ -104,13 +127,18 @@ export default function NavigationBar() {
           />
         </Button>
         <Logout />
-        <Avatar className="h-8 w-8">
-          <AvatarImage
-            src=""
-            alt="User avatar"
-          />
-          <AvatarFallback>CN</AvatarFallback>
-        </Avatar>
+        <ProfileLink id={id}>
+          <Avatar className="h-8 w-8">
+            <AvatarImage
+              alt="User avatar"
+              src={`/upload/${user?.profilePicture}`}
+            />
+            <AvatarFallback>
+              {user?.firstname?.charAt(0)?.toUpperCase() ?? ""}
+              {user?.lastname?.charAt(0)?.toUpperCase() ?? ""}
+            </AvatarFallback>
+          </Avatar>
+        </ProfileLink>
       </div>
     </nav>
   );
