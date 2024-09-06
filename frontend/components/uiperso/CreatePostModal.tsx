@@ -62,7 +62,6 @@ export default function CreatePostModal({ isOpen, onClose }: PostModalProps) {
       });
     }
     const [resp, err] = await postData("/posts", formData, true);
-    console.log("lastPost", resp);
     setSelectedUsers([]);
     setPrivacy("");
     let onePost = mapSimplePost(resp);

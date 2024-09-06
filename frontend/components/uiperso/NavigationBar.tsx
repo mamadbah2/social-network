@@ -34,7 +34,6 @@ export default function NavigationBar() {
     `/users?id=${id}`,
     mapSimpleUser
   );
-  console.log("user", user);
   return (
     <nav className="flex items-center justify-between px-4 py-2 bg-background border rounded-lg">
       {/* Le modal de création de post */}

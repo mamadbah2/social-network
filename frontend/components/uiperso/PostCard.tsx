@@ -15,6 +15,7 @@ import Link from "next/link";
 import { FormEvent, useState } from "react";
 import CommentModal from "./CommentModal";
 import ProfileButton from "./ProfileLink";
+import useGetData from "@/lib/hooks/useGet";
 
 interface PostCardProps {
   author?: number;
@@ -53,32 +54,51 @@ export default function PostCard({
   const [liked, setLiked] = useState(likes);
   const [disliked, setDisliked] = useState(dislikes);
   const { handleReactionSubmit, loading, error } = useReaction();
+  const [reactionBefore, setReactionBefore] = useState<Reaction>({
+    liked: false,
+    disliked: false,
+  });
+  // Les condition ci dessous fonctionne bien... mais maintenant
+  // J'ai besoin de récupérer les réactions initial de l'utilisateur pour savoir si il a déjà réagit à ce post
+  // J'ai donc pensé a faire une methode get pour recuperer la reaction du user suivant l'id du post
+  // Pour ça il faudra un tout petit peu modifier le backend et apres on est bon 
+  // Pour l'instant je vais à la mosque
+  const {expect: initialReaction} = useGetData(`/reactions`)
+
+
   const handleReact = (
     e: FormEvent<HTMLButtonElement>,
     { entityId, reactionType, isLike }: ReactionOptions
   ) => {
-    let reactionBefore: Reaction = {
-      liked: false,
-      disliked: false,
-    };
     handleReactionSubmit(e, {
       entityId: entityId,
       reactionType: reactionType,
       isLike: isLike,
     }).then((resp) => {
-      if (resp.liked) {
-        setLiked((prev) => prev + 1);
-      } else if (resp.disliked) {
-        setDisliked((prev) => prev + 1);
-      } else if (!resp.liked && !resp.disliked) {
+      console.log("resp :>> ", resp);
+      console.log('reactionBefore :>> ', reactionBefore);
+      if (resp.liked && !resp.disliked) {
+         if (reactionBefore.disliked) {
+          setDisliked((prev) => prev - 1);
+          setLiked((prev) => prev + 1);
+        } else {
+          setLiked((prev) => prev + 1);
+        }
+      } else if (!resp.liked && resp.disliked) {
         if (reactionBefore.liked) {
           setLiked((prev) => prev - 1);
+          setDisliked((prev) => prev + 1);
+        } else {
+          setDisliked((prev) => prev + 1);
+        }
+      } else if (!resp.liked && !resp.disliked) {
+        if (reactionBefore.liked) {
+          setLiked((prev) => prev + 1);
         } else if (reactionBefore.disliked) {
-          setDisliked((prev) => prev - 1);
+          setDisliked((prev) => prev + 1);
         }
       }
-      reactionBefore.liked = resp.liked;
-      reactionBefore.disliked = resp.disliked;
+      setReactionBefore(resp);
     });
   };
   return (

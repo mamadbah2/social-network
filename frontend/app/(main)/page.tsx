@@ -21,7 +21,6 @@ function Home() {
   }, [posts, setPostTable]);
 
   useEffect(() => {
-    console.log("postTable", postTable);
     setUpdatedPost(postTable);
   }, [postTable]);
 
