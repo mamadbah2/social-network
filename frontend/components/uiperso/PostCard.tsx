@@ -7,11 +7,12 @@ import {
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
-import { useReaction } from "@/lib/hooks/useReaction";
+import { ReactionOptions, useReaction } from "@/lib/hooks/useReaction";
+import { Reaction } from "@/models/reaction.model";
 import { HeartCrack, HeartIcon, MessageCircleIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 import CommentModal from "./CommentModal";
 import ProfileButton from "./ProfileLink";
 
@@ -49,8 +50,37 @@ export default function PostCard({
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
   const handleOpenCommentModal = () => setIsCommentModalOpen(true);
   const handleCloseCommentModal = () => setIsCommentModalOpen(false);
+  const [liked, setLiked] = useState(likes);
+  const [disliked, setDisliked] = useState(dislikes);
   const { handleReactionSubmit, loading, error } = useReaction();
-
+  const handleReact = (
+    e: FormEvent<HTMLButtonElement>,
+    { entityId, reactionType, isLike }: ReactionOptions
+  ) => {
+    let reactionBefore: Reaction = {
+      liked: false,
+      disliked: false,
+    };
+    handleReactionSubmit(e, {
+      entityId: entityId,
+      reactionType: reactionType,
+      isLike: isLike,
+    }).then((resp) => {
+      if (resp.liked) {
+        setLiked((prev) => prev + 1);
+      } else if (resp.disliked) {
+        setDisliked((prev) => prev + 1);
+      } else if (!resp.liked && !resp.disliked) {
+        if (reactionBefore.liked) {
+          setLiked((prev) => prev - 1);
+        } else if (reactionBefore.disliked) {
+          setDisliked((prev) => prev - 1);
+        }
+      }
+      reactionBefore.liked = resp.liked;
+      reactionBefore.disliked = resp.disliked;
+    });
+  };
   return (
     <Card className="max-w-2xl mx-auto">
       <CommentModal
@@ -101,7 +131,7 @@ export default function PostCard({
           variant="ghost"
           size="sm"
           onClick={(e) =>
-            handleReactionSubmit(e, {
+            handleReact(e, {
               entityId: postId,
               reactionType: "post",
               isLike: true,
@@ -110,12 +140,12 @@ export default function PostCard({
           className="text-muted-foreground"
         >
           <HeartIcon className="mr-1 h-6 w-6" />
-          {likes}
+          {liked}
         </Button>
         <Button
           variant="ghost"
           onClick={(e) =>
-            handleReactionSubmit(e, {
+            handleReact(e, {
               entityId: postId,
               reactionType: "post",
               isLike: false,
@@ -125,7 +155,7 @@ export default function PostCard({
           className="text-muted-foreground"
         >
           <HeartCrack className="mr-1 h-6 w-6" />
-          {dislikes}
+          {disliked}
         </Button>
         <Button
           variant="ghost"

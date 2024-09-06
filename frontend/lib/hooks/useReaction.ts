@@ -1,7 +1,8 @@
 import { FormEvent, useState } from "react";
+import { mapReactionType } from "../modelmapper";
 import postData from "./usepost";
 
-type ReactionOptions = {
+export type ReactionOptions = {
   entityId: number;
   reactionType: "post" | "comment";
   isLike: boolean;
@@ -31,6 +32,7 @@ export const useReaction = () => {
     if (err) {
       setError(`Failed to submit ${isLike ? "like" : "dislike"}.`);
     }
+    return mapReactionType(resp);
   };
 
   return { handleReactionSubmit, loading, error };

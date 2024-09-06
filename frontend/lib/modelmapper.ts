@@ -2,6 +2,7 @@ import { Comment } from "@/models/comment.model";
 import { Group } from "@/models/group.model";
 import { Notification } from "@/models/notification.model";
 import { Post } from "@/models/post.model";
+import { Reaction } from "@/models/reaction.model";
 import { Session } from "@/models/session.model";
 import { User } from "@/models/user.model";
 
@@ -189,4 +190,18 @@ export function mapComments(data: any): Comment[] {
       post: mapSimplePost(c.Post),
     })
   );
+}
+
+export function mapReactionType(data: any): Reaction {
+  if (!data) {
+    return {
+      liked: false,
+      disliked: false,
+    };
+  }
+
+  return {
+    liked: data.Liked,
+    disliked: data.Disliked,
+  };
 }
