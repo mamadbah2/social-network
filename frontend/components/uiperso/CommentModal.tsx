@@ -39,7 +39,6 @@ export default function CommentModal({
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     if (!formData.get("CommentContent")) return;
-    console.log('formData.get("commentImage") :>> ', formData.get("commentImage"));
     const [resp, err] = await usePostData(
       `/comment?Id=${String(postId)}`,
       formData,

@@ -7,10 +7,11 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import useGetData from "../../lib/hooks/useGet";
 import UseWS from "../../lib/hooks/usewebsocket";
-import { mapSimpleUser } from "../../lib/modelmapper";
+import { mapPost, mapSimpleUser } from "../../lib/modelmapper";
 import Logout from "./logout";
 import NotificationBar from "./notification";
 import ProfileLink from "./ProfileLink";
+import { usePostContext } from "@/lib/hooks/postctx";
 
 export default function NavigationBar() {
   const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false);
@@ -19,8 +20,8 @@ export default function NavigationBar() {
   const { getReceived } = UseWS();
   const handleCreatePostModalOpen = () => setIsCreatePostModalOpen(true);
   const handleCreatePostModalClose = () => setIsCreatePostModalOpen(false);
-
   const [id, setId] = useState<number | undefined>(undefined);
+
 
   useEffect(() => {
     if (typeof window !== "undefined") {

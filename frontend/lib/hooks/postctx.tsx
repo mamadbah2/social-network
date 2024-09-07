@@ -23,7 +23,6 @@ export const usePostContext = () => {
 export const PostProvider = ({ children }: { children: ReactNode }) => {
   const [postTable, setPostTable] = useState<Post[] | null>(null);
   const [comment, setComment] = useState<Comment | null>(null);
-
   return (
     <PostContext.Provider value={{ postTable, setPostTable, comment, setComment }}>
       {children}

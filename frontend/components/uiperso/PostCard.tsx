@@ -84,8 +84,6 @@ export default function PostCard({
       reactionType: reactionType,
       isLike: isLike,
     }).then((resp) => {
-      console.log("resp :>> ", resp);
-      console.log('reactionBefore :>> ', reactionBefore);
       if (resp.liked && !resp.disliked) {
          if (reactionBefore.disliked) {
           setDisliked((prev) => prev - 1);
