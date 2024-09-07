@@ -12,10 +12,12 @@ import { Reaction } from "@/models/reaction.model";
 import { HeartCrack, HeartIcon, MessageCircleIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { FormEvent, useState } from "react";
+import { FormEvent, use, useEffect, useState } from "react";
 import CommentModal from "./CommentModal";
 import ProfileButton from "./ProfileLink";
 import useGetData from "@/lib/hooks/useGet";
+import { mapReactionType, mapUser } from "@/lib/modelmapper";
+import { usePostContext } from "@/lib/hooks/postctx";
 
 interface PostCardProps {
   author?: number;
@@ -54,18 +56,25 @@ export default function PostCard({
   const [liked, setLiked] = useState(likes);
   const [disliked, setDisliked] = useState(dislikes);
   const { handleReactionSubmit, loading, error } = useReaction();
+  const {comment}  = usePostContext();
+  const [numberComment, setNumberComment] = useState(comments);
   const [reactionBefore, setReactionBefore] = useState<Reaction>({
     liked: false,
     disliked: false,
   });
-  // Les condition ci dessous fonctionne bien... mais maintenant
-  // J'ai besoin de récupérer les réactions initial de l'utilisateur pour savoir si il a déjà réagit à ce post
-  // J'ai donc pensé a faire une methode get pour recuperer la reaction du user suivant l'id du post
-  // Pour ça il faudra un tout petit peu modifier le backend et apres on est bon 
-  // Pour l'instant je vais à la mosque
-  const {expect: initialReaction} = useGetData(`/reactions`)
+  
+  const {expect: initialReaction} = useGetData(`/reaction?postId=${postId}&reaction_type=post`, mapReactionType );
+  useEffect(() => {
+    setReactionBefore(initialReaction ?? {liked: false, disliked: false});
+  }, [initialReaction])
 
+  useEffect(() => {
+    if (comment) {
+      setNumberComment((prev)=>prev+1);
+    }   
+  },[comment]);
 
+  // Handle reaction pour gerer les likes et dislikes
   const handleReact = (
     e: FormEvent<HTMLButtonElement>,
     { entityId, reactionType, isLike }: ReactionOptions
@@ -93,9 +102,9 @@ export default function PostCard({
         }
       } else if (!resp.liked && !resp.disliked) {
         if (reactionBefore.liked) {
-          setLiked((prev) => prev + 1);
+          setLiked((prev) => prev - 1);
         } else if (reactionBefore.disliked) {
-          setDisliked((prev) => prev + 1);
+          setDisliked((prev) => prev - 1);
         }
       }
       setReactionBefore(resp);
@@ -133,7 +142,7 @@ export default function PostCard({
           <h2 className="text-xl font-bold mb-2">{title}</h2>
           <p className="text-muted-foreground">{content}</p>
         </CardContent>
-        {imageSrc && (
+        {imageSrc!="" && (
           <CardContent className="pb-2 max-h-[450px] h-[420px] bg-contain w-full rounded-lg">
             <div className="relative w-full h-full rounded-lg">
               <Image
@@ -184,7 +193,7 @@ export default function PostCard({
           className="text-muted-foreground"
         >
           <MessageCircleIcon className="mr-1 h-6 w-6" />
-          {comments}
+          {numberComment}
         </Button>
       </CardFooter>
     </Card>

@@ -1,9 +1,13 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { usePostContext } from "@/lib/hooks/postctx";
 import usePostData from "@/lib/hooks/usepost";
-import { Send, X } from "lucide-react";
-import { FormEvent } from "react";
+import { mapComments, mapSimpleComments } from "@/lib/modelmapper";
+import { Comment } from "@/models/comment.model";
+import { on } from "events";
+import { ImageIcon, Send, X } from "lucide-react";
+import React, { FormEvent, useRef } from "react";
 interface CommentModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -24,15 +28,36 @@ export default function CommentModal({
   postContent,
   postId,
 }: CommentModalProps) {
+  // Si le modal n'est pas ouvert, on ne le rend pas
   if (!isOpen) return null;
+  
+  const { comment, setComment } = usePostContext();
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Fonction pour gérer la soumission
   const useHandleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+    if (!formData.get("CommentContent")) return;
+    console.log('formData.get("commentImage") :>> ', formData.get("commentImage"));
     const [resp, err] = await usePostData(
       `/comment?Id=${String(postId)}`,
       formData,
-      false
+      true
     );
+
+    if (resp) {
+      let oneComment = mapSimpleComments(resp);
+      setComment(oneComment);
+    }
+    onClose();
+  };
+
+  // Fonction pour simuler le clic sur l'input file
+  const handleClickImg = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click(); // Simule le clic sur l'input file
+    }
   };
 
   return (
@@ -77,12 +102,17 @@ export default function CommentModal({
             onSubmit={useHandleSubmit}
             className="flex items-center space-x-2 w-full"
             method="post"
+            encType="multipart/form-data"
           >
             <Input
               className="flex-grow"
               name="CommentContent"
               placeholder="Write your comment"
             />
+            <Input type="file" name="commentImage" ref={fileInputRef} className="hidden" />
+            <Button onClick={handleClickImg} variant="ghost" size="icon" className="shrink-0">
+              <ImageIcon className="h-5 w-5" />
+            </Button>
             <Button size="icon" className="shrink-0">
               <Send className="h-4 w-4" />
               <span className="sr-only">Send comment</span>

@@ -181,6 +181,7 @@ export function mapComments(data: any): Comment[] {
     (c: any): Comment => ({
       id: c.Id,
       content: c.Content,
+      image: c.ImageName,
       author: mapSimpleUser(c.Author),
       createdAt: new Date(c.Date),
       liked: c.Liked,
@@ -190,6 +191,36 @@ export function mapComments(data: any): Comment[] {
       post: mapSimplePost(c.Post),
     })
   );
+}
+
+export function mapSimpleComments(data: any): Comment {
+  if (!data) {
+    return {
+      id: 0,
+      content: "",
+      image: "",
+      author: undefined,
+      createdAt: new Date(),
+      liked: false,
+      disliked: false,
+      numberLike: 0,
+      numberDislike: 0,
+      post: undefined,
+    };    
+  }
+
+  return {
+    id: data.Id,
+    content: data.Content,
+    image: data.ImageName,
+    author: mapSimpleUser(data.Author),
+    createdAt: new Date(data.Date),
+    liked: data.Liked,
+    disliked: data.Disliked,
+    numberLike: data.NumberLike,
+    numberDislike: data.NumberDislike,
+    post: mapSimplePost(data.Post),
+  };
 }
 
 export function mapReactionType(data: any): Reaction {

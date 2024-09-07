@@ -1,10 +1,11 @@
 import { useReaction } from "@/lib/hooks/useReaction";
 import { Comment } from "@/models/comment.model";
-import { HeartCrack, HeartIcon } from "lucide-react";
+import { HeartCrack, HeartIcon, ImageIcon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
-import { CardFooter } from "../ui/card";
+import { CardContent, CardFooter } from "../ui/card";
 import ProfileButton from "./ProfileLink";
+import Image from "next/image";
 
 export default function ViewComment({
   comments,
@@ -45,6 +46,18 @@ export default function ViewComment({
             </div>
           </div>
           <p className="mt-4 text-sm text-gray-800">{comment.content}</p>
+          {comment.image && (
+            <CardContent className="pb-2 max-h-[350px] h-[320px] bg-contain w-full rounded-lg">
+              <div className="relative w-full h-full rounded-lg">
+                <Image
+                  src={`/upload/${comment.image}`}
+                  alt={comment.content}
+                  fill
+                  className="object-cover rounded-lg"
+                />
+              </div>
+            </CardContent>
+          )}
           <CardFooter className="flex justify-start pt-2">
             <Button
               variant="ghost"
