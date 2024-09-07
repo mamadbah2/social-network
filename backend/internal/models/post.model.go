@@ -47,7 +47,7 @@ func (m *ConnDB) SetPost(title, content, imageName, privacy string, userId, grou
 			return int(postId), err
 		}
 		for _, user := range users {
-			if user.Id == userId {
+			if user.Id != userId {
 				_, err := m.SetPostViewer(int(postId), user.Id)
 				if err != nil {
 					return int(postId), err
