@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"html"
 	"net/http"
 	"social-network/internal/models"
@@ -23,7 +22,7 @@ func (hand *Handler) Post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data, err := hand.ConnDB.GetAllPost()
+	data, err := hand.ConnDB.GetAllPostByVisibility(actualUser.Id)
 	if err != nil {
 		hand.Helpers.ServerError(w, err)
 		return
@@ -66,15 +65,13 @@ func (hand *Handler) Post(w http.ResponseWriter, r *http.Request) {
 
 		fileImg, fileHeaderImg, _ := r.FormFile("imagePost")
 		var nameImg string
-		// var TempFile *os.File
-		fmt.Println("fileImg", fileImg, fileHeaderImg)
 		if fileImg != nil {
 			_, _ = hand.Helpers.Getfile(fileImg, fileHeaderImg.Filename)
-			nameImg = fileHeaderImg.Filename;
-		}else{
+			nameImg = fileHeaderImg.Filename
+		} else {
 			nameImg = ""
 		}
-	
+
 		title := r.PostForm.Get("title")
 		content := r.PostForm.Get("content")
 		privacy := r.PostForm.Get("privacy")
@@ -113,13 +110,13 @@ func (hand *Handler) Post(w http.ResponseWriter, r *http.Request) {
 			hand.Helpers.ServerError(w, err)
 			return
 		}
-		lastPost:= models.Post{
-			Id: idPost,
-			Title: title,
-			Content: escapedContent,
+		lastPost := models.Post{
+			Id:        idPost,
+			Title:     title,
+			Content:   escapedContent,
 			ImageName: nameImg,
-			Privacy: privacy,
-			Author: actualUser,
+			Privacy:   privacy,
+			Author:    actualUser,
 			Group: &models.Group{
 				Id: groupId,
 			},

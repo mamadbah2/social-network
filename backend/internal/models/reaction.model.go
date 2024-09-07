@@ -37,10 +37,10 @@ func (r *ConnDB) UpdateReaction(id_entity, UserID int, reaction_type string, lik
 }
 
 func (r *ConnDB) CheckReaction(id_entity, UserID int, reaction_type string) (*Reaction, error) {
-	stmt := `SELECT id FROM reactions WHERE id_entity = ? AND id_user = ? AND reaction_type = ?`
+	stmt := `SELECT id, liked, disliked FROM reactions WHERE id_entity = ? AND id_user = ? AND reaction_type = ?`
 	row := r.DB.QueryRow(stmt, id_entity, UserID, reaction_type)
 	reaction := &Reaction{}
-	err := row.Scan(&reaction.Liked)
+	err := row.Scan(&reaction.Id, &reaction.Liked, &reaction.Disliked)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return  &Reaction{

@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 	"social-network/internal/models"
 
@@ -30,8 +29,7 @@ func (hand *Handler) Notification(w http.ResponseWriter, r *http.Request) {
 	defer senderConn.Close()
 
 	notifClients[senderID] = senderConn // Add sender's connection.
-	fmt.Println("notifClients : >>", notifClients)
-	
+
 	// Get the message history from the database.
 	myNotifs, err := hand.ConnDB.GetNotifications(senderID)
 	if err != nil {
@@ -54,7 +52,7 @@ func (hand *Handler) Notification(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if newNotif.Approuved == true {
+		if newNotif.Approuved {
 			err := hand.ConnDB.ArchivedNotification(newNotif.Id)
 			if err != nil {
 				hand.Helpers.ClientError(w, http.StatusBadRequest)

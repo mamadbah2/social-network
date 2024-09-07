@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 	"social-network/internal/models"
 	"strconv"
@@ -25,8 +24,8 @@ func (hand *Handler) ComsHandle(w http.ResponseWriter, r *http.Request) {
 		var nameImg string
 		if fileImg != nil {
 			_, _ = hand.Helpers.Getfile(fileImg, fileHeaderImg.Filename)
-			nameImg = fileHeaderImg.Filename;
-		}else{
+			nameImg = fileHeaderImg.Filename
+		} else {
 			nameImg = ""
 		}
 
@@ -50,7 +49,7 @@ func (hand *Handler) ComsHandle(w http.ResponseWriter, r *http.Request) {
 		c.Post.Id = IDPost
 		c.Id, err = hand.ConnDB.SetComment(c)
 		if err != nil {
-			fmt.Println(err.Error())
+			hand.Helpers.ServerError(w, err)
 			return
 		}
 		hand.renderJSON(w, c)
