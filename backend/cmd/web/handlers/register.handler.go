@@ -29,9 +29,9 @@ func (hand *Handler) Register(w http.ResponseWriter, r *http.Request) {
 	var nameImg string
 	if file != nil {
 		_, _ = hand.Helpers.Getfile(file, fileHeaderImg.Filename)
+		nameImg = fileHeaderImg.Filename
 	}
 
-	nameImg = fileHeaderImg.Filename
 	fmt.Println("name image", nameImg)
 	// Gestion de la date anniversaire, conversion time.Time
 	dateStr := r.PostForm.Get("dateOfBirth")

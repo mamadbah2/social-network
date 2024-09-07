@@ -8,6 +8,34 @@ import (
 	"strconv"
 )
 
+func (hand *Handler) Reactions(w http.ResponseWriter, r *http.Request) {
+	session, err := hand.ConnDB.GetSession(r)
+	if err != nil {
+		hand.Helpers.ServerError(w, err)
+		return
+	}
+
+	actualUser, err := hand.ConnDB.GetUser(session.UserId)
+	if err != nil {
+		hand.Helpers.ServerError(w, err)
+		return
+	}
+
+	reaction_type := r.URL.Query().Get("reaction_type")
+	post_id, err := strconv.Atoi(r.URL.Query().Get("postId"))
+	if err != nil {
+		hand.Helpers.ClientError(w, http.StatusBadRequest)
+		return
+	}
+
+	reaction, err := hand.ConnDB.CheckReaction(post_id, actualUser.Id, reaction_type)
+	if err != nil {
+		hand.Helpers.ServerError(w, err)
+		return
+	}
+	hand.renderJSON(w, reaction)
+}
+
 func (hand *Handler) LikeReaction(w http.ResponseWriter, r *http.Request) {
 	// Ici logique get user de la session
 	session, err := hand.ConnDB.GetSession(r)
@@ -50,7 +78,7 @@ func (hand *Handler) LikeReaction(w http.ResponseWriter, r *http.Request) {
 			}
 			hand.renderJSON(
 				w, models.Reaction{
-					Liked: true,
+					Liked:    true,
 					Disliked: false,
 				},
 			)
@@ -62,7 +90,7 @@ func (hand *Handler) LikeReaction(w http.ResponseWriter, r *http.Request) {
 			}
 			hand.renderJSON(
 				w, models.Reaction{
-					Liked: false,
+					Liked:    false,
 					Disliked: false,
 				},
 			)
@@ -74,7 +102,7 @@ func (hand *Handler) LikeReaction(w http.ResponseWriter, r *http.Request) {
 			}
 			hand.renderJSON(
 				w, models.Reaction{
-					Liked: true,
+					Liked:    true,
 					Disliked: false,
 				},
 			)
@@ -127,7 +155,7 @@ func (hand *Handler) DislikeReaction(w http.ResponseWriter, r *http.Request) {
 			}
 			hand.renderJSON(
 				w, models.Reaction{
-					Liked: false,
+					Liked:    false,
 					Disliked: true,
 				},
 			)
@@ -139,7 +167,7 @@ func (hand *Handler) DislikeReaction(w http.ResponseWriter, r *http.Request) {
 			}
 			hand.renderJSON(
 				w, models.Reaction{
-					Liked: false,
+					Liked:    false,
 					Disliked: false,
 				},
 			)
@@ -152,7 +180,7 @@ func (hand *Handler) DislikeReaction(w http.ResponseWriter, r *http.Request) {
 			}
 			hand.renderJSON(
 				w, models.Reaction{
-					Liked: false,
+					Liked:    false,
 					Disliked: true,
 				},
 			)

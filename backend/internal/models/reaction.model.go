@@ -43,7 +43,10 @@ func (r *ConnDB) CheckReaction(id_entity, UserID int, reaction_type string) (*Re
 	err := row.Scan(&reaction.Liked)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, ErrNoRecord
+			return  &Reaction{
+				Liked:   false,
+				Disliked: false,
+			}, nil
 		} else {
 
 			return nil, err
