@@ -12,16 +12,27 @@ import Logout from "./logout";
 import NotificationBar from "./notification";
 import ProfileLink from "./ProfileLink";
 import { usePostContext } from "@/lib/hooks/postctx";
+import { Bell, BellDot } from "lucide-react";
+import { get } from "http";
 
 export default function NavigationBar() {
   const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false);
   const [isOpenNotif, setIsOpenNotif] = useState(false);
   const [isChatboxOpen, setIsChatboxOpen] = useState(false);
+  const [isNotified, setIsNotified] = useState(false);
   const { getReceived } = UseWS();
   const handleCreatePostModalOpen = () => setIsCreatePostModalOpen(true);
   const handleCreatePostModalClose = () => setIsCreatePostModalOpen(false);
   const [id, setId] = useState<number | undefined>(undefined);
 
+  useEffect(() => {
+    if (getReceived().length > 0) {
+      setIsNotified(true);
+    } else {
+      setIsNotified(false);
+    }
+  }, [getReceived()]);
+  
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -118,13 +129,16 @@ export default function NavigationBar() {
           className="text-muted-foreground"
           size="icon"
         >
-          <Image
-            src="/notification.svg"
+         { !isNotified && <Bell
             width={25}
             height={25}
-            alt="group icon"
             className="h-6 w-6"
-          />
+          />}
+          { isNotified && <BellDot
+            width={25}
+            height={25}
+            className="h-6 w-6"
+          />}
         </Button>
         <Logout />
         <ProfileLink id={id}>
