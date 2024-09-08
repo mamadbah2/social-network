@@ -16,6 +16,7 @@ import postData from "@/lib/hooks/usepost";
 import { mapSimplePost, mapSimpleUser, mapUser } from "@/lib/modelmapper";
 import { User } from "@/models/user.model";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import React, { FormEvent, useEffect, useState } from "react";
 
 interface PostModalProps {
@@ -34,12 +35,12 @@ export default function CreatePostModal({ isOpen, onClose }: PostModalProps) {
     setUserID(localStorage.getItem("userID") || "0");
   }, []);
 
-  const { expect: data, error } = useGetData<User[]>("/users", mapUser);
   const [privacy, setPrivacy] = useState<string>("");
   const [selectedUsers, setSelectedUsers] = useState<Item[]>([]);
   const [search, setSearch] = useState<string>("");
   const [ItemUser, setItemUser] = React.useState<Item[]>([]);
-  const { postTable, setPostTable } = usePostContext();
+  const router = useRouter();
+  const { setPostTable } = usePostContext();
   const {
     expect: user,
     error: errUser,
@@ -74,6 +75,9 @@ export default function CreatePostModal({ isOpen, onClose }: PostModalProps) {
     setSelectedUsers([]);
     setPrivacy("");
     let onePost = mapSimplePost(resp);
+
+    // Add the new post to the top of the post table if the location isn't /
+    console.log('objwindow.location.pathname :>> ', window.location.pathname);
     setPostTable((prev) => [onePost, ...(prev ?? [])]);
     onClose();
   };

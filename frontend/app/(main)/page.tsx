@@ -8,20 +8,18 @@ import { Post } from "@/models/post.model";
 import { useEffect, useState } from "react";
 
 function Home() {
-  const { expect: posts, refetch } = useGetData("/posts", mapPost);
-  const { postTable, setPostTable, reloadPost } = usePostContext();
+  const { expect: posts } = useGetData("/posts", mapPost);
+  const { postTable, setPostTable } = usePostContext();
   const [updatedPost, setUpdatedPost] = useState<Post[] | null>([]);
-  const [updateReload, setUpdateReload] = useState<boolean>(false);
 
 
   // Utilise useEffect pour mettre à jour les états seulement quand posts change
   useEffect(() => {
-    
     if (posts) {
       setPostTable(posts);
       setUpdatedPost(posts);
     }
-  }, [posts, setPostTable,]);
+  }, [ posts, setPostTable ]);
   
   useEffect(() => {
     setUpdatedPost(postTable);

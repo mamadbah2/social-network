@@ -1,6 +1,6 @@
 "use client";
 import { Post } from "@/models/post.model"; // Adjust path if necessary
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import PostCard from "./PostCard";
 import ViewComment from "./viewComment";
 import { usePostContext } from "@/lib/hooks/postctx";
@@ -11,13 +11,15 @@ interface PostSectionProps {
 }
 
 const ViewPost: React.FC<PostSectionProps> = ({ post }) => {
-  const {comment} = usePostContext();
+  const {comment, setComment} = usePostContext();
+  const [numberComment, setNumberComment] = useState(post.numberComment);
   const [commentTable, setCommentTable] = React.useState<Comment[]| null>(post.comments as Comment[]);
 
   useEffect(() => {
     if (comment) {
       setCommentTable((prev)=>[comment as Comment, ...(prev as Comment[]) ]);
-      post.numberComment = post.numberComment + 1;
+      setComment(null);
+      setNumberComment((prev)=> prev + 1);
     } 
   },[comment]);
   return (
@@ -40,7 +42,7 @@ const ViewPost: React.FC<PostSectionProps> = ({ post }) => {
         imageSrc={post.imageName || ""}
         likes={post.numberLike || 0}
         dislikes={post.numberDislike || 0}
-        comments={post.numberComment || 0}
+        comments={numberComment || 0}
       />
       <ViewComment comments={(commentTable)?.reverse()} />
     </div>

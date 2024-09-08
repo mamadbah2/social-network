@@ -8,6 +8,8 @@ interface PostAndCommentContextType {
   setPostTable: React.Dispatch<React.SetStateAction<Post[] | null>>;
   comment: Comment | null;
   setComment: React.Dispatch<React.SetStateAction<Comment | null>>;
+  incrementComment: boolean;
+  setIncrementComment: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const PostContext = createContext<PostAndCommentContextType | undefined>(undefined);
@@ -23,8 +25,9 @@ export const usePostContext = () => {
 export const PostProvider = ({ children }: { children: ReactNode }) => {
   const [postTable, setPostTable] = useState<Post[] | null>(null);
   const [comment, setComment] = useState<Comment | null>(null);
+  const [incrementComment, setIncrementComment] = useState<boolean>(false);
   return (
-    <PostContext.Provider value={{ postTable, setPostTable, comment, setComment }}>
+    <PostContext.Provider value={{ postTable, setPostTable, comment, setComment, incrementComment, setIncrementComment }}>
       {children}
     </PostContext.Provider>
   );

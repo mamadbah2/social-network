@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { ReactionOptions, useReaction } from "@/lib/hooks/useReaction";
 import { Reaction } from "@/models/reaction.model";
-import { HeartCrack, HeartIcon, MessageCircleIcon } from "lucide-react";
+import { HeartCrack, HeartIcon, MessageCircleIcon, MessageCirclePlus } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { FormEvent, use, useEffect, useState } from "react";
@@ -56,8 +56,8 @@ export default function PostCard({
   const [liked, setLiked] = useState(likes);
   const [disliked, setDisliked] = useState(dislikes);
   const { handleReactionSubmit, loading, error } = useReaction();
-  const {comment}  = usePostContext();
-  const [numberComment, setNumberComment] = useState(comments);
+  const {incrementComment, setIncrementComment}  = usePostContext();
+  
   const [reactionBefore, setReactionBefore] = useState<Reaction>({
     liked: false,
     disliked: false,
@@ -68,11 +68,12 @@ export default function PostCard({
     setReactionBefore(initialReaction ?? {liked: false, disliked: false});
   }, [initialReaction])
 
-  useEffect(() => {
-    if (comment) {
-      setNumberComment((prev)=>prev+1);
+/*   useEffect(() => {
+    if (incrementComment) {
+      comments = comments + 1;
+      setIncrementComment(false);
     }   
-  },[comment]);
+  },[incrementComment]); */
 
   // Handle reaction pour gerer les likes et dislikes
   const handleReact = (
@@ -190,8 +191,8 @@ export default function PostCard({
           size="sm"
           className="text-muted-foreground"
         >
-          <MessageCircleIcon className="mr-1 h-6 w-6" />
-          {numberComment}
+          <MessageCirclePlus className="mr-1 h-6 w-6" />
+          { window.location.pathname != `/` ? comments : ""}
         </Button>
       </CardFooter>
     </Card>

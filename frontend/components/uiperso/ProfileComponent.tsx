@@ -1,12 +1,18 @@
 "use client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import useGetData from "@/lib/hooks/useGet";
-import { mapSimpleUser } from "@/lib/modelmapper";
+import postData from "@/lib/hooks/usepost";
+import { mapSimpleUser, mapUser } from "@/lib/modelmapper";
 import { User } from "@/models/user.model";
 import Link from "next/link";
 import { useState } from "react";
 import PostSection from "./PostSection";
 import FollowModal from "./followerList";
+import { Button } from "../ui/button";
+import { UserMinus, UserPlus } from "lucide-react";
+import { handleFollow, handleUnfollow } from "@/services/follow.service";
+import UseWS from "@/lib/hooks/usewebsocket";
+import { toast } from "../ui/use-toast";
 
 interface FollowModalState {
   isOpen: boolean;
@@ -15,8 +21,14 @@ interface FollowModalState {
 }
 
 export default function ProfileComponent({ id }: { id: string }) {
+  const { sendObject: sendNotification } = UseWS();
+  const { expect: users } = useGetData("/users", mapUser);
   const { expect: user, error: errUser } = useGetData(
     `/users?id=${id}`,
+    mapSimpleUser
+  );
+  const { expect: me, error: errMe } = useGetData(
+    `/users?id=${localStorage.getItem("userID")}`,
     mapSimpleUser
   );
 
@@ -25,6 +37,62 @@ export default function ProfileComponent({ id }: { id: string }) {
     modalName: "",
     follow: [], // Initialize with an empty array
   });
+
+  const showButtonFollow = (): boolean => {
+    return me?.suggestedFriends?.find((f) => f.id === parseInt(id)) ? true : false;
+  }
+
+  const onFollow = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const suggestFriendId = parseInt(`${e.currentTarget.value}`);
+    const myId = parseInt(`${localStorage.getItem("userID")}`);
+    const suggestFriend = handleFollow(e, {
+      suggestFriendId,
+      myId,
+      users: users ?? [],
+      sendNotification,
+      postData,
+    });
+
+    if (suggestFriend) {
+      if (!suggestFriend.private) {
+        toast({
+          title: "Followed",
+          description: `You are now following ${suggestFriend.firstname}`,
+        });
+      } else {
+        toast({
+          title: "Request sent",
+          description: `Your request has been sent to the user ${suggestFriend.firstname}`,
+        });
+      }
+    }
+  };
+
+  const unFollow = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const followerID = parseInt(`${e.currentTarget.value}`);
+    const myId = parseInt(`${localStorage.getItem("userID")}`);
+    const suggestFriend = handleUnfollow(e, {
+      followerId: followerID,
+      myId,
+      users: users ?? [],
+      postData,
+    });
+
+    if (suggestFriend) {
+        toast({
+          title: "Unfollowed",
+          description: `You are now unfollowing ${suggestFriend.firstname}`,
+        });
+      
+    }
+  }
+
+  const hidden = (e: React.MouseEvent<SVGSVGElement>) => {
+    const hideIcon = e.currentTarget;
+    !hideIcon.classList.contains("hidden")
+      ? hideIcon.classList.add("hidden")
+      : hideIcon.classList.remove("hidden");
+  };
 
   const handleOpenFollowModal = (name: string, follow?: User[]) =>
     setFollowModalData({
@@ -88,6 +156,40 @@ export default function ProfileComponent({ id }: { id: string }) {
             <span className="text-gray-500">Post</span>
           </div>
         </div>
+        {
+          // If the user is not the current user, show the follow button
+          parseInt(`${localStorage.getItem("userID")}`) !== parseInt(id) && showButtonFollow() && (
+            <>
+              <Button
+                onClick={onFollow}
+                value={id}
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6"
+              >
+                <UserPlus className="h-7 w-7" onClick={hidden} />
+              </Button>
+            </>)
+        }
+        {
+          // If the user is not the current user, show the follow button
+          parseInt(`${localStorage.getItem("userID")}`) !== parseInt(id) && !showButtonFollow() && (
+            <>
+              <Button
+                onClick={unFollow}
+                value={id}
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6"
+              >
+                <UserMinus className="h-7 w-7 text-red-600" onClick={hidden} />
+              </Button>
+            </>)
+        }
+
+
+
+
       </div>
       <PostSection posts={user?.posts ?? []} />
     </>

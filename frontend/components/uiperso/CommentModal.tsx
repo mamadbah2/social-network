@@ -30,8 +30,8 @@ export default function CommentModal({
 }: CommentModalProps) {
   // Si le modal n'est pas ouvert, on ne le rend pas
   if (!isOpen) return null;
-  
-  const { comment, setComment } = usePostContext();
+
+  const { setComment } = usePostContext();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   // Fonction pour gérer la soumission
@@ -46,14 +46,17 @@ export default function CommentModal({
     );
 
     if (resp) {
-      let oneComment = mapSimpleComments(resp);
-      setComment(oneComment);
+      if (window.location.pathname !== "/") {
+        let oneComment = mapSimpleComments(resp);
+        setComment(oneComment);
+      } 
     }
     onClose();
   };
 
   // Fonction pour simuler le clic sur l'input file
   const handleClickImg = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
     if (fileInputRef.current) {
       fileInputRef.current.click(); // Simule le clic sur l'input file
     }
