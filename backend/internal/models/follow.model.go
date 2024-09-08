@@ -27,7 +27,7 @@ func (m *ConnDB) SetFollower(followerID, followedID int, archived bool) error {
 	}
 	if !archived {
 		// Check if the follow already exists
-		stmt := `SELECT COUNT(*) FROM follows WHERE id_follower = ? AND id_followed = ? AND archived = 0`
+		stmt := `SELECT COUNT(*) FROM follows WHERE id_follower = ? AND id_followed = ?`
 		row := m.DB.QueryRow(stmt, followerID, followedID)
 		var count int
 		row.Scan(&count)
@@ -261,7 +261,7 @@ func (m *ConnDB) GetFollowersByUser(userID int) ([]*User, error) {
         SELECT u.*
         FROM users u
         JOIN follows f ON u.id = f.id_follower
-        WHERE f.id_followed = ?
+        WHERE f.id_followed = ? AND f.archived = 0
     `
 
 	rows, err := m.DB.Query(query, userID)
@@ -290,7 +290,7 @@ func (m *ConnDB) GetFollowedByUser(userID int) ([]*User, error) {
         SELECT u.*
         FROM users u
         JOIN follows f ON u.id = f.id_followed
-        WHERE f.id_follower = ?
+        WHERE f.id_follower = ? AND f.archived = 0
     `
 
 	rows, err := m.DB.Query(query, userID)
