@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"social-network/internal/models"
 
@@ -29,6 +30,7 @@ func (hand *Handler) Notification(w http.ResponseWriter, r *http.Request) {
 	defer senderConn.Close()
 
 	notifClients[senderID] = senderConn // Add sender's connection.
+	fmt.Println("notifClients =>>", notifClients)
 
 	// Get the message history from the database.
 	myNotifs, err := hand.ConnDB.GetNotifications(senderID)
@@ -81,6 +83,7 @@ func (hand *Handler) Notification(w http.ResponseWriter, r *http.Request) {
 		if receiverConn, exists := notifClients[newNotif.Receiver.Id]; exists {
 			if err = receiverConn.WriteJSON(newNotif); err != nil {
 				hand.Helpers.ErrorLog.Println("error Write JSON : ", err)
+				hand.Helpers.ErrorLog.Println("receiverConn : ",receiverConn)
 				return
 			}
 		}
