@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	"fmt"
 	"sort"
 	"time"
@@ -17,9 +18,7 @@ type Group struct {
 	Events      []*Event
 }
 
-// Read let's go, chap 4.6: Executing SQL statements
 func (m *ConnDB) GetGroup(id int) (*Group, error) {
-
 	stmt := `SELECT * FROM groups WHERE id = ?`
 
 	row := m.DB.QueryRow(stmt, id)
@@ -29,51 +28,69 @@ func (m *ConnDB) GetGroup(id int) (*Group, error) {
 
 	err := row.Scan(&g.Id, &CreatorId, &g.Name, &g.Description, &g.CreatedAt)
 	if err != nil {
+		fmt.Println("group: ", err)
 		return nil, err
 	}
 
 	g.Creator, err = m.GetUser(CreatorId)
 	if err != nil {
+		fmt.Println("group: ", err)
 		return nil, err
 	}
-	//Posts, Members and Events
 
-	var postID, userId, EventID int
+	// Posts, Members, and Events
+	var postID, userId sql.NullInt64
+	var EventID sql.NullInt64
 
 	stmt = `
-	SELECT p.id, m.id_member, e.id
-	FROM posts p
-	JOIN groups_members m ON p.id_group = m.id_group
-	JOIN events e ON p.id_group = e.id_group
-	WHERE p.id_group = ?;
-	`
+    SELECT p.id, m.id_member, e.id
+    FROM groups_members m
+    LEFT JOIN posts p ON p.id_group = m.id_group
+    LEFT JOIN events e ON e.id_group = m.id_group
+    WHERE m.id_group = ?;
+    `
 	rows, errRows := m.DB.Query(stmt, id)
 	if errRows != nil {
-		fmt.Println(errRows.Error())
+		fmt.Println("Error in query:", errRows)
 		return nil, errRows
 	}
 
 	for rows.Next() {
-		rows.Scan(&postID, &userId, &EventID)
-		Post, err := m.GetPost(postID)
+		err := rows.Scan(&postID, &userId, &EventID)
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println("Error scanning row:", err)
 			return nil, err
 		}
 
-		Member, err := m.GetUser(userId)
-		if err != nil {
-			return nil, err
+		// Check if postID is valid
+		if postID.Valid {
+			Post, err := m.GetPost(int(postID.Int64))
+			if err != nil {
+				fmt.Println("Error fetching post:", err)
+				return nil, err
+			}
+			g.Posts = append(g.Posts, Post)
 		}
 
-		Event, err := m.GetEvent(EventID)
-		if err != nil {
-			return nil, err
+		// Check if userId is valid
+		if userId.Valid {
+			Member, err := m.GetUser(int(userId.Int64))
+			if err != nil {
+				fmt.Println("group: ", err)
+				return nil, err
+			}
+			g.Members = append(g.Members, Member)
 		}
 
-		g.Posts = append(g.Posts, Post)
-		g.Members = append(g.Members, Member)
-		g.Events = append(g.Events, Event)
+		// Check if EventID is valid
+		if EventID.Valid {
+			Event, err := m.GetEvent(int(EventID.Int64))
+			if err != nil {
+				fmt.Println("Error fetching event:", err)
+				return nil, err
+			}
+			g.Events = append(g.Events, Event)
+		}
 	}
 
 	return g, nil

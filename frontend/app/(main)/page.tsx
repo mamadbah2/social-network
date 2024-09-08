@@ -12,20 +12,20 @@ function Home() {
   const { postTable, setPostTable } = usePostContext();
   const [updatedPost, setUpdatedPost] = useState<Post[] | null>([]);
 
+
   // Utilise useEffect pour mettre à jour les états seulement quand posts change
   useEffect(() => {
     if (posts) {
       setPostTable(posts);
       setUpdatedPost(posts);
     }
-  }, [posts, setPostTable]);
-
+  }, [ posts, setPostTable ]);
+  
   useEffect(() => {
-    console.log("postTable", postTable);
     setUpdatedPost(postTable);
   }, [postTable]);
 
-  return <PostSection posts={updatedPost} />;
+  return <PostSection posts={updatedPost}  />;
 }
 
 export default WithAuth(Home);

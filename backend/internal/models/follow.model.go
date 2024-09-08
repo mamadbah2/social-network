@@ -19,13 +19,20 @@ func (m *ConnDB) SetFollower(followerID, followedID int, archived bool) error {
 	if followerID == followedID {
 		return ErrSelfFollow
 	}
-
+	
+	// Take all post ids of the followed user
+	privatePostIDs, err := m.GetAllIdPrivatePost(followedID)
+	if err != nil {
+		return err
+	}
 	if !archived {
 		// Check if the follow already exists
-		stmt := `SELECT COUNT(*) FROM follows WHERE id_follower = ? AND id_followed = ? AND archived = 0`
+		stmt := `SELECT COUNT(*) FROM follows WHERE id_follower = ? AND id_followed = ?`
 		row := m.DB.QueryRow(stmt, followerID, followedID)
 		var count int
 		row.Scan(&count)
+
+
 		// If the follow does not exist, create it
 		if count == 0 {
 			stmt := `
@@ -36,7 +43,6 @@ func (m *ConnDB) SetFollower(followerID, followedID int, archived bool) error {
 			if err != nil {
 				return fmt.Errorf("error creating new follow: %w", err)
 			}
-			return nil
 		} else { // If the follow already exists, update it
 			stmt := `
 				UPDATE follows
@@ -47,8 +53,16 @@ func (m *ConnDB) SetFollower(followerID, followedID int, archived bool) error {
 			if err != nil {
 				return fmt.Errorf("error updating follow: %w", err)
 			}
-			return nil
 		}
+		
+		// Add the private posts of the followed user to the follower's feed
+		for _, postID := range privatePostIDs {
+			_, err := m.SetPostViewer(postID, followerID)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
 
 	} else { // If the follow is archived, update it
 		stmt := `
@@ -60,9 +74,42 @@ func (m *ConnDB) SetFollower(followerID, followedID int, archived bool) error {
 		if err != nil {
 			return fmt.Errorf("error archiving follow: %w", err)
 		}
+
+		// Remove the private posts of the followed user from the follower's feed
+		for _, postID := range privatePostIDs {
+			err = m.RemovePostViewers(postID, followerID)
+			if err != nil {
+				return nil
+			}
+		}
+
 		return nil
 	}
 
+}
+
+func (m *ConnDB)GetAllIdPrivatePost(userID int) ([]int, error) {
+	stmt := `
+		SELECT p.id
+		FROM posts p
+		WHERE p.id_author = ? AND p.privacy = 'private'
+	`
+	rows, err := m.DB.Query(stmt, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var privatePosts []int
+	for rows.Next() {
+		var id int
+		err := rows.Scan(&id)
+		if err != nil {
+			return nil, err
+		}
+		privatePosts = append(privatePosts, id)
+	}
+	return privatePosts, nil
 }
 
 func (m *ConnDB) GetFollowers(userID int) ([]*Follow, error) {
@@ -214,7 +261,7 @@ func (m *ConnDB) GetFollowersByUser(userID int) ([]*User, error) {
         SELECT u.*
         FROM users u
         JOIN follows f ON u.id = f.id_follower
-        WHERE f.id_followed = ?
+        WHERE f.id_followed = ? AND f.archived = 0
     `
 
 	rows, err := m.DB.Query(query, userID)
@@ -243,7 +290,7 @@ func (m *ConnDB) GetFollowedByUser(userID int) ([]*User, error) {
         SELECT u.*
         FROM users u
         JOIN follows f ON u.id = f.id_followed
-        WHERE f.id_follower = ?
+        WHERE f.id_follower = ? AND f.archived = 0
     `
 
 	rows, err := m.DB.Query(query, userID)

@@ -9,12 +9,15 @@ import {
 } from "@/components/ui/card";
 import { ReactionOptions, useReaction } from "@/lib/hooks/useReaction";
 import { Reaction } from "@/models/reaction.model";
-import { HeartCrack, HeartIcon, MessageCircleIcon } from "lucide-react";
+import { HeartCrack, HeartIcon, MessageCircleIcon, MessageCirclePlus } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { FormEvent, useState } from "react";
+import { FormEvent, use, useEffect, useState } from "react";
 import CommentModal from "./CommentModal";
 import ProfileButton from "./ProfileLink";
+import useGetData from "@/lib/hooks/useGet";
+import { mapReactionType, mapUser } from "@/lib/modelmapper";
+import { usePostContext } from "@/lib/hooks/postctx";
 
 interface PostCardProps {
   author?: number;
@@ -53,23 +56,49 @@ export default function PostCard({
   const [liked, setLiked] = useState(likes);
   const [disliked, setDisliked] = useState(dislikes);
   const { handleReactionSubmit, loading, error } = useReaction();
+  const {incrementComment, setIncrementComment}  = usePostContext();
+  
+  const [reactionBefore, setReactionBefore] = useState<Reaction>({
+    liked: false,
+    disliked: false,
+  });
+  
+  const {expect: initialReaction} = useGetData(`/reaction?postId=${postId}&reaction_type=post`, mapReactionType );
+  useEffect(() => {
+    setReactionBefore(initialReaction ?? {liked: false, disliked: false});
+  }, [initialReaction])
+
+/*   useEffect(() => {
+    if (incrementComment) {
+      comments = comments + 1;
+      setIncrementComment(false);
+    }   
+  },[incrementComment]); */
+
+  // Handle reaction pour gerer les likes et dislikes
   const handleReact = (
     e: FormEvent<HTMLButtonElement>,
     { entityId, reactionType, isLike }: ReactionOptions
   ) => {
-    let reactionBefore: Reaction = {
-      liked: false,
-      disliked: false,
-    };
     handleReactionSubmit(e, {
       entityId: entityId,
       reactionType: reactionType,
       isLike: isLike,
     }).then((resp) => {
-      if (resp.liked) {
-        setLiked((prev) => prev + 1);
-      } else if (resp.disliked) {
-        setDisliked((prev) => prev + 1);
+      if (resp.liked && !resp.disliked) {
+         if (reactionBefore.disliked) {
+          setDisliked((prev) => prev - 1);
+          setLiked((prev) => prev + 1);
+        } else {
+          setLiked((prev) => prev + 1);
+        }
+      } else if (!resp.liked && resp.disliked) {
+        if (reactionBefore.liked) {
+          setLiked((prev) => prev - 1);
+          setDisliked((prev) => prev + 1);
+        } else {
+          setDisliked((prev) => prev + 1);
+        }
       } else if (!resp.liked && !resp.disliked) {
         if (reactionBefore.liked) {
           setLiked((prev) => prev - 1);
@@ -77,8 +106,7 @@ export default function PostCard({
           setDisliked((prev) => prev - 1);
         }
       }
-      reactionBefore.liked = resp.liked;
-      reactionBefore.disliked = resp.disliked;
+      setReactionBefore(resp);
     });
   };
   return (
@@ -113,7 +141,7 @@ export default function PostCard({
           <h2 className="text-xl font-bold mb-2">{title}</h2>
           <p className="text-muted-foreground">{content}</p>
         </CardContent>
-        {imageSrc && (
+        {imageSrc!="" && (
           <CardContent className="pb-2 max-h-[450px] h-[420px] bg-contain w-full rounded-lg">
             <div className="relative w-full h-full rounded-lg">
               <Image
@@ -163,8 +191,8 @@ export default function PostCard({
           size="sm"
           className="text-muted-foreground"
         >
-          <MessageCircleIcon className="mr-1 h-6 w-6" />
-          {comments}
+          <MessageCirclePlus className="mr-1 h-6 w-6" />
+          { window.location.pathname != `/` ? comments : ""}
         </Button>
       </CardFooter>
     </Card>

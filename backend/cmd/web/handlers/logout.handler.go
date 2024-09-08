@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 )
 
@@ -15,7 +14,7 @@ func (hand *Handler) UserLogoutPost(w http.ResponseWriter, r *http.Request) {
 		hand.Helpers.ServerError(w, err)
 		return
 	}
-	fmt.Println("******** Session", session)
+
 	hand.ConnDB.DeleteSession(session.Id)
 	cookie := http.Cookie{
 		Name:     "session",

@@ -10,6 +10,7 @@ import { handleFollow } from "../../services/follow.service";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { useToast } from "../ui/use-toast";
+import Link from "next/link";
 
 export function ListBar({
   items,
@@ -70,6 +71,7 @@ export function ListBar({
     <ul className="space-y-2 px-4">
       {listItem.map((item, index) => (
         <li key={item?.userId} className="flex items-center justify-between">
+          <Link href={`/profile/${item?.userId}`}>
           <div className="flex items-center space-x-2">
             <Avatar className="h-8 w-8">
               <AvatarImage src={`/upload/${item.image}`} alt={item.name} />
@@ -77,6 +79,7 @@ export function ListBar({
             </Avatar>
             <span className="text-sm">{item.name}</span>
           </div>
+          </Link>
           {showAddButton && section == "friend" && (
             <Button
               onClick={onFollow}

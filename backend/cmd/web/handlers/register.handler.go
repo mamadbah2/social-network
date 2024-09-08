@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"social-network/cmd/web/validators"
 	"social-network/internal/models"
@@ -29,10 +28,9 @@ func (hand *Handler) Register(w http.ResponseWriter, r *http.Request) {
 	var nameImg string
 	if file != nil {
 		_, _ = hand.Helpers.Getfile(file, fileHeaderImg.Filename)
+		nameImg = fileHeaderImg.Filename
 	}
 
-	nameImg = fileHeaderImg.Filename
-	fmt.Println("name image", nameImg)
 	// Gestion de la date anniversaire, conversion time.Time
 	dateStr := r.PostForm.Get("dateOfBirth")
 	date, err := time.Parse("2006-01-02", dateStr)
@@ -98,7 +96,7 @@ func (hand *Handler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = hand.ConnDB.SetUser(user)
+	userID, err := hand.ConnDB.SetUser(user)
 	if err != nil {
 		if errors.Is(err, errors.New("models: duplicate email")) {
 			hand.Valid.AddFieldError("email", "This field already exits")
@@ -110,6 +108,7 @@ func (hand *Handler) Register(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+	user.Id = userID
 
 	hand.renderJSON(w, user)
 

@@ -7,6 +7,7 @@ import (
 type Comment struct {
 	Id            int
 	Content       string
+	ImageName     string
 	Date          time.Time
 	Liked         bool
 	Disliked      bool
@@ -16,24 +17,29 @@ type Comment struct {
 	Author        *User
 }
 
-func (m *ConnDB) SetComment(c *Comment) error {
-	stmt := `INSERT INTO comments (id_author, id_post, content, created_at)
-		VALUES(?, ?, ?, CURRENT_TIMESTAMP)
+func (m *ConnDB) SetComment(c *Comment) (int, error) {
+	stmt := `INSERT INTO comments (id_author, id_post, content, image_name, created_at)
+		VALUES(?, ?, ?, ?, CURRENT_TIMESTAMP)
 	`
 
 	AuthorId := c.Author.Id
 
-	_, err := m.DB.Exec(stmt, AuthorId, c.Post.Id, c.Content)
+	result, err := m.DB.Exec(stmt, AuthorId, c.Post.Id, c.Content, c.ImageName)
 
 	if err != nil {
-		return err
+		return 0, err
 	}
 
-	return nil
+	id, err := result.LastInsertId()
+	if err != nil {
+		return 0, err
+	}
+
+	return int(id), nil
 }
 
 func (m *ConnDB) GetAllComment(postID int) ([]*Comment, error) {
-	stmt := `SELECT id, id_author, id_post, content, created_at FROM comments WHERE id_post = ?`
+	stmt := `SELECT id, id_author, id_post, content, image_name, created_at FROM comments WHERE id_post = ? ORDER BY id DESC`
 	rows, err := m.DB.Query(stmt, postID)
 	if err != nil {
 		return nil, err
@@ -48,7 +54,7 @@ func (m *ConnDB) GetAllComment(postID int) ([]*Comment, error) {
 		}
 		var authorId int
 
-		err := rows.Scan(&c.Id, &authorId, &c.Post.Id, &c.Content, &c.Date)
+		err := rows.Scan(&c.Id, &authorId, &c.Post.Id, &c.Content, &c.ImageName, &c.Date)
 		if err != nil {
 			return nil, err
 		}

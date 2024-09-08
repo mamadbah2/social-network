@@ -22,7 +22,7 @@ func (app *Application) routes() http.Handler {
 	router.HandleFunc("/groups", app.Middleware.Authenticate(http.HandlerFunc(app.Handlers.GroupsHandle)).ServeHTTP)
 	router.HandleFunc("/notification", app.Middleware.Authenticate(http.HandlerFunc(app.Handlers.Notification)).ServeHTTP)
 	router.HandleFunc("/notif", app.Middleware.Authenticate(http.HandlerFunc(app.Handlers.Notif)).ServeHTTP)
-
+	router.HandleFunc("/reaction", app.Middleware.Authenticate(http.HandlerFunc(app.Handlers.Reactions)).ServeHTTP)
 	// router.HandleFunc("/chat", app.Middleware.Authenticate(http.HandlerFunc(app.Handlers.Chat)).ServeHTTP)
 	router.HandleFunc("/like", app.Middleware.Authenticate(http.HandlerFunc(app.Handlers.LikeReaction)).ServeHTTP)
 	router.HandleFunc("/dislike", app.Middleware.Authenticate(http.HandlerFunc(app.Handlers.DislikeReaction)).ServeHTTP)

@@ -1,7 +1,6 @@
 package validators
 
 import (
-	"fmt"
 	"net/http"
 	"os"
 	"regexp"
@@ -67,14 +66,12 @@ func IsImage(contentType string) bool {
 func VerifyImg(filePath string) bool {
 	file, err := os.Open(filePath)
 	if err != nil {
-		fmt.Println("Error opening file:", err)
 		return false
 	}
 	defer file.Close()
 	buffer := make([]byte, 512)
 	_, err = file.Read(buffer)
 	if err != nil {
-		fmt.Println("Error reading file:", err)
 		return false
 	}
 
@@ -89,7 +86,6 @@ func VerifyImg(filePath string) bool {
 func CheckFileSize(filePath string) bool {
 	fileInfo, err := os.Stat(filePath)
 	if err != nil {
-		fmt.Println("Error getting file size:", err)
 		return false
 	}
 	fileSize := fileInfo.Size()

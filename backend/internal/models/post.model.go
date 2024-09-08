@@ -11,7 +11,7 @@ type Post struct {
 	Content       string
 	CreatedAt     time.Time
 	Privacy       string
-	ImageName			string
+	ImageName     string
 	Author        *User
 	Group         *Group
 	Liked         bool
@@ -35,7 +35,11 @@ func (m *ConnDB) SetPost(title, content, imageName, privacy string, userId, grou
 	if err != nil {
 		return 0, err
 	}
-
+	_, err = m.SetPostViewer(int(postId), userId) // Add the author to the post viewers
+	if err != nil {
+		return int(postId), err
+	}
+	
 	switch privacy {
 	case "public":
 		users, err := m.GetAllUsers()
@@ -43,9 +47,11 @@ func (m *ConnDB) SetPost(title, content, imageName, privacy string, userId, grou
 			return int(postId), err
 		}
 		for _, user := range users {
-			_, err := m.SetPostViewer(int(postId), user.Id)
-			if err != nil {
-				return int(postId), err
+			if user.Id != userId {
+				_, err := m.SetPostViewer(int(postId), user.Id)
+				if err != nil {
+					return int(postId), err
+				}
 			}
 		}
 	case "private":
@@ -53,8 +59,9 @@ func (m *ConnDB) SetPost(title, content, imageName, privacy string, userId, grou
 		if err != nil {
 			return int(postId), err
 		}
+		// Add the author and the author's followers to the post viewers
 		for _, follower := range user.Followers {
-			_, err := m.SetPostViewer(int(postId), follower.Id)
+			_, err = m.SetPostViewer(int(postId), follower.Id)
 			if err != nil {
 				return int(postId), err
 			}
@@ -64,6 +71,7 @@ func (m *ConnDB) SetPost(title, content, imageName, privacy string, userId, grou
 		if err != nil {
 			return int(postId), err
 		}
+		// Add the group members to the post viewers
 		for _, members := range groups.Members {
 			_, err := m.SetPostViewer(int(postId), members.Id)
 			if err != nil {
@@ -142,17 +150,19 @@ func (m *ConnDB) GetPost(postId int) (*Post, error) {
 	return p, nil
 }
 
-func (m *ConnDB) GetAllPost() ([]*Post, error) {
+func (m *ConnDB) GetAllPostByVisibility(userID int) ([]*Post, error) {
 	statement := `
-		SELECT p.id, p.title, p.content, p.privacy, p.image_name, p.created_at, 
+		SELECT DISTINCT p.id, p.title, p.content, p.privacy, p.image_name, p.created_at, 
 		       u.id, u.email, u.first_name, u.last_name, u.nickname, u.profile_picture, u.about_me,
 		       g.id, g.name, g.description
 		FROM posts p
 		JOIN users u ON p.id_author = u.id
 		LEFT JOIN groups g ON p.id_group = g.id
+		LEFT JOIN post_visibility v ON p.id = v.id_post
+		WHERE v.id_viewer = ?
 		ORDER BY p.created_at DESC
 	`
-	rows, err := m.DB.Query(statement)
+	rows, err := m.DB.Query(statement, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -164,7 +174,7 @@ func (m *ConnDB) GetAllPost() ([]*Post, error) {
 			Author: &User{},
 			Group:  &Group{},
 		}
-		err := rows.Scan(&p.Id, &p.Title, &p.Content, &p.Privacy, &p.ImageName ,&p.CreatedAt,
+		err := rows.Scan(&p.Id, &p.Title, &p.Content, &p.Privacy, &p.ImageName, &p.CreatedAt,
 			&p.Author.Id, &p.Author.Email, &p.Author.FirstName, &p.Author.LastName, &p.Author.Nickname, &p.Author.ProfilePicture, &p.Author.AboutMe,
 			&p.Group.Id, &p.Group.Name, &p.Group.Description)
 		if err != nil {
@@ -245,4 +255,15 @@ func (m *ConnDB) getCountReactionEntity(postId int) (int, int, error) {
 	}
 
 	return likeCount, dislikeCount, nil
+}
+
+func (m *ConnDB) RemovePostViewers(userID int, postID int) error {
+	statement := `
+		DELETE FROM post_visibility WHERE id_viewer = ? AND id_post = ?
+	`
+	_, err := m.DB.Exec(statement, userID, postID)
+	if err != nil {
+		return err
+	}
+	return nil
 }

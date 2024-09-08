@@ -8,7 +8,6 @@ import (
 )
 
 func (hand *Handler) GroupsHandle(w http.ResponseWriter, r *http.Request) {
-	
 	session, ok := hand.ConnDB.GetSession(r)
 	if ok != nil {
 		hand.Helpers.ServerError(w, ok)

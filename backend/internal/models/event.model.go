@@ -102,4 +102,3 @@ func (m *ConnDB) SetEvent(e *Event) (int, error) {
 
 	return int(Id), nil
 }
-

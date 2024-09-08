@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 )
@@ -23,7 +22,7 @@ func (hand *Handler) Follows(w http.ResponseWriter, r *http.Request) {
 			hand.Helpers.ClientError(w, http.StatusMethodNotAllowed)
 			return
 		}
-		
+
 		followedID, err := strconv.Atoi(r.PostForm.Get("followedID"))
 		if err != nil {
 			hand.Helpers.ServerError(w, err)
@@ -37,12 +36,6 @@ func (hand *Handler) Follows(w http.ResponseWriter, r *http.Request) {
 		}
 
 		action := r.PostForm.Get("action")
-		fmt.Println(r.PostForm.Get("action"))
-		// followed, err := hand.ConnDB.GetUser(followedID)
-		// if err != nil {
-		// 	hand.Helpers.ServerError(w, err)
-		// 	return
-		// }
 
 		switch action {
 		case "follow":

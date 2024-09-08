@@ -2,7 +2,6 @@ package models
 
 import (
 	"errors"
-	"fmt"
 	"strings"
 	"time"
 
@@ -25,7 +24,7 @@ type User struct {
 	Private          bool
 	CreatedAt        time.Time
 	Followers        []*User
-	Followed				 []*User
+	Followed         []*User
 	Groups           []*Group
 	Posts            []*Post
 	SuggestedFriends []*User
@@ -140,7 +139,6 @@ func (m *ConnDB) GetUser(userID int) (*User, error) {
 
 	err := row.Scan(&u.Id, &u.Email, &u.FirstName, &u.LastName, &u.DateOfBirth, &u.ProfilePicture, &u.Nickname, &u.AboutMe, &u.Private, &u.CreatedAt)
 	if err != nil {
-		fmt.Println("bobo choked")
 		return nil, err
 	}
 
@@ -177,10 +175,10 @@ func (m *ConnDB) GetUser(userID int) (*User, error) {
 	return u, nil
 }
 
-func (m *ConnDB) SetUser(user *User) error {
+func (m *ConnDB) SetUser(user *User) (int, error) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	stmt := `INSERT INTO users (email, password, first_name, last_name, date_of_birth, profile_picture, nickname, about_me, profile_privacy, created_at)
@@ -190,13 +188,46 @@ func (m *ConnDB) SetUser(user *User) error {
 	if err != nil {
 		if sqliteErr, ok := err.(sqlite3.Error); ok {
 			if sqliteErr.Code == sqlite3.ErrConstraint && strings.Contains(sqliteErr.Error(), "UNIQUE constraint failed: user.email") {
-				return errors.New("models: duplicate email")
+				return 0, errors.New("models: duplicate email")
 			}
 		}
-		fmt.Println("Error inserting user:", err)
-		return err
+		return 0, err
 	}
-	rowsAffected, _ := result.RowsAffected()
-	fmt.Println("Rows affected:", rowsAffected)
-	return nil
+	userID, err := result.LastInsertId()
+	if err != nil {
+		return 0, err
+	}
+
+	publicPostIDs, err := m.GetAllIdPublicPost()
+	if err != nil {
+		return 0, err
+	}
+	for _, postID := range publicPostIDs {
+		_, err := m.SetPostViewer(postID, int(userID))
+		if err != nil {
+			return 0, err
+		}
+	}
+
+	return int(userID), nil
+}
+
+func (m *ConnDB) GetAllIdPublicPost() ([]int, error) {
+	stmt := `SELECT p.id FROM posts p WHERE p.privacy = 'public' ORDER BY p.created_at DESC`
+	rows, err := m.DB.Query(stmt)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var ids []int
+	for rows.Next() {
+		var id int
+		err := rows.Scan(&id)
+		if err != nil {
+			return nil, err
+		}
+		ids = append(ids, id)
+	}
+	return ids, nil
 }

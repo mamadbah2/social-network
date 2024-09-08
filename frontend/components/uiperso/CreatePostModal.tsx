@@ -13,9 +13,10 @@ import {
 import { usePostContext } from "@/lib/hooks/postctx";
 import useGetData from "@/lib/hooks/useGet";
 import postData from "@/lib/hooks/usepost";
-import { mapSimplePost, mapUser } from "@/lib/modelmapper";
+import { mapSimplePost, mapSimpleUser, mapUser } from "@/lib/modelmapper";
 import { User } from "@/models/user.model";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import React, { FormEvent, useEffect, useState } from "react";
 
 interface PostModalProps {
@@ -29,23 +30,32 @@ interface Item {
 }
 
 export default function CreatePostModal({ isOpen, onClose }: PostModalProps) {
-  const { expect: data, error } = useGetData<User[]>("/users", mapUser);
+  const [userID, setUserID] = React.useState<string>("0");
+  useEffect(() => {
+    setUserID(localStorage.getItem("userID") || "0");
+  }, []);
+
   const [privacy, setPrivacy] = useState<string>("");
   const [selectedUsers, setSelectedUsers] = useState<Item[]>([]);
   const [search, setSearch] = useState<string>("");
   const [ItemUser, setItemUser] = React.useState<Item[]>([]);
-  const { postTable, setPostTable } = usePostContext();
+  const router = useRouter();
+  const { setPostTable } = usePostContext();
+  const {
+    expect: user,
+    error: errUser,
+  } = useGetData<User>(`/users?id=${userID}`, mapSimpleUser);
 
   useEffect(() => {
-    if (data && data.length > 0 && ItemUser.length === 0) {
+    if (user?.followers && (user?.followers).length > 0 && ItemUser.length === 0) {
       setItemUser(
-        data.map((u: any) => ({
+        (user?.followers).map((u: any) => ({
           id: u.id,
           name: u.firstname,
         }))
       );
     }
-  }, [data, ItemUser]); // Add data as a dependency
+  }, [user, ItemUser]); // Add data as a dependency
 
   if (!isOpen) return null;
 
@@ -62,10 +72,12 @@ export default function CreatePostModal({ isOpen, onClose }: PostModalProps) {
       });
     }
     const [resp, err] = await postData("/posts", formData, true);
-    console.log("lastPost", resp);
     setSelectedUsers([]);
     setPrivacy("");
     let onePost = mapSimplePost(resp);
+
+    // Add the new post to the top of the post table if the location isn't /
+    console.log('objwindow.location.pathname :>> ', window.location.pathname);
     setPostTable((prev) => [onePost, ...(prev ?? [])]);
     onClose();
   };

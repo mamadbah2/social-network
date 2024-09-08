@@ -6,6 +6,7 @@ import SideBarList from "@/components/uiperso/sidebarlist";
 import { PostProvider } from "@/lib/hooks/postctx";
 import { WsProvider } from "@/lib/hooks/usewebsocket";
 import { mapNotification } from "@/lib/modelmapper";
+import { Toaster } from "@/components/ui/toaster"
 import React from "react";
 function MainLayout({
   children,
@@ -30,6 +31,7 @@ function MainLayout({
             </ScrollArea>
           </main>
         </div>
+        <Toaster />
       </PostProvider>
     </WsProvider>
   );
