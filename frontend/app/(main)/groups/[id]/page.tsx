@@ -15,6 +15,7 @@ import { Group } from "@/models/group.model";
 import { User } from "@/models/user.model";
 import { Post } from "@/models/post.model";
 import { Event } from "@/models/event.model";
+import PostSection from "@/components/uiperso/PostSection";
 
 export default function Home({ params }: { params: { id: string } }) {
   const groupID = params.id;
@@ -23,7 +24,6 @@ export default function Home({ params }: { params: { id: string } }) {
   const { expect: group, error: errGroups } = useGetData<Group[]>(`/groups?id=${groupID}`, mapGroup);
   const { expect: allUsers, error: errUser } = useGetData<User[]>(`/users`, mapUser);
   
-  const { postTable, setPostTable } = usePostContext();  // For post context management
   const [showAddMemberForm, setShowAddMemberForm] = useState(false);
   const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false);
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
@@ -33,7 +33,7 @@ export default function Home({ params }: { params: { id: string } }) {
   const handleCreatePostModalClose = () => setIsCreatePostModalOpen(false);
   const handleOpenEventModal = () => setIsEventModalOpen(true);
   const handleCloseEventModal = () => setIsEventModalOpen(false);
-console.log('group', group)
+
   // Loading and Error handling
   if (!group || group.length === 0 || !allUsers || allUsers.length === 0) {
     return <div className="space-y-4"><p>Loading...</p></div>;
@@ -43,7 +43,7 @@ console.log('group', group)
   //   return <div className="space-y-4"><p>Error loading data</p></div>;
   // }
 
-  const posts = group[0]?.posts || [];
+  const UpdatedPosts = group[0]?.posts || [];
   const events = group[0]?.events || [];
   console.log('group[0]', group[0])
   const handleAddMembers = async (selectedUserIds: number[]) => {
@@ -100,25 +100,8 @@ console.log('group', group)
           GroupId={groupID}
         />
 
-        <div className="space-y-4 pl-3 pt-24">
-          {posts.map((post: Post) => (
-            <PostCard
-              key={post.id}
-              author={post.author?.id}
-              postId={post.id}
-              username={post.author?.nickname || 'username'}
-              firstname={post.author?.firstname || 'firstname'}
-              lastname={post.author?.lastname || 'lastname'}
-              avatarSrc={post.author?.profilePicture || 'avatarSrc'}
-              date={post.createdAt.toDateString()}
-              title={post.title}
-              content={post.content}
-              imageSrc={post.imageSrc || 'imgSrc'}
-              likes={post.numberLike}
-              dislikes={post.numberDislike}
-              comments={post.comments?.length || 2}
-            />
-          ))}
+        <div className="space-y-4 pl-3">
+          <PostSection posts={UpdatedPosts} />
 
           {events.map((event: Event) => (
             <EventCard

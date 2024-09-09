@@ -32,7 +32,7 @@ const useGetData = <T>(uri: string, mapper?: (obj: any) => T) => {
   useEffect(() => {
     fetchData();
   }, [uri]);
-
+  
   return {
     expect: data,
     error,

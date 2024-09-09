@@ -54,7 +54,7 @@ interface GroupBarProps {
 
 const GroupBarComponent: React.FC<GroupBarProps> = ({ imgSrc, groupName, createdAt, descriptionLink, creator, setShowForm, handleCreatePost, handleCreateEvent }) => {
   return (
-    <div className="flex items-center justify-between p-4 bg-white border rounded-md">
+    <div className="flex items-center justify-between p-4 bg-white border rounded-md sticky top-0 z-10">
       {groupName ? (
         <>
           <div className="flex items-center space-x-4">

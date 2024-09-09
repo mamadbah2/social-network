@@ -554,6 +554,9 @@ video {
 .relative {
   position: relative;
 }
+.sticky {
+  position: sticky;
+}
 .inset-0 {
   inset: 0px;
 }
@@ -720,6 +723,15 @@ video {
 .h-screen {
   height: 100vh;
 }
+.h-20 {
+  height: 5rem;
+}
+.h-\[200px\] {
+  height: 200px;
+}
+.h-auto {
+  height: auto;
+}
 .max-h-40 {
   max-height: 10rem;
 }
@@ -797,6 +809,9 @@ video {
 }
 .w-max {
   width: max-content;
+}
+.w-16 {
+  width: 4rem;
 }
 .min-w-0 {
   min-width: 0px;
@@ -1141,6 +1156,12 @@ video {
 .p-\[1px\] {
   padding: 1px;
 }
+.p-7 {
+  padding: 1.75rem;
+}
+.p-8 {
+  padding: 2rem;
+}
 .px-1 {
   padding-left: 0.25rem;
   padding-right: 0.25rem;
@@ -1200,8 +1221,17 @@ video {
 .pt-2 {
   padding-top: 0.5rem;
 }
-.pt-24 {
-  padding-top: 6rem;
+.pt-4 {
+  padding-top: 1rem;
+}
+.pb-9 {
+  padding-bottom: 2.25rem;
+}
+.pb-12 {
+  padding-bottom: 3rem;
+}
+.pb-20 {
+  padding-bottom: 5rem;
 }
 .text-center {
   text-align: center;
@@ -1229,6 +1259,10 @@ video {
 .text-xs {
   font-size: 0.75rem;
   line-height: 1rem;
+}
+.text-3xl {
+  font-size: 1.875rem;
+  line-height: 2.25rem;
 }
 .font-bold {
   font-weight: 700;
@@ -1321,6 +1355,10 @@ video {
 .text-white {
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity));
+}
+.text-black {
+  --tw-text-opacity: 1;
+  color: rgb(0 0 0 / var(--tw-text-opacity));
 }
 .underline {
   text-decoration-line: underline;

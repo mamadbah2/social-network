@@ -5,6 +5,7 @@ import { Post } from "@/models/post.model";
 import { Reaction } from "@/models/reaction.model";
 import { Session } from "@/models/session.model";
 import { User } from "@/models/user.model";
+import { Notification } from "@/models/notification.model";
 
 export function mapSimpleUser(data: any): User {
   if (!data) {
@@ -159,7 +160,7 @@ export function mapNotification(data: any): Notification[] {
     return [];
   }
 
-  data = !Array.isArray(data) ? [data] : data;
+  data = !Array.isArray(data) ? [data] : data
 
   return data.map(
     (n: any): Notification => ({
@@ -201,7 +202,7 @@ export function mapEvent(data: any): Event[] {
             Description : data.Description,
             Date : data.Date,
             Time : data.Time,
-            Creator : mapUser(data.Creator)[0],
+            Creator : mapSimpleUser(data.Creator),
             Group : mapGroup(data.Group)[0],
         }];
     }
@@ -212,7 +213,7 @@ export function mapEvent(data: any): Event[] {
         Description : e.Description,
         Date : e.Date,
         Time : e.Time,
-        Creator : mapUser(e.Creator)[0],
+        Creator : mapSimpleUser(e.Creator),
         Group : mapGroup(e.Group)[0],
     }));
 }
