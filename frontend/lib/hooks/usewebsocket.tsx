@@ -26,12 +26,12 @@ export const WsProvider: React.FC<{
     wsRef.current = new WebSocket("ws://localhost:4000" + uri);
 
     wsRef.current.onopen = () => {
-      // console.log("WebSocket connected successfully");
+      console.log("WebSocket connected successfully");
     };
 
     wsRef.current.onmessage = (e) => {
       const data = JSON.parse(e.data);
-
+      console.log("data : ", data);
       if (data) {
         if (Array.isArray(data)) {
           receivedRef.current = mapper(data);
