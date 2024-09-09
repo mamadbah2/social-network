@@ -21,9 +21,13 @@ const NotificationBar: React.FC<NotificationProps> = ({ isOpen, notifs }) => {
 
   const handleSupprNotif = (e: React.MouseEvent<HTMLButtonElement>) => {
     const notifID = parseInt(`${e.currentTarget.getAttribute("data-notif")}`);
+    const senderId = e.currentTarget.getAttribute("data-sender");
+    const entityType = e.currentTarget.getAttribute("data-entity");
     sendObject({
       id: notifID,
       approuved: true,
+      sender: { id: parseInt(`${senderId}`) },
+      receiver: { id: parseInt(`${localStorage.getItem("userID")}`) },
     });
     e.currentTarget.parentElement?.parentElement?.remove();
     removeObject({ id: notifID });
@@ -59,14 +63,7 @@ const NotificationBar: React.FC<NotificationProps> = ({ isOpen, notifs }) => {
     }
   };
 
-  const notifications = notifs || [
-    {
-      sender: { firstname: "Bobo" },
-      content: "request to follow your account",
-    },
-    { sender: { firstname: "Jonh" }, content: "request to join your group" },
-    { sender: { firstname: "Murielle" }, content: "follow you" },
-  ];
+  const notifications = notifs;
 
   return (
     <Card className="absolute top-10 z-10  w-full min-w-80 max-w-sm mx-auto bg-white shadow-lg rounded-xl">
@@ -85,7 +82,7 @@ const NotificationBar: React.FC<NotificationProps> = ({ isOpen, notifs }) => {
             </Avatar>
             <div className="flex-1 space-y-1 min-w-0">
               <p className="text-xs sm:text-sm leading-tight">
-                <span className="font-medium">{n.sender.firstname}</span>{" "}
+                <span className="font-medium">{n.sender?.firstname}</span>{" "}
                 <span className="text-muted-foreground break-words">
                   {n.content}
                 </span>
@@ -94,7 +91,7 @@ const NotificationBar: React.FC<NotificationProps> = ({ isOpen, notifs }) => {
             <div className="flex space-x-1 flex-shrink-0">
               <Button
                 onClick={handleValidNotif}
-                data-sender={n.sender.id}
+                data-sender={n.sender?.id}
                 data-entity={n.entityType}
                 data-notif={n.id}
                 size="icon"
@@ -106,6 +103,8 @@ const NotificationBar: React.FC<NotificationProps> = ({ isOpen, notifs }) => {
               </Button>
               <Button
                 onClick={handleSupprNotif}
+                data-sender={n.sender?.id}
+                data-entity={n.entityType}
                 data-notif={n.id}
                 size="icon"
                 variant="ghost"

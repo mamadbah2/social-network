@@ -11,9 +11,7 @@ import { mapPost, mapSimpleUser } from "../../lib/modelmapper";
 import Logout from "./logout";
 import NotificationBar from "./notification";
 import ProfileLink from "./ProfileLink";
-import { usePostContext } from "@/lib/hooks/postctx";
 import { Bell, BellDot } from "lucide-react";
-import { get } from "http";
 
 export default function NavigationBar() {
   const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false);

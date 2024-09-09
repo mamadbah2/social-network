@@ -29,6 +29,16 @@ export const WsProvider: React.FC<{
       console.log("WebSocket connected successfully");
     };
 
+    wsRef.current.onerror = (e) => {
+      console.log("WebSocket error : ", e);
+    }
+
+    wsRef.current.onclose = () => {
+      console.log('WebSocket closed. Reconnecting...');
+    };
+
+
+
     wsRef.current.onmessage = (e) => {
       const data = JSON.parse(e.data);
       console.log("data : ", data);
@@ -40,15 +50,7 @@ export const WsProvider: React.FC<{
         }
       }
     };
-
-    /* wsRef.current.onclose = () => {
-            console.log('WebSocket closed. Reconnecting...');
-            setTimeout(() => WsProvider({ uri, mapper, children }), 3000);
-        };
- */
-    return () => {
-      wsRef.current?.close();
-    };
+    
   }, [uri, mapper]);
 
   // Permet d'amener une notification

@@ -7,6 +7,6 @@ export interface Notification {
     createdAt?: Date,
     entityType: string,
     entityId: number,
-    sender: Partial<User>,
-    receiver: Partial<User>,
+    sender?: Partial<User>,
+    receiver?: Partial<User>,
 }
