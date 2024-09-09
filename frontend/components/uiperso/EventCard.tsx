@@ -53,7 +53,7 @@ export default function EventCard({
       <div className="flex flex-col">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold">{title}</h2>
-            <Link href="#" className="text-sm text-blue-600">
+            <Link href="#" className="text-sm text-black">
               View Description
             </Link>
           </div>
