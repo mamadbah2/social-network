@@ -1,5 +1,6 @@
 import postData from "@/lib/hooks/usepost";
 import { FormEvent } from "react";
+import { Button } from "../ui/button";
 
 interface EventModalProps {
   isOpen: boolean;
@@ -83,20 +84,18 @@ export default function EventModal({
             />
           </div>
 
-          <div className="flex justify-end">
-            <button
-              type="button"
+          <div className="flex justify-end gap-4">
+            <Button
               onClick={onClose}
-              className="mr-2 inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
+              variant="outline"
+              className="bg-black text-white"           >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
-              className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
+              variant="outline"            >
               Save
-            </button>
+            </Button>
           </div>
         </form>
       </div>

@@ -78,7 +78,7 @@ func (hand *Handler) Post(w http.ResponseWriter, r *http.Request) {
 		groupIdStr := r.PostForm.Get("group_id")
 		escapedContent := html.EscapeString(content)
 
-		if (strings.TrimSpace(escapedContent) == "" || strings.TrimSpace(title) == "" || strings.TrimSpace(privacy) == "") && groupIdStr == "" {
+		if strings.TrimSpace(escapedContent) == "" || strings.TrimSpace(title) == "" || strings.TrimSpace(privacy) == "" {
 			http.Error(w, "Title, content, and privacy fields must not be empty.", http.StatusBadRequest)
 			return
 		}
@@ -90,12 +90,6 @@ func (hand *Handler) Post(w http.ResponseWriter, r *http.Request) {
 				hand.Helpers.ClientError(w, http.StatusBadRequest)
 				return
 			}
-			_, err = hand.ConnDB.SetPost(title, escapedContent, nameImg, "group", actualUser.Id, groupId, []int{})
-			if err != nil {
-				hand.Helpers.ServerError(w, err)
-				return
-			}
-			hand.renderJSON(w, nil)
 		}
 
 		selectedFollowers := []int{}

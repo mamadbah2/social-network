@@ -9,6 +9,15 @@ import {
 import { ClockIcon } from "lucide-react"; // Use your preferred clock icon
 import Image from "next/image";
 import Link from "next/link"; // For the 'View Description' link
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 
 interface EventCardProps {
   username: string;
@@ -33,6 +42,7 @@ export default function EventCard({
   onJoin,
   onDismiss,
 }: EventCardProps) {
+
   const eventDate = new Date(date); // You can parse the date string
   const day = eventDate.getDate();
   const month = eventDate.toLocaleString("default", { month: "short" });
@@ -47,23 +57,33 @@ export default function EventCard({
           <span className="text-3xl font-bold">{day}</span>
           <span className="text-sm">{year}</span>
         </div>
-
       </div>
-        {/* Event details */}
+      {/* Event details */}
       <div className="flex flex-col">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold">{title}</h2>
-            <Link href="#" className="text-sm text-black">
-              View Description
-            </Link>
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-semibold">{title}</h2>
+          <Dialog>
+          <DialogTrigger asChild>
+            <button>View Description</button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>{title}</DialogTitle>
+              <DialogDescription>
+              </DialogDescription>
+            </DialogHeader>
+                {description}
+          </DialogContent>
+        </Dialog>
+        </div>
+        <div className="flex-1">
+          <div className="flex items-center text-gray-500 text-sm gap-2 mt-1">
+            <ClockIcon size={16} />
+            <span>{time}</span>
           </div>
-          <div className="flex-1">
-            <div className="flex items-center text-gray-500 text-sm gap-2 mt-1">
-              <ClockIcon size={16} />
-              <span>{time}</span>
-            </div>
-          </div>
+        </div>
 
+        {/* Description Modal */}
         {/* Optional Image */}
         {imageSrc && (
           <CardContent className="pb-2 h-[200px]">
@@ -80,14 +100,24 @@ export default function EventCard({
 
         {/* Buttons */}
         <CardFooter className="flex justify-start gap-4 pt-4">
-          <Button variant="solid" size="sm" className="bg-black text-white" onClick={onJoin}>
+          <Button
+            variant="solid"
+            size="sm"
+            className="bg-black text-white"
+            onClick={onJoin}
+          >
             Going
           </Button>
-          <Button variant="outline" size="sm" className="border-gray-300 text-gray-600" onClick={onDismiss}>
+          <Button
+            variant="outline"
+            size="sm"
+            className="border-gray-300 text-gray-600"
+            onClick={onDismiss}
+          >
             Not Going
           </Button>
         </CardFooter>
-      </div>  
+      </div>
     </Card>
   );
 }
