@@ -39,53 +39,55 @@ export default function EventCard({
   const year = eventDate.getFullYear();
 
   return (
-    <Card className="max-w-xl mx-auto p-4">
+    <Card className="max-w-xl mx-auto p-4 flex gap-5">
       <div className="flex items-center gap-4">
         {/* Date box */}
-        <div className="flex flex-col items-center bg-gray-200 text-black rounded-lg w-16 h-20 justify-center">
+        <div className="flex flex-col items-center bg-gray-800 text-white rounded-lg w-16 h-20 justify-center p-11">
           <span className="text-lg font-semibold">{month}</span>
           <span className="text-3xl font-bold">{day}</span>
           <span className="text-sm">{year}</span>
         </div>
 
+      </div>
         {/* Event details */}
-        <div className="flex-1">
+      <div className="flex flex-col">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold">{title}</h2>
             <Link href="#" className="text-sm text-blue-600">
               View Description
             </Link>
           </div>
-          <div className="flex items-center text-gray-500 text-sm gap-2 mt-1">
-            <ClockIcon size={16} />
-            <span>{time}</span>
+          <div className="flex-1">
+            <div className="flex items-center text-gray-500 text-sm gap-2 mt-1">
+              <ClockIcon size={16} />
+              <span>{time}</span>
+            </div>
           </div>
-        </div>
-      </div>
 
-      {/* Optional Image */}
-      {imageSrc && (
-        <CardContent className="pb-2 h-[200px]">
-          <div className="relative w-full h-full mt-4">
-            <Image
-              src={imageSrc}
-              alt={title}
-              fill
-              className="object-cover rounded-lg"
-            />
-          </div>
-        </CardContent>
-      )}
+        {/* Optional Image */}
+        {imageSrc && (
+          <CardContent className="pb-2 h-[200px]">
+            <div className="relative w-full h-full mt-4">
+              <Image
+                src={imageSrc}
+                alt={title}
+                fill
+                className="object-cover rounded-lg"
+              />
+            </div>
+          </CardContent>
+        )}
 
-      {/* Buttons */}
-      <CardFooter className="flex justify-start gap-4 pt-4">
-        <Button variant="solid" size="sm" className="bg-black text-white" onClick={onJoin}>
-          Going
-        </Button>
-        <Button variant="outline" size="sm" className="border-gray-300 text-gray-600" onClick={onDismiss}>
-          Not Going
-        </Button>
-      </CardFooter>
+        {/* Buttons */}
+        <CardFooter className="flex justify-start gap-4 pt-4">
+          <Button variant="solid" size="sm" className="bg-black text-white" onClick={onJoin}>
+            Going
+          </Button>
+          <Button variant="outline" size="sm" className="border-gray-300 text-gray-600" onClick={onDismiss}>
+            Not Going
+          </Button>
+        </CardFooter>
+      </div>  
     </Card>
   );
 }
