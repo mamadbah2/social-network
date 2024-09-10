@@ -75,6 +75,10 @@ export default function Home({ params }: { params: { id: string } }) {
             localStorage.getItem("userID") === group[0].creator.id.toString()
           )
         }
+        isMember={
+          !!(group[0].members.find((m) => m.id.toString() === localStorage.getItem("userID")))
+        }
+        members={group[0].members}
         setShowForm={setShowAddMemberForm}
         handleCreatePost={handleCreatePostModalOpen}
         handleCreateEvent={handleOpenEventModal}
@@ -83,7 +87,7 @@ export default function Home({ params }: { params: { id: string } }) {
       <div className="relative">
         {showAddMemberForm && (
           <AddMemberComponent
-            users={allUsers}
+            users={allUsers.filter((u) => !(group[0].members.find((m) => m.id === u.id)))}
             onSave={handleAddMembers}
             onCancel={handleCancel}
           />
