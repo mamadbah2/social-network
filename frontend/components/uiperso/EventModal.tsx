@@ -25,9 +25,7 @@ export default function EventModal({
       description: formData.get("description") as string,
     };
     formData.set("group_id", GroupId);
-    console.log(data);
     const [resp, err] = await postData('/events', formData, false)
-    console.log(resp, err);
     
     onClose();
   };

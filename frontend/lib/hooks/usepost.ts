@@ -12,7 +12,6 @@ async function postDatas(uri: string, data: FormData, enctyped: boolean) {
         }
     }
     const response = await fetch("http://localhost:4000" + uri, init)
-    console.log(response);
     
     if (!response.ok) {
         throw new Error("Echec pour POST les données")

@@ -1,4 +1,4 @@
-// File: /home/adiane/ZoneProjects/social-network/frontend/app/layout.tsx
+// File: /home/mamadbah/javaScript/social-network/frontend/app/layout.tsx
 import * as entry from '../../../app/layout.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

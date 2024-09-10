@@ -5,9 +5,10 @@ import PostCard from "./PostCard";
 
 interface PostSectionProps {
   posts: Post[] | null; // Ensure this matches the Post type
+  isLock?: boolean;
 }
 
-const PostSection: React.FC<PostSectionProps> = ({ posts }) => {
+const PostSection: React.FC<PostSectionProps> = ({ posts, isLock }) => {
   return (
     <div className="space-y-4">
       {posts?.map((post) => (
@@ -30,6 +31,7 @@ const PostSection: React.FC<PostSectionProps> = ({ posts }) => {
           likes={post.numberLike || 0}
           dislikes={post.numberDislike || 0}
           comments={post.numberComment || 0}
+          isLocked={isLock}
         />
       ))}
     </div>

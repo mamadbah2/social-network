@@ -77,7 +77,6 @@ export default function CreatePostModal({ isOpen, onClose }: PostModalProps) {
     let onePost = mapSimplePost(resp);
 
     // Add the new post to the top of the post table if the location isn't /
-    console.log('objwindow.location.pathname :>> ', window.location.pathname);
     setPostTable((prev) => [onePost, ...(prev ?? [])]);
     onClose();
   };

@@ -33,6 +33,7 @@ interface PostCardProps {
   likes: number;
   dislikes: number;
   comments: number;
+  isLocked?: boolean;
 }
 
 export default function PostCard({
@@ -49,6 +50,7 @@ export default function PostCard({
   likes,
   dislikes,
   comments,
+  isLocked,
 }: PostCardProps) {
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
   const handleOpenCommentModal = () => setIsCommentModalOpen(true);
@@ -56,16 +58,16 @@ export default function PostCard({
   const [liked, setLiked] = useState(likes);
   const [disliked, setDisliked] = useState(dislikes);
   const { handleReactionSubmit, loading, error } = useReaction();
-  const {incrementComment, setIncrementComment}  = usePostContext();
-  
+  const { incrementComment, setIncrementComment } = usePostContext();
+
   const [reactionBefore, setReactionBefore] = useState<Reaction>({
     liked: false,
     disliked: false,
   });
-  
-  const {expect: initialReaction} = useGetData(`/reaction?entityID=${postId}&reaction_type=post`, mapReactionType );
+
+  const { expect: initialReaction } = useGetData(`/reaction?entityID=${postId}&reaction_type=post`, mapReactionType);
   useEffect(() => {
-    setReactionBefore(initialReaction ?? {liked: false, disliked: false});
+    setReactionBefore(initialReaction ?? { liked: false, disliked: false });
   }, [initialReaction])
 
 
@@ -80,7 +82,7 @@ export default function PostCard({
       isLike: isLike,
     }).then((resp) => {
       if (resp.liked && !resp.disliked) {
-         if (reactionBefore.disliked) {
+        if (reactionBefore.disliked) {
           setDisliked((prev) => prev - 1);
           setLiked((prev) => prev + 1);
         } else {
@@ -104,12 +106,12 @@ export default function PostCard({
     });
   };
 
-
+  
   return (
     <Card className="max-w-2xl mx-auto">
       <CommentModal
         postId={postId}
-        isOpen={isCommentModalOpen}
+        isOpen={!isLocked ? isCommentModalOpen : false}
         onClose={handleCloseCommentModal}
         postTitle={title}
         postContent={content}
@@ -132,12 +134,12 @@ export default function PostCard({
           <span className="text-sm text-muted-foreground">{date}</span>
         </div>
       </CardHeader>
-      <Link href={`/post/${postId}`}>
+      <Link href={!isLocked ? `/post/${postId}` : ""}>
         <CardContent className="pb-2">
           <h2 className="text-xl font-bold mb-2">{title}</h2>
           <p className="text-muted-foreground">{content}</p>
         </CardContent>
-        {imageSrc!="" && (
+        {imageSrc != "" && (
           <CardContent className="pb-2 max-h-[450px] h-[420px] bg-contain w-full rounded-lg">
             <div className="relative w-full h-full rounded-lg">
               <Image
@@ -154,12 +156,12 @@ export default function PostCard({
         <Button
           variant="ghost"
           size="sm"
-          onClick={(e) =>
+          onClick={!isLocked ? (e) =>
             handleReact(e, {
               entityId: postId,
               reactionType: "post",
               isLike: true,
-            })
+            }) : () => { }
           }
           className="text-muted-foreground"
         >
@@ -168,12 +170,12 @@ export default function PostCard({
         </Button>
         <Button
           variant="ghost"
-          onClick={(e) =>
+          onClick={!isLocked ? (e) =>
             handleReact(e, {
               entityId: postId,
               reactionType: "post",
               isLike: false,
-            })
+            }) : () => { }
           }
           size="sm"
           className="text-muted-foreground"
@@ -188,7 +190,7 @@ export default function PostCard({
           className="text-muted-foreground"
         >
           <MessageCirclePlus className="mr-1 h-6 w-6" />
-          { window.location.pathname != `/` ? comments : ""}
+          {window.location.pathname != `/` ? comments : ""}
         </Button>
       </CardFooter>
     </Card>

@@ -9,7 +9,7 @@ import { useState } from "react";
 import PostSection from "./PostSection";
 import FollowModal from "./followerList";
 import { Button } from "../ui/button";
-import { UserMinus, UserPlus } from "lucide-react";
+import { Lock, UserMinus, UserPlus } from "lucide-react";
 import { handleFollow, handleUnfollow } from "@/services/follow.service";
 import UseWS from "@/lib/hooks/usewebsocket";
 import { toast } from "../ui/use-toast";
@@ -40,6 +40,10 @@ export default function ProfileComponent({ id }: { id: string }) {
 
   const showButtonFollow = (): boolean => {
     return me?.suggestedFriends?.find((f) => f.id === parseInt(id)) ? true : false;
+  }
+
+  const showButtonUnFollow = (): boolean => {
+    return me?.followed?.find((f) => f.id === parseInt(id)) ? true : false;
   }
 
   const onFollow = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -79,11 +83,11 @@ export default function ProfileComponent({ id }: { id: string }) {
     });
 
     if (suggestFriend) {
-        toast({
-          title: "Unfollowed",
-          description: `You are now unfollowing ${suggestFriend.firstname}`,
-        });
-      
+      toast({
+        title: "Unfollowed",
+        description: `You are now unfollowing ${suggestFriend.firstname}`,
+      });
+
     }
   }
 
@@ -106,6 +110,86 @@ export default function ProfileComponent({ id }: { id: string }) {
       modalName: "",
       follow: [],
     });
+
+  if (user?.private && !(me?.followed?.find((f) => f.id === parseInt(id)))) {
+    return (
+      <>
+        <FollowModal
+          isOpen={FollowModalData.isOpen}
+          onClose={handleCloseFollowModal}
+          modalName={FollowModalData.modalName}
+          Follow={FollowModalData.follow}
+        />
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between max-w-2xl w-full mx-auto p-4 space-y-4 sm:space-y-0 sm:space-x-4 bg-background rounded-lg mb-2">
+          <div className="flex items-center space-x-4">
+            <Avatar className="w-12 h-12">
+              <AvatarImage src={`/upload/${user?.profilePicture}`} alt="{" />
+              <AvatarFallback>
+                {user?.firstname.charAt(0).toUpperCase()}
+                {user?.lastname.charAt(0).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <div className="flex items-center space-x-2">
+                <h2 className="text-lg font-semibold">{user?.nickname}</h2>
+              </div>
+              <p className="text-sm text-gray-500">Account Private</p>
+            </div>
+          </div>
+          <div className="flex space-x-4 sm:space-x-6 text-sm sm:text-base">
+
+            <div className="flex flex-col items-center sm:items-center">
+              <span className="font-semibold">{user?.followers?.length}</span>
+              <span className="text-gray-500">Followers</span>
+            </div>
+
+            <div className="flex flex-col items-center sm:items-center">
+              <span className="font-semibold">{user?.followed?.length}</span>
+              <span className="text-gray-500">Following</span>
+            </div>
+
+            <div className="flex flex-col items-center sm:items-center">
+              <span className="font-semibold"> <Lock className="h-6 w-6 " /></span>
+              <span className="text-gray-500">Posts</span>
+            </div>
+          </div>
+
+          {
+            // If the user is not the current user, show the follow button
+            parseInt(`${localStorage.getItem("userID")}`) !== parseInt(id) && showButtonFollow() && (
+              <>
+                <Button
+                  onClick={onFollow}
+                  value={id}
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6"
+                >
+                  <UserPlus className="h-7 w-7" onClick={hidden} />
+                </Button>
+              </>)
+          }
+          {
+            // If the user is not the current user, show the follow button
+            parseInt(`${localStorage.getItem("userID")}`) !== parseInt(id) && showButtonUnFollow() && (
+              <>
+                <Button
+                  onClick={unFollow}
+                  value={id}
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6"
+                >
+                  <UserMinus className="h-7 w-7 text-red-600" onClick={hidden} />
+                </Button>
+              </>)
+          }
+
+         
+        </div>
+      </>
+    );
+  }
 
   return (
     <>

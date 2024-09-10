@@ -41,7 +41,6 @@ export const WsProvider: React.FC<{
 
     wsRef.current.onmessage = (e) => {
       const data = JSON.parse(e.data);
-      console.log("data : ", data);
       if (data) {
         if (Array.isArray(data)) {
           receivedRef.current = mapper(data);

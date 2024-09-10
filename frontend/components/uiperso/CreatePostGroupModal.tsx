@@ -23,8 +23,7 @@ export default function CreatePostGroupModal({
     formData.set("group_id", group_Id)
     formData.set("privacy", "group")
     const [resp, err] = await postData("/posts", formData, true);
-    console.log(resp, err);
-    
+
     onClose();
   };
 

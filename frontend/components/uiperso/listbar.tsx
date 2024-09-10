@@ -71,7 +71,7 @@ export function ListBar({
     <ul className="space-y-2 px-4">
       {listItem.map((item, index) => (
         <li key={item?.userId} className="flex items-center justify-between">
-          <Link href={`/profile/${item?.userId}`}>
+          <Link href={ section=="friend" ? `/profile/${item?.userId}` : `/groups/${item?.userId}` }>
           <div className="flex items-center space-x-2">
             <Avatar className="h-8 w-8">
               <AvatarImage src={`/upload/${item.image}`} alt={item.name} />

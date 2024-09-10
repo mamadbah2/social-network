@@ -29,22 +29,18 @@ function Home() {
   }, [postTable]);
 
   const handleSave = async (name: string, description: string) => {
-    console.log(name, description);
 
     const formData = new FormData();
     formData.append("GroupName", name);
     formData.append("GroupDescrp", description);
     const [resp, err] = await postData("/groups", formData, false);
-    console.log(resp, err);
-    console.log("Group Created");
+
     setShowForm(false);
   };
 
   const handleCancel = () => {
     setShowForm(false);
   };
-  console.log('posts', posts)
-  console.log('updatedPost', updatedPost)
 
   return (
     <>

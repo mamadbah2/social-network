@@ -19,11 +19,11 @@ import PostSection from "@/components/uiperso/PostSection";
 
 export default function Home({ params }: { params: { id: string } }) {
   const groupID = params.id;
-  
+
   // Fetching group and users data
   const { expect: group, error: errGroups } = useGetData<Group[]>(`/groups?id=${groupID}`, mapGroup);
   const { expect: allUsers, error: errUser } = useGetData<User[]>(`/users`, mapUser);
-  
+
   const [showAddMemberForm, setShowAddMemberForm] = useState(false);
   const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false);
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
@@ -45,7 +45,6 @@ export default function Home({ params }: { params: { id: string } }) {
 
   const UpdatedPosts = group[0]?.posts || [];
   const events = group[0]?.events || [];
-  console.log('group[0]', group[0])
   const handleAddMembers = async (selectedUserIds: number[]) => {
     if (selectedUserIds.length > 0) {
       const formData = new FormData();
@@ -53,13 +52,13 @@ export default function Home({ params }: { params: { id: string } }) {
         formData.append("MembersSelected", id.toString());
       });
       const [resp, err] = await postData(`/groupMembers?id=${groupID}`, formData, false);
-      console.log(resp, err);
+
       setShowAddMemberForm(false);
     }
   };
 
   const handleCancel = () => setShowAddMemberForm(false);
-  
+
 
   return (
     <>
@@ -106,7 +105,10 @@ export default function Home({ params }: { params: { id: string } }) {
         />
 
         <div className="space-y-4 pl-3">
-          <PostSection posts={UpdatedPosts} />
+          <PostSection
+            posts={UpdatedPosts}
+            isLock={!(group[0].members.find((m) => m.id.toString() === localStorage.getItem("userID")))}
+          />
 
           {events.map((event: Event) => (
             <EventCard
