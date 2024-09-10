@@ -14,7 +14,7 @@ const CreateGroupForm: React.FC<CreateGroupFormProps> = ({ onSave, onCancel }) =
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="bg-white p-6 rounded-md w-96">
         <h2 className="text-xl font-semibold mb-4">Create Your Group</h2>
         <div className="mb-4">

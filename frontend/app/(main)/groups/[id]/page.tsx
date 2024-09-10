@@ -59,6 +59,7 @@ export default function Home({ params }: { params: { id: string } }) {
   };
 
   const handleCancel = () => setShowAddMemberForm(false);
+  
 
   return (
     <>
@@ -106,11 +107,15 @@ export default function Home({ params }: { params: { id: string } }) {
           {events.map((event: Event) => (
             <EventCard
               key={event.Id}
+              eventID={`${event.Id}`}
+              userID={localStorage.getItem('userID') || '0'}
               username={event.Creator.firstname}
               avatarSrc=""
               date={event.Date}
               time={event.Time}
               title={event.Title}
+              dislikes={event.NumberDislike}
+              likes={event.NumberLike}
               description={event.Description}
               imageSrc=""
               onJoin={() => console.log("Join event")}

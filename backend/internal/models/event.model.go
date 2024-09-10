@@ -6,6 +6,10 @@ type Event struct {
 	Description string
 	Date        string // Change from time.Time to string for easier handling
 	Time        string // New field for time
+	Liked         bool
+	Disliked      bool
+	NumberLike    int
+	NumberDislike int
 	Creator     *User
 	Group       *Group
 }
@@ -39,7 +43,14 @@ func (m *ConnDB) GetEvent(eventID int) (*Event, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	e.NumberLike, err = m.GetLike(eventID, "event")
+	if err != nil {
+		return nil, err
+	}
+	e.NumberDislike, err = m.GetDislike(eventID, "event")
+	if err != nil {
+		return nil, err
+	}
 	return e, nil
 }
 

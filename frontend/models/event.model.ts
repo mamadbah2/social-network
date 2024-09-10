@@ -7,6 +7,10 @@ export interface Event {
 	Description : string
 	Date : string
 	Time : string
+	Liked : boolean
+	Disliked : boolean
+	NumberLike : number
+	NumberDislike : number
 	Creator : User
 	Group : Group
 }

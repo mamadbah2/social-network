@@ -4,7 +4,7 @@ import postData from "./usepost";
 
 export type ReactionOptions = {
   entityId: number;
-  reactionType: "post" | "comment";
+  reactionType: "post" | "comment" | "event";
   isLike: boolean;
 };
 

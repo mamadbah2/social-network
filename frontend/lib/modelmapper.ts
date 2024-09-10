@@ -202,6 +202,10 @@ export function mapEvent(data: any): Event[] {
             Description : data.Description,
             Date : data.Date,
             Time : data.Time,
+            Liked : data.Liked,
+            Disliked : data.Disliked,
+            NumberLike : data.NumberLike,
+            NumberDislike : data.NumberDislike,
             Creator : mapSimpleUser(data.Creator),
             Group : mapGroup(data.Group)[0],
         }];
@@ -213,6 +217,10 @@ export function mapEvent(data: any): Event[] {
         Description : e.Description,
         Date : e.Date,
         Time : e.Time,
+        Liked : e.Liked,
+        Disliked : e.Disliked,
+        NumberLike : e.NumberLike,
+        NumberDislike : e.NumberDislike,
         Creator : mapSimpleUser(e.Creator),
         Group : mapGroup(e.Group)[0],
     }));

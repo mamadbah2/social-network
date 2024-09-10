@@ -22,13 +22,13 @@ func (hand *Handler) Reactions(w http.ResponseWriter, r *http.Request) {
 	}
 
 	reaction_type := r.URL.Query().Get("reaction_type")
-	post_id, err := strconv.Atoi(r.URL.Query().Get("postId"))
+	entityID, err := strconv.Atoi(r.URL.Query().Get("entityID"))
 	if err != nil {
 		hand.Helpers.ClientError(w, http.StatusBadRequest)
 		return
 	}
 
-	reaction, err := hand.ConnDB.CheckReaction(post_id, actualUser.Id, reaction_type)
+	reaction, err := hand.ConnDB.CheckReaction(entityID, actualUser.Id, reaction_type)
 	if err != nil {
 		hand.Helpers.ServerError(w, err)
 		return

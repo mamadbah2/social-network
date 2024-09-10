@@ -118,11 +118,22 @@ func (m *ConnDB) SetGroup(g *Group) error {
 		VALUES(?, ?, ?, CURRENT_TIMESTAMP)
 	`
 
-	_, err := m.DB.Exec(stmt, g.Creator.Id, g.Name, g.Description)
+	result, err := m.DB.Exec(stmt, g.Creator.Id, g.Name, g.Description)
 
 	if err != nil {
 		return err
 	}
+
+	groupID, err := result.LastInsertId()
+	if err != nil {
+		return err
+	}
+
+	err = m.SetGroupMember(g.Creator.Id, int(groupID))
+	if err != nil {
+		return err
+	}
+	
 
 	return nil
 }
@@ -197,19 +208,24 @@ func (m *ConnDB) GetGroupsByUser(userID int) ([]*Group, error) {
 	return groups, nil
 }
 
+
 func (m *ConnDB) GetAllGroupsPosts(groups []*Group) []*Post {
 	var allPosts []*Post
-
 	// Iterate over each group and collect all posts
 	for _, group := range groups {
-		allPosts = append(allPosts, group.Posts...)
+		Comgroup, err := m.GetGroup(group.Id)
+		if err != nil {
+			fmt.Println("err Group", err)
+			return nil
+		}
+		allPosts = append(allPosts, Comgroup.Posts...)
 	}
 
+	fmt.Println("posts:", allPosts)
 	// Sort all posts by CreatedAt in descending order (newest first)
 	sort.Slice(allPosts, func(i, j int) bool {
 		return allPosts[i].CreatedAt.After(allPosts[j].CreatedAt)
 	})
-	fmt.Println("posts:", allPosts)
 	// Now allPosts contains all posts sorted by CreatedAt
 	return allPosts
 }
@@ -217,4 +233,12 @@ func (m *ConnDB) GetAllGroupsPosts(groups []*Group) []*Post {
 func (m *ConnDB) UpdateGroup(id int) error {
 	// when we will find it usefull i will update this function
 	return nil
+}
+func (g *Group) String() string {
+	return fmt.Sprintf("Group{id=%d, name=%s, description=%s, created_at=%s}", g.Id, g.Name, g.Description, g.CreatedAt)
+}
+
+
+func (p *Post) String() string {
+	return fmt.Sprintf("Post{id=%d, content=%s, created_at=%s}", p.Id, p.Content, p.CreatedAt)
 }

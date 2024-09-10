@@ -18,12 +18,22 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import { FormEvent, useEffect, useState } from "react";
+import { ReactionOptions, useReaction } from "@/lib/hooks/useReaction";
+import { usePostContext } from "@/lib/hooks/postctx";
+import { Reaction } from "@/models/reaction.model";
+import useGetData from "@/lib/hooks/useGet";
+import { mapReactionType } from "@/lib/modelmapper";
 
 interface EventCardProps {
   username: string;
+  eventID: string;
+  userID: string;
   avatarSrc: string;
   date: string; // Date should be parsed as day, month, year separately
   time: string;
+  likes: number;
+  dislikes: number;
   title: string;
   description: string;
   imageSrc?: string; // optional, in case there's no image
@@ -33,9 +43,13 @@ interface EventCardProps {
 
 export default function EventCard({
   username,
+  eventID,
+  userID,
   avatarSrc,
   date,
   time,
+  likes,
+  dislikes,
   title,
   description,
   imageSrc,
@@ -47,6 +61,63 @@ export default function EventCard({
   const day = eventDate.getDate();
   const month = eventDate.toLocaleString("default", { month: "short" });
   const year = eventDate.getFullYear();
+
+  const [liked, setLiked] = useState(likes);
+  const [disliked, setDisliked] = useState(dislikes);
+  const { handleReactionSubmit, loading, error } = useReaction();
+  const {incrementComment, setIncrementComment}  = usePostContext();
+  
+  const [reactionBefore, setReactionBefore] = useState<Reaction>({
+    liked: false,
+    disliked: false,
+  });
+  
+  const {expect: initialReaction} = useGetData(`/reaction?entityID=${eventID}&reaction_type=post`, mapReactionType);
+  useEffect(() => {
+    setReactionBefore(initialReaction ?? {liked: false, disliked: false});
+  }, [initialReaction])
+
+/*   useEffect(() => {
+    if (incrementComment) {
+      comments = comments + 1;
+      setIncrementComment(false);
+    }   
+  },[incrementComment]); */
+
+  // Handle reaction pour gerer les likes et dislikes
+  const handleReact = (
+    e: FormEvent<HTMLButtonElement>,
+    { entityId, reactionType, isLike }: ReactionOptions
+  ) => {
+    handleReactionSubmit(e, {
+      entityId: entityId,
+      reactionType: reactionType,
+      isLike: isLike,
+    }).then((resp) => {
+      if (resp.liked && !resp.disliked) {
+         if (reactionBefore.disliked) {
+          setDisliked((prev) => prev - 1);
+          setLiked((prev) => prev + 1);
+        } else {
+          setLiked((prev) => prev + 1);
+        }
+      } else if (!resp.liked && resp.disliked) {
+        if (reactionBefore.liked) {
+          setLiked((prev) => prev - 1);
+          setDisliked((prev) => prev + 1);
+        } else {
+          setDisliked((prev) => prev + 1);
+        }
+      } else if (!resp.liked && !resp.disliked) {
+        if (reactionBefore.liked) {
+          setLiked((prev) => prev - 1);
+        } else if (reactionBefore.disliked) {
+          setDisliked((prev) => prev - 1);
+        }
+      }
+      setReactionBefore(resp);
+    });
+  };
 
   return (
     <Card className="max-w-xl mx-auto p-4 flex gap-5">
@@ -101,20 +172,32 @@ export default function EventCard({
         {/* Buttons */}
         <CardFooter className="flex justify-start gap-4 pt-4">
           <Button
-            variant="solid"
+            variant="outline"
             size="sm"
             className="bg-black text-white"
-            onClick={onJoin}
+            onClick={(e) =>
+              handleReact(e, {
+                entityId: +eventID,
+                reactionType: "event",
+                isLike: true,
+              })
+            }
           >
-            Going
+            Going {liked}
           </Button>
           <Button
             variant="outline"
             size="sm"
             className="border-gray-300 text-gray-600"
-            onClick={onDismiss}
+            onClick={(e) =>
+              handleReact(e, {
+                entityId: +eventID,
+                reactionType: "event",
+                isLike: false,
+              })
+            }
           >
-            Not Going
+            Not Going {disliked}
           </Button>
         </CardFooter>
       </div>

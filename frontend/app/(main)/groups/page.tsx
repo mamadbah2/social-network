@@ -43,6 +43,8 @@ function Home() {
   const handleCancel = () => {
     setShowForm(false);
   };
+  console.log('posts', posts)
+  console.log('updatedPost', updatedPost)
 
   return (
     <>
