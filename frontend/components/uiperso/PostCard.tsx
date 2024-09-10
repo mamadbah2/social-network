@@ -63,17 +63,11 @@ export default function PostCard({
     disliked: false,
   });
   
-  const {expect: initialReaction} = useGetData(`/reaction?postId=${postId}&reaction_type=post`, mapReactionType );
+  const {expect: initialReaction} = useGetData(`/reaction?entityID=${postId}&reaction_type=post`, mapReactionType );
   useEffect(() => {
     setReactionBefore(initialReaction ?? {liked: false, disliked: false});
   }, [initialReaction])
 
-/*   useEffect(() => {
-    if (incrementComment) {
-      comments = comments + 1;
-      setIncrementComment(false);
-    }   
-  },[incrementComment]); */
 
   // Handle reaction pour gerer les likes et dislikes
   const handleReact = (
@@ -109,6 +103,8 @@ export default function PostCard({
       setReactionBefore(resp);
     });
   };
+
+
   return (
     <Card className="max-w-2xl mx-auto">
       <CommentModal

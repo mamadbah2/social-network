@@ -65,6 +65,16 @@ func (m *ConnDB) GetAllComment(postID int) ([]*Comment, error) {
 			return nil, err
 		}
 
+		c.NumberLike, err = m.GetLike(c.Id, "comment")
+		if err != nil {
+			return nil, err
+		}
+
+		c.NumberDislike, err = m.GetDislike(c.Id, "comment")
+		if err != nil {
+			return nil, err
+		}
+
 		allComments = append(allComments, c)
 	}
 
