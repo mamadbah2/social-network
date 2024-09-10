@@ -16,7 +16,7 @@ function MainLayout({
   return (
     <WsProvider uri="/notification" mapper={mapNotification}>
       <PostProvider>
-        <div className="flex flex-col gap-2 bg-muted w-full h-screen p-5">
+        <div className="flex flex-col gap-2 bg-muted w-full h-screen p-5 ">
           <header>
             <NavigationBar />
           </header>

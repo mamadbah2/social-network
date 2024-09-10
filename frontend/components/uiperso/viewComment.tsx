@@ -1,4 +1,4 @@
-import { useReaction } from "@/lib/hooks/useReaction";
+import { ReactionOptions, useReaction } from "@/lib/hooks/useReaction";
 import { Comment } from "@/models/comment.model";
 import { HeartCrack, HeartIcon, ImageIcon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
@@ -6,19 +6,67 @@ import { Button } from "../ui/button";
 import { CardContent, CardFooter } from "../ui/card";
 import ProfileButton from "./ProfileLink";
 import Image from "next/image";
+import { FormEvent, useEffect, useState } from "react";
+import { Reaction } from "@/models/reaction.model";
+import useGetData from "@/lib/hooks/useGet";
+import { mapReactionType } from "@/lib/modelmapper";
 
 export default function ViewComment({
-  comments,
+  comment,
 }: {
-  comments: Comment[] | undefined;
+  comment: Comment;
 }) {
   const { handleReactionSubmit, loading, error } = useReaction();
+  const [liked, setLiked] = useState(comment.numberLike);
+  const [disliked, setDisliked] = useState(comment.numberDislike);
+  const [reactionBefore, setReactionBefore] = useState<Reaction>({
+    liked: false,
+    disliked: false,
+  });
+  
+  const {expect: initialReaction} = useGetData(`/reaction?entityID=${comment.id}&reaction_type=comment`, mapReactionType );
+  useEffect(() => {
+    setReactionBefore(initialReaction ?? {liked: false, disliked: false});
+  }, [initialReaction])
+
+  const handleReact = (
+    e: FormEvent<HTMLButtonElement>,
+    { entityId, reactionType, isLike }: ReactionOptions
+  ) => {
+    handleReactionSubmit(e, {
+      entityId: entityId,
+      reactionType: reactionType,
+      isLike: isLike,
+    }).then((resp) => {
+      if (resp.liked && !resp.disliked) {
+        if (reactionBefore.disliked) {
+          setDisliked((prev) => prev - 1);
+          setLiked((prev) => prev + 1);
+        } else {
+          setLiked((prev) => prev + 1);
+        }
+      } else if (!resp.liked && resp.disliked) {
+        if (reactionBefore.liked) {
+          setLiked((prev) => prev - 1);
+          setDisliked((prev) => prev + 1);
+        } else {
+          setDisliked((prev) => prev + 1);
+        }
+      } else if (!resp.liked && !resp.disliked) {
+        if (reactionBefore.liked) {
+          setLiked((prev) => prev - 1);
+        } else if (reactionBefore.disliked) {
+          setDisliked((prev) => prev - 1);
+        }
+      }
+      setReactionBefore(resp);
+    });
+  };
 
   return (
     <>
-      {comments?.map((comment) => (
+      {
         <div
-          key={comment.id}
           className="bg-white shadow-md rounded-xl p-4 max-w-sm mx-auto"
         >
           <div className="flex items-center space-x-3">
@@ -63,7 +111,7 @@ export default function ViewComment({
               variant="ghost"
               size="sm"
               onClick={(e) =>
-                handleReactionSubmit(e, {
+                handleReact(e, {
                   entityId: comment.id,
                   reactionType: "comment",
                   isLike: true,
@@ -72,12 +120,12 @@ export default function ViewComment({
               className="text-muted-foreground"
             >
               <HeartIcon className="mr-1 h-6 w-6" />
-              {comment.numberDislike}
+              {liked}
             </Button>
             <Button
               variant="ghost"
               onClick={(e) =>
-                handleReactionSubmit(e, {
+                handleReact(e, {
                   entityId: comment.id,
                   reactionType: "comment",
                   isLike: false,
@@ -87,11 +135,11 @@ export default function ViewComment({
               className="text-muted-foreground"
             >
               <HeartCrack className="mr-1 h-6 w-6" />
-              {comment.numberDislike}
+              {disliked}
             </Button>
           </CardFooter>
         </div>
-      ))}
+      }
     </>
   );
 }

@@ -44,7 +44,13 @@ const ViewPost: React.FC<PostSectionProps> = ({ post }) => {
         dislikes={post.numberDislike || 0}
         comments={numberComment || 0}
       />
-      <ViewComment comments={(commentTable)?.reverse()} />
+      {/* Add the ViewComments component here */}
+
+      {
+        ((commentTable)?.reverse())?.map((comment) => (
+          <ViewComment key={comment.id} comment={(comment)} />
+        ))
+      }
     </div>
   );
 };
