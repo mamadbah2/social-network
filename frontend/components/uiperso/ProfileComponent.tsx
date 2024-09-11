@@ -2,17 +2,18 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import useGetData from "@/lib/hooks/useGet";
 import postData from "@/lib/hooks/usepost";
+import UseWS from "@/lib/hooks/usewebsocket";
 import { mapSimpleUser, mapUser } from "@/lib/modelmapper";
 import { User } from "@/models/user.model";
+import { handleFollow, handleUnfollow } from "@/services/follow.service";
+import { Lock, UserMinus, UserPlus } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import PostSection from "./PostSection";
-import FollowModal from "./followerList";
 import { Button } from "../ui/button";
-import { Lock, UserMinus, UserPlus } from "lucide-react";
-import { handleFollow, handleUnfollow } from "@/services/follow.service";
-import UseWS from "@/lib/hooks/usewebsocket";
 import { toast } from "../ui/use-toast";
+import FollowModal from "./followerList";
+import PostSection from "./PostSection";
+import UserInfo from "./UserInfo";
 
 interface FollowModalState {
   isOpen: boolean;
@@ -39,12 +40,14 @@ export default function ProfileComponent({ id }: { id: string }) {
   });
 
   const showButtonFollow = (): boolean => {
-    return me?.suggestedFriends?.find((f) => f.id === parseInt(id)) ? true : false;
-  }
+    return me?.suggestedFriends?.find((f) => f.id === parseInt(id))
+      ? true
+      : false;
+  };
 
   const showButtonUnFollow = (): boolean => {
     return me?.followed?.find((f) => f.id === parseInt(id)) ? true : false;
-  }
+  };
 
   const onFollow = (e: React.MouseEvent<HTMLButtonElement>) => {
     const suggestFriendId = parseInt(`${e.currentTarget.value}`);
@@ -87,9 +90,8 @@ export default function ProfileComponent({ id }: { id: string }) {
         title: "Unfollowed",
         description: `You are now unfollowing ${suggestFriend.firstname}`,
       });
-
     }
-  }
+  };
 
   const hidden = (e: React.MouseEvent<SVGSVGElement>) => {
     const hideIcon = e.currentTarget;
@@ -111,7 +113,11 @@ export default function ProfileComponent({ id }: { id: string }) {
       follow: [],
     });
 
-  if (user?.private && !(me?.followed?.find((f) => f.id === parseInt(id))) && localStorage.getItem("userID") !== id) {
+  if (
+    user?.private &&
+    !me?.followed?.find((f) => f.id === parseInt(id)) &&
+    localStorage.getItem("userID") !== id
+  ) {
     return (
       <>
         <FollowModal
@@ -137,7 +143,6 @@ export default function ProfileComponent({ id }: { id: string }) {
             </div>
           </div>
           <div className="flex space-x-4 sm:space-x-6 text-sm sm:text-base">
-
             <div className="flex flex-col items-center sm:items-center">
               <span className="font-semibold">{user?.followers?.length}</span>
               <span className="text-gray-500">Followers</span>
@@ -149,43 +154,51 @@ export default function ProfileComponent({ id }: { id: string }) {
             </div>
 
             <div className="flex flex-col items-center sm:items-center">
-              <span className="font-semibold"> <Lock className="h-6 w-6 " /></span>
+              <span className="font-semibold">
+                {" "}
+                <Lock className="h-6 w-6 " />
+              </span>
               <span className="text-gray-500">Posts</span>
             </div>
           </div>
 
           {
             // If the user is not the current user, show the follow button
-            parseInt(`${localStorage.getItem("userID")}`) !== parseInt(id) && showButtonFollow() && (
-              <>
-                <Button
-                  onClick={onFollow}
-                  value={id}
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6"
-                >
-                  <UserPlus className="h-7 w-7" onClick={hidden} />
-                </Button>
-              </>)
+            parseInt(`${localStorage.getItem("userID")}`) !== parseInt(id) &&
+              showButtonFollow() && (
+                <>
+                  <Button
+                    onClick={onFollow}
+                    value={id}
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6"
+                  >
+                    <UserPlus className="h-7 w-7" onClick={hidden} />
+                  </Button>
+                </>
+              )
           }
           {
             // If the user is not the current user, show the follow button
-            parseInt(`${localStorage.getItem("userID")}`) !== parseInt(id) && showButtonUnFollow() && (
-              <>
-                <Button
-                  onClick={unFollow}
-                  value={id}
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6"
-                >
-                  <UserMinus className="h-7 w-7 text-red-600" onClick={hidden} />
-                </Button>
-              </>)
+            parseInt(`${localStorage.getItem("userID")}`) !== parseInt(id) &&
+              showButtonUnFollow() && (
+                <>
+                  <Button
+                    onClick={unFollow}
+                    value={id}
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6"
+                  >
+                    <UserMinus
+                      className="h-7 w-7 text-red-600"
+                      onClick={hidden}
+                    />
+                  </Button>
+                </>
+              )
           }
-
-         
         </div>
       </>
     );
@@ -199,7 +212,7 @@ export default function ProfileComponent({ id }: { id: string }) {
         modalName={FollowModalData.modalName}
         Follow={FollowModalData.follow}
       />
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between max-w-2xl w-full mx-auto p-4 space-y-4 sm:space-y-0 sm:space-x-4 bg-background rounded-lg mb-2">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between max-w-3xl w-full mx-auto p-4 space-y-4 sm:space-y-0 sm:space-x-4 bg-background rounded-lg mb-2">
         <div className="flex items-center space-x-4">
           <Avatar className="w-12 h-12">
             <AvatarImage src={`/upload/${user?.profilePicture}`} alt="{" />
@@ -237,43 +250,47 @@ export default function ProfileComponent({ id }: { id: string }) {
           </button>
           <div className="flex flex-col items-center sm:items-center">
             <span className="font-semibold">{user?.posts?.length}</span>
-            <span className="text-gray-500">Post</span>
+            <span className="text-gray-500">Posts</span>
           </div>
+          <UserInfo user={user} />
         </div>
         {
           // If the user is not the current user, show the follow button
-          parseInt(`${localStorage.getItem("userID")}`) !== parseInt(id) && showButtonFollow() && (
-            <>
-              <Button
-                onClick={onFollow}
-                value={id}
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6"
-              >
-                <UserPlus className="h-7 w-7" onClick={hidden} />
-              </Button>
-            </>)
+          parseInt(`${localStorage.getItem("userID")}`) !== parseInt(id) &&
+            showButtonFollow() && (
+              <>
+                <Button
+                  onClick={onFollow}
+                  value={id}
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6"
+                >
+                  <UserPlus className="h-7 w-7" onClick={hidden} />
+                </Button>
+              </>
+            )
         }
         {
           // If the user is not the current user, show the follow button
-          parseInt(`${localStorage.getItem("userID")}`) !== parseInt(id) && !showButtonFollow() && (
-            <>
-              <Button
-                onClick={unFollow}
-                value={id}
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6"
-              >
-                <UserMinus className="h-7 w-7 text-red-600" onClick={hidden} />
-              </Button>
-            </>)
+          parseInt(`${localStorage.getItem("userID")}`) !== parseInt(id) &&
+            !showButtonFollow() && (
+              <>
+                <Button
+                  onClick={unFollow}
+                  value={id}
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6"
+                >
+                  <UserMinus
+                    className="h-7 w-7 text-red-600"
+                    onClick={hidden}
+                  />
+                </Button>
+              </>
+            )
         }
-
-
-
-
       </div>
       <PostSection posts={user?.posts ?? []} />
     </>

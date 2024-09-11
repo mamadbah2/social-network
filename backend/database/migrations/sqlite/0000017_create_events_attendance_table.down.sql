@@ -1,1 +1,1 @@
-DROP TABLE IF EXISTS event_responses;
+DROP TABLE event_responses;
