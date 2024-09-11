@@ -111,7 +111,7 @@ export default function ProfileComponent({ id }: { id: string }) {
       follow: [],
     });
 
-  if (user?.private && !(me?.followed?.find((f) => f.id === parseInt(id)))) {
+  if (user?.private && !(me?.followed?.find((f) => f.id === parseInt(id))) && localStorage.getItem("userID") !== id) {
     return (
       <>
         <FollowModal

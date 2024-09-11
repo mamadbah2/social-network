@@ -1,9 +1,9 @@
 {
   "pages": {
-    "/(main)/profile/[id]/page": [
+    "/(main)/groups/[id]/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(main)/profile/[id]/page.js"
+      "static/chunks/app/(main)/groups/[id]/page.js"
     ],
     "/(main)/layout": [
       "static/chunks/webpack.js",
@@ -16,15 +16,25 @@
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
     ],
-    "/(main)/groups/[id]/page": [
+    "/(main)/profile/[id]/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(main)/groups/[id]/page.js"
+      "static/chunks/app/(main)/profile/[id]/page.js"
     ],
-    "/(main)/post/[id]/page": [
+    "/(auth)/login/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(main)/post/[id]/page.js"
+      "static/chunks/app/(auth)/login/page.js"
+    ],
+    "/(auth)/layout": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(auth)/layout.js"
+    ],
+    "/(auth)/register/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(auth)/register/page.js"
     ],
     "/(main)/page": [
       "static/chunks/webpack.js",

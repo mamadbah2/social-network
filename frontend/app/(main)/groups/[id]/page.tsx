@@ -10,19 +10,24 @@ import PostCard from "@/components/uiperso/PostCard";
 import EventCard from "@/components/uiperso/EventCard";
 import { usePostContext } from "@/lib/hooks/postctx";
 import useGetData from "@/lib/hooks/useGet";
-import { mapGroup, mapUser } from "@/lib/modelmapper";
+import { mapGroup, mapSimpleUser, mapUser } from "@/lib/modelmapper";
 import { Group } from "@/models/group.model";
 import { User } from "@/models/user.model";
 import { Post } from "@/models/post.model";
 import { Event } from "@/models/event.model";
 import PostSection from "@/components/uiperso/PostSection";
+import UseWS from "@/lib/hooks/usewebsocket";
+import { Notification } from "@/models/notification.model";
 
 export default function Home({ params }: { params: { id: string } }) {
   const groupID = params.id;
 
+  const {sendObject: sendNotification} = UseWS();
+
   // Fetching group and users data
   const { expect: group, error: errGroups } = useGetData<Group[]>(`/groups?id=${groupID}`, mapGroup);
   const { expect: allUsers, error: errUser } = useGetData<User[]>(`/users`, mapUser);
+  const { expect: user, error: errMe } = useGetData(`/users?id=${localStorage.getItem("userID")}`, mapSimpleUser);
 
   const [showAddMemberForm, setShowAddMemberForm] = useState(false);
   const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false);
@@ -45,13 +50,24 @@ export default function Home({ params }: { params: { id: string } }) {
 
   const UpdatedPosts = group[0]?.posts || [];
   const events = group[0]?.events || [];
-  const handleAddMembers = async (selectedUserIds: number[]) => {
+  const handleAddMembers = (selectedUserIds: number[]) => {
+    const myId = parseInt(localStorage.getItem("userID") || "0");
+    const entityId = group[0].id;
+
+
     if (selectedUserIds.length > 0) {
-      const formData = new FormData();
-      selectedUserIds.forEach((id) => {
-        formData.append("MembersSelected", id.toString());
+      // Send notification to each selected user
+      selectedUserIds.forEach((receiverID) => {
+        let notif: Notification = {
+          content: "wants to join his group",
+          approuved: false,
+          entityType: "group-invitation",
+          entityId,
+          sender: { id: myId },
+          receiver: { id : receiverID },
+        };
+        sendNotification(notif)
       });
-      const [resp, err] = await postData(`/groupMembers?id=${groupID}`, formData, false);
 
       setShowAddMemberForm(false);
     }
@@ -78,6 +94,8 @@ export default function Home({ params }: { params: { id: string } }) {
           !!(group[0].members.find((m) => m.id.toString() === localStorage.getItem("userID")))
         }
         members={group[0].members}
+        groupId={group[0].id}
+        authorId={group[0].creator?.id}
         setShowForm={setShowAddMemberForm}
         handleCreatePost={handleCreatePostModalOpen}
         handleCreateEvent={handleOpenEventModal}
@@ -86,7 +104,7 @@ export default function Home({ params }: { params: { id: string } }) {
       <div className="relative">
         {showAddMemberForm && (
           <AddMemberComponent
-            users={allUsers.filter((u) => !(group[0].members.find((m) => m.id === u.id)))}
+            users={(user?.followers)?.filter(u =>  !(group[0].members.find(m=> m.id === u.id)) ) || []}
             onSave={handleAddMembers}
             onCancel={handleCancel}
           />

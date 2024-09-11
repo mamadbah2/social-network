@@ -57,6 +57,45 @@ const NotificationBar: React.FC<NotificationProps> = ({ isOpen, notifs }) => {
           }
         });
         break;
+      case "group-invitation":
+        const entid = e.currentTarget.getAttribute("data-entityid");
+        const formDataGroupInv = new FormData();
+        formDataGroupInv.append("MembersSelected", `${localStorage.getItem("userID")}`);
+        postData(`/groupMembers?id=${parseInt(entid ?? "")}`, formDataGroupInv).then(([res, err]) => {
+          console.log('res :>> ', res);
+          if (res) {
+            const notifID = parseInt(`${target.getAttribute("data-notif")}`);
+            sendObject({
+              id: notifID,
+              approuved: true,
+              sender: { id: parseInt(`${senderId}`) },
+              receiver: { id: parseInt(`${localStorage.getItem("userID")}`) },
+            });
+            target.parentElement?.parentElement?.remove();
+            removeObject({ id: notifID });
+          }
+        });
+        break;
+      case "group":
+        const entityID = e.currentTarget.getAttribute("data-entityid");
+        const formDataGroup = new FormData();
+        formDataGroup.append("MembersSelected", `${senderId}`);
+        postData(`/groupMembers?id=${parseInt(entityID ?? "")}`, formDataGroup).then(([res, err]) => {
+          console.log('res :>> ', res);
+          if (res) {
+            const notifID = parseInt(`${target.getAttribute("data-notif")}`);
+            sendObject({
+              id: notifID,
+              approuved: true,
+              sender: { id: parseInt(`${senderId}`) },
+              receiver: { id: parseInt(`${localStorage.getItem("userID")}`) },
+            });
+            target.parentElement?.parentElement?.remove();
+            removeObject({ id: notifID });
+          }
+        });
+        break;
+
 
       default:
         break;
@@ -66,7 +105,7 @@ const NotificationBar: React.FC<NotificationProps> = ({ isOpen, notifs }) => {
   const notifications = notifs;
 
   return (
-    <Card className="absolute top-10 z-10  w-full min-w-80 max-w-sm mx-auto bg-white shadow-lg rounded-xl">
+    <Card className="absolute top-10 z-50  w-full min-w-80 max-w-sm mx-auto bg-white shadow-lg rounded-xl">
       <CardHeader className="pb-3">
         <CardTitle className="text-lg sm:text-xl font-bold">
           Notifications
@@ -93,6 +132,7 @@ const NotificationBar: React.FC<NotificationProps> = ({ isOpen, notifs }) => {
                 onClick={handleValidNotif}
                 data-sender={n.sender?.id}
                 data-entity={n.entityType}
+                data-entityid={n.entityId}
                 data-notif={n.id}
                 size="icon"
                 variant="ghost"

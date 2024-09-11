@@ -83,7 +83,7 @@ export default function NavigationBar() {
         </Link>
 
         {/* Lien pour la page de groupe */}
-        <Link href={"/"}>
+        <Link href={"/groups"}>
           <Button variant="ghost" className="text-muted-foreground" size="icon">
             <Image
               src="/group.svg"

@@ -5,6 +5,9 @@ import { useState } from "react";
 import CreatePostModal from "./CreatePostModal";
 import FollowModal from "./followerList";
 import { User } from "@/models/user.model";
+import { handleMember } from "@/services/member.service";
+import { toast } from "../ui/use-toast";
+import UseWS from "@/lib/hooks/usewebsocket";
 
 type IconProps = React.SVGProps<SVGSVGElement>;
 
@@ -49,6 +52,8 @@ interface GroupBarProps {
   groupName: string;
   createdAt: string;
   descriptionLink: string;
+  authorId?: number;
+  groupId?: number;
   creator: boolean;
   isMember?: boolean;
   members?: User[];
@@ -62,11 +67,14 @@ interface FollowModalState {
   follow?: User[];
 }
 
+
 const GroupBarComponent: React.FC<GroupBarProps> = ({
   imgSrc,
   groupName,
   createdAt,
   descriptionLink,
+  groupId,
+  authorId,
   creator,
   isMember,
   members,
@@ -74,11 +82,34 @@ const GroupBarComponent: React.FC<GroupBarProps> = ({
   handleCreatePost,
   handleCreateEvent,
 }) => {
+
+  const { sendObject: sendNotification } = UseWS();
   const [FollowModalData, setFollowModalData] = useState<FollowModalState>({
     isOpen: false,
     modalName: "",
     follow: [], // Initialize with an empty array
   });
+
+  const addMember = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const myId = parseInt(`${localStorage.getItem("userID")}`);
+    const authorGroupId = authorId || 0;
+    handleMember(e, {
+      groupId,
+      authorGroupId,
+      myId,
+      sendNotification,
+    });
+
+
+
+    toast({
+      title: "Request sent",
+      description: `Your request to join ${groupName} has been sent to the group owner `,
+    });
+
+
+  }
+
 
   const handleOpenFollowModal = (name: string, follow?: User[]) =>
     setFollowModalData({
@@ -155,7 +186,7 @@ const GroupBarComponent: React.FC<GroupBarProps> = ({
                   <PlusIcon className="w-4 h-4" />
                   <span>Create Event</span>
                 </Button>
-                {creator && (
+                { (
                   <Button
                     onClick={() => setShowForm && setShowForm(true)}
                     variant="default"
@@ -169,7 +200,10 @@ const GroupBarComponent: React.FC<GroupBarProps> = ({
             )}
             {!isMember && (
               <Button
-                onClick={handleCreateEvent}
+                onClick={(e) => {
+                  console.log("add member");
+                  addMember(e);
+                }}
                 variant="default"
                 className="flex items-center space-x-1"
               >
