@@ -96,7 +96,6 @@ func (hand *Handler) GroupMembersHandle(w http.ResponseWriter, r *http.Request) 
 		}
 		
 		AllMembers := r.Form["MembersSelected"]
-		fmt.Println(AllMembers)
 		for _, Member := range AllMembers {
 			MemId, err := strconv.Atoi(Member)
 			if err != nil {
@@ -105,11 +104,11 @@ func (hand *Handler) GroupMembersHandle(w http.ResponseWriter, r *http.Request) 
 			}
 			err = hand.ConnDB.SetGroupMember(MemId, GroupId)
 			if err != nil {
-				fmt.Println("error setting up member")
 				http.Error(w, "Error Creating Member", 400)
 				return
 			}
 		}
+		hand.renderJSON(w, "Members Added")
 	} else {
 		http.Error(w, "not Allowed", 400)
 	}
