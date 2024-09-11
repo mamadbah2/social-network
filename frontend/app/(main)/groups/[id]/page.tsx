@@ -22,12 +22,21 @@ import { Notification } from "@/models/notification.model";
 export default function Home({ params }: { params: { id: string } }) {
   const groupID = params.id;
 
-  const {sendObject: sendNotification} = UseWS();
+  const { sendObject: sendNotification } = UseWS();
 
   // Fetching group and users data
-  const { expect: group, error: errGroups } = useGetData<Group[]>(`/groups?id=${groupID}`, mapGroup);
-  const { expect: allUsers, error: errUser } = useGetData<User[]>(`/users`, mapUser);
-  const { expect: user, error: errMe } = useGetData(`/users?id=${localStorage.getItem("userID")}`, mapSimpleUser);
+  const { expect: group, error: errGroups } = useGetData<Group[]>(
+    `/groups?id=${groupID}`,
+    mapGroup
+  );
+  const { expect: allUsers, error: errUser } = useGetData<User[]>(
+    `/users`,
+    mapUser
+  );
+  const { expect: user, error: errMe } = useGetData(
+    `/users?id=${localStorage.getItem("userID")}`,
+    mapSimpleUser
+  );
 
   const [showAddMemberForm, setShowAddMemberForm] = useState(false);
   const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false);
@@ -41,7 +50,11 @@ export default function Home({ params }: { params: { id: string } }) {
 
   // Loading and Error handling
   if (!group || group.length === 0 || !allUsers || allUsers.length === 0) {
-    return <div className="space-y-4"><p>Loading...</p></div>;
+    return (
+      <div className="space-y-4">
+        <p>Loading...</p>
+      </div>
+    );
   }
 
   // if (errGroups || errUser) {
@@ -54,7 +67,6 @@ export default function Home({ params }: { params: { id: string } }) {
     const myId = parseInt(localStorage.getItem("userID") || "0");
     const entityId = group[0].id;
 
-
     if (selectedUserIds.length > 0) {
       // Send notification to each selected user
       selectedUserIds.forEach((receiverID) => {
@@ -64,9 +76,9 @@ export default function Home({ params }: { params: { id: string } }) {
           entityType: "group-invitation",
           entityId,
           sender: { id: myId },
-          receiver: { id : receiverID },
+          receiver: { id: receiverID },
         };
-        sendNotification(notif)
+        sendNotification(notif);
       });
 
       setShowAddMemberForm(false);
@@ -74,7 +86,6 @@ export default function Home({ params }: { params: { id: string } }) {
   };
 
   const handleCancel = () => setShowAddMemberForm(false);
-
 
   return (
     <>
@@ -91,7 +102,9 @@ export default function Home({ params }: { params: { id: string } }) {
           )
         }
         isMember={
-          !!(group[0].members.find((m) => m.id.toString() === localStorage.getItem("userID")))
+          !!group[0].members.find(
+            (m) => m.id.toString() === localStorage.getItem("userID")
+          )
         }
         members={group[0].members}
         groupId={group[0].id}
@@ -101,10 +114,14 @@ export default function Home({ params }: { params: { id: string } }) {
         handleCreateEvent={handleOpenEventModal}
       />
 
-      <div className="relative">
+      <div className="relative pt-24">
         {showAddMemberForm && (
           <AddMemberComponent
-            users={(user?.followers)?.filter(u =>  !(group[0].members.find(m=> m.id === u.id)) ) || []}
+            users={
+              user?.followers?.filter(
+                (u) => !group[0].members.find((m) => m.id === u.id)
+              ) || []
+            }
             onSave={handleAddMembers}
             onCancel={handleCancel}
           />
@@ -125,14 +142,18 @@ export default function Home({ params }: { params: { id: string } }) {
         <div className="space-y-4 pl-3">
           <PostSection
             posts={UpdatedPosts}
-            isLock={!(group[0].members.find((m) => m.id.toString() === localStorage.getItem("userID")))}
+            isLock={
+              !group[0].members.find(
+                (m) => m.id.toString() === localStorage.getItem("userID")
+              )
+            }
           />
 
           {events.map((event: Event) => (
             <EventCard
               key={event.Id}
               eventID={`${event.Id}`}
-              userID={localStorage.getItem('userID') || '0'}
+              userID={localStorage.getItem("userID") || "0"}
               username={event.Creator.firstname}
               avatarSrc=""
               date={event.Date}

@@ -111,7 +111,7 @@ export function mapPost(data: any): Post[] {
         content: p.Content,
         createdAt: new Date(p.CreatedAt),
         privacy: p.Privacy,
-        imageName: p.imageName,
+        imageName: p.ImageName,
         liked: p.Liked,
         disliked: p.Disliked,
         numberLike: p.NumberLike,

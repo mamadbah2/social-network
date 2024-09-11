@@ -69,7 +69,7 @@ export default function NavigationBar() {
         </Button>
       </div>
 
-      <div className="flex items-center justify-end w-96  space-x-16">
+      <div className="flex items-center justify-center w-96  space-x-16">
         {/* Lien pour la page d'accueil */}
         <Link href={"/"}>
           <Button variant="ghost" className="text-muted-foreground" size="icon">

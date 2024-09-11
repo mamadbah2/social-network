@@ -53,7 +53,9 @@ function Home() {
         setShowForm={setShowForm}
       />
       {showForm && <CreateGroupForm onSave={handleSave} onCancel={handleCancel} />}
+      <div className="pt-24">
       <PostSection posts={updatedPost} />
+      </div>
     </>
   );
 }

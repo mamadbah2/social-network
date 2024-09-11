@@ -8,6 +8,11 @@ import { User } from "@/models/user.model";
 import { handleMember } from "@/services/member.service";
 import { toast } from "../ui/use-toast";
 import UseWS from "@/lib/hooks/usewebsocket";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "../ui/hover-card";
 
 type IconProps = React.SVGProps<SVGSVGElement>;
 
@@ -67,7 +72,6 @@ interface FollowModalState {
   follow?: User[];
 }
 
-
 const GroupBarComponent: React.FC<GroupBarProps> = ({
   imgSrc,
   groupName,
@@ -82,7 +86,6 @@ const GroupBarComponent: React.FC<GroupBarProps> = ({
   handleCreatePost,
   handleCreateEvent,
 }) => {
-
   const { sendObject: sendNotification } = UseWS();
   const [FollowModalData, setFollowModalData] = useState<FollowModalState>({
     isOpen: false,
@@ -100,16 +103,11 @@ const GroupBarComponent: React.FC<GroupBarProps> = ({
       sendNotification,
     });
 
-
-
     toast({
       title: "Request sent",
       description: `Your request to join ${groupName} has been sent to the group owner `,
     });
-
-
-  }
-
+  };
 
   const handleOpenFollowModal = (name: string, follow?: User[]) =>
     setFollowModalData({
@@ -125,7 +123,7 @@ const GroupBarComponent: React.FC<GroupBarProps> = ({
     });
 
   return (
-    <div className="flex items-center justify-between p-4 bg-white border rounded-md sticky top-0 z-10">
+    <div className="flex items-center justify-center gap-8 w-[54%] p-4 ml-4 mr-0 mb-4 bg-white border rounded-md fixed  top-23 z-10">
       {groupName ? (
         <>
           <div className="flex items-center space-x-4">
@@ -137,7 +135,14 @@ const GroupBarComponent: React.FC<GroupBarProps> = ({
             </Avatar>
             <div>
               <div className="flex items-center space-x-2">
-                <span className="font-medium">{groupName}</span>
+                <HoverCard>
+                  <HoverCardTrigger className=" cursor-pointer">
+                    {groupName.length > 10
+                      ? `${groupName.substring(0, 10)}...`
+                      : groupName}
+                  </HoverCardTrigger>
+                  <HoverCardContent>{groupName}</HoverCardContent>
+                </HoverCard>
                 <span className="text-muted-foreground">•</span>
                 <Link
                   href={descriptionLink}
@@ -186,7 +191,7 @@ const GroupBarComponent: React.FC<GroupBarProps> = ({
                   <PlusIcon className="w-4 h-4" />
                   <span>Create Event</span>
                 </Button>
-                { (
+                {
                   <Button
                     onClick={() => setShowForm && setShowForm(true)}
                     variant="default"
@@ -195,7 +200,7 @@ const GroupBarComponent: React.FC<GroupBarProps> = ({
                     <PlusIcon className="w-4 h-4" />
                     <span>Add Members</span>
                   </Button>
-                )}
+                }
               </>
             )}
             {!isMember && (

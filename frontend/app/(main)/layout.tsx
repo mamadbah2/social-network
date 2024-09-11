@@ -18,7 +18,7 @@ function MainLayout({
     <WsProvider uri="/chat" mapper={mapMessage} context={MessageWebSocketCtx}>
       <WsProvider uri="/notification" mapper={mapNotification} context={WebSocketCtx}>
         <PostProvider>
-          <div className="flex flex-col gap-2 bg-muted w-full h-screen p-5 pb-20 overflow-hidden">
+          <div className="flex flex-col gap-2 bg-muted w-full h-screen p-5 pb-10 overflow-hidden">
             <header>
               <NavigationBar />
             </header>
