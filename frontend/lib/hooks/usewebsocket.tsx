@@ -8,7 +8,14 @@ import {
   useRef,
 } from "react";
 
-const WebSocketCtx = createContext<{
+export const WebSocketCtx = createContext<{
+  sendObject: <T>(obj: T) => boolean;
+  getReceived: <T>() => T[];
+  getApprouved: <T>() => T[];
+  removeObject: <T>(obj: T) => boolean;
+} | null>(null);
+
+export const MessageWebSocketCtx = createContext<{
   sendObject: <T>(obj: T) => boolean;
   getReceived: <T>() => T[];
   getApprouved: <T>() => T[];
@@ -18,23 +25,24 @@ const WebSocketCtx = createContext<{
 export const WsProvider: React.FC<{
   uri: string;
   mapper: (obj: any) => any[];
+  context: React.Context<any>;
   children: React.ReactNode;
-}> = ({ uri, mapper, children }) => {
+}> = ({ uri, mapper, context, children }) => {
   const receivedRef = useRef<any[]>([]);
   const wsRef = useRef<WebSocket | null>(null);
   useEffect(() => {
     wsRef.current = new WebSocket("ws://localhost:4000" + uri);
 
     wsRef.current.onopen = () => {
-      console.log("WebSocket connected successfully");
+      console.log("WebSocket connected successfully ", uri);
     };
 
     wsRef.current.onerror = (e) => {
-      console.log("WebSocket error : ", e);
+      console.log("WebSocket error : ", uri, e);
     }
 
     wsRef.current.onclose = () => {
-      console.log('WebSocket closed. Reconnecting...');
+      console.log('WebSocket closed. Reconnecting... ', uri);
     };
 
 
@@ -63,8 +71,8 @@ export const WsProvider: React.FC<{
 
   // Permet de voir les messages reçus non approuvés
   const getReceived = useCallback(() => {
-    return receivedRef.current.filter((n) => n.approuved == false);
-    // return receivedRef.current
+    // return receivedRef.current.filter((n) => n.approuved == false);
+    return receivedRef.current
   }, []);
 
   // Permet de voir les messages reçus et approuvés
@@ -79,11 +87,11 @@ export const WsProvider: React.FC<{
   };
 
   return (
-    <WebSocketCtx.Provider
+    <context.Provider
       value={{ sendObject, getReceived, getApprouved, removeObject }}
     >
       {children}
-    </WebSocketCtx.Provider>
+    </context.Provider>
   );
 };
 
@@ -91,6 +99,14 @@ const UseWS = () => {
   const context = useContext(WebSocketCtx);
   if (!context) {
     throw new Error("UseWS must be used within a WebSocketProvider");
+  }
+  return context;
+};
+
+export const UseMessageWS = () => {
+  const context = useContext(MessageWebSocketCtx);
+  if (!context) {
+    throw new Error("useMessageWS must be used within a MessageWebSocketCtx Provider");
   }
   return context;
 };

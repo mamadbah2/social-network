@@ -6,6 +6,7 @@ import { Reaction } from "@/models/reaction.model";
 import { Session } from "@/models/session.model";
 import { User } from "@/models/user.model";
 import { Notification } from "@/models/notification.model";
+import { Msg } from "@/models/message.model";
 
 export function mapSimpleUser(data: any): User {
   if (!data) {
@@ -290,3 +291,24 @@ export function mapReactionType(data: any): Reaction {
     disliked: data.Disliked,
   };
 }
+
+
+export function mapMessage(data: any): Msg[] {
+  console.log('data :>> ', data);
+  if (!data) {
+      return []
+  }
+  
+return data.map((u: any): Msg => {
+  return {
+    id: u.Id,
+    text: u.Content,
+    type: u.Type,
+    sentAt: u.SentAt,
+    sender: mapSimpleUser(u.Sender) ,
+    receiver: mapSimpleUser(u.Receiver) ,
+  };
+});
+// return som
+}
+
