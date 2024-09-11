@@ -12,6 +12,7 @@ import Logout from "./logout";
 import NotificationBar from "./notification";
 import ProfileLink from "./ProfileLink";
 import { Bell, BellDot } from "lucide-react";
+import ChatInterface from "./ChatInterface";
 
 export default function NavigationBar() {
   const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false);
@@ -95,6 +96,8 @@ export default function NavigationBar() {
           </Button>
         </Link>
       </div>
+
+      {/* <ChatInterface isOpen={isChatboxOpen} /> */}
 
       {/* Bouton pour le chat box */}
       <div className="relative flex items-center justify-end  space-x-4">

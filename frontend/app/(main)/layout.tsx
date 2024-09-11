@@ -8,6 +8,7 @@ import { WsProvider } from "@/lib/hooks/usewebsocket";
 import { mapNotification } from "@/lib/modelmapper";
 import { Toaster } from "@/components/ui/toaster"
 import React from "react";
+import ChatInterface from "@/components/uiperso/ChatInterface";
 function MainLayout({
   children,
 }: Readonly<{
@@ -29,6 +30,9 @@ function MainLayout({
                 {children}
               </section>
             </ScrollArea>
+            <aside className="bg-background h-full rounded-lg">
+              <ChatInterface isOpen/>
+            </aside>
           </main>
         </div>
         <Toaster />
