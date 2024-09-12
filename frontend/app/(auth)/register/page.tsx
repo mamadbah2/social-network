@@ -25,10 +25,13 @@ export default function Register() {
       router.push("/login");
     } else {
       Object.keys(err).forEach((key) => {
-        target.querySelector(`[name=${key}]`)?.classList.add("border-red-500");
+        console.log("key :>> ", key);
+        target
+          .querySelector(`[name=${key.toLowerCase()}]`)
+          ?.classList.add("border-red-500");
         setTimeout(() => {
           target
-            .querySelector(`[name=${key}]`)
+            .querySelector(`[name=${key.toLowerCase()}]`)
             ?.classList.remove("border-red-500");
         }, 2000);
       });

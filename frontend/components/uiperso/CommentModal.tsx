@@ -2,8 +2,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { usePostContext } from "@/lib/hooks/postctx";
-import usePostData from "@/lib/hooks/usepost";
-import { mapComments, mapSimpleComments } from "@/lib/modelmapper";
+import useGetData from "@/lib/hooks/useGet";
+import postData from "@/lib/hooks/usepost";
+import { mapSimpleComments, mapSimpleUser } from "@/lib/modelmapper";
 import { ImageIcon, Send, X } from "lucide-react";
 import React, { FormEvent, useRef } from "react";
 interface CommentModalProps {
@@ -32,20 +33,28 @@ export default function CommentModal({
   const { setComment } = usePostContext();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
+  const { expect: user, error: errUser } = useGetData(
+    `/users?id=${localStorage.getItem("userID")}`,
+    mapSimpleUser
+  );
+
   // Fonction pour gérer la soumission
   const useHandleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     if (!formData.get("CommentContent")) return;
-    const [resp, err] = await usePostData(
+    const [resp, err] = await postData(
       `/comment?Id=${String(postId)}`,
       formData,
       true
     );
 
     if (resp) {
-      if (window.location.pathname !== "/" && !window.location.pathname.startsWith('/groups')) {
-        console.log('window.location.pathname', window.location.pathname)
+      if (
+        window.location.pathname !== "/" &&
+        !window.location.pathname.startsWith("/groups")
+      ) {
+        console.log("window.location.pathname", window.location.pathname);
         let oneComment = mapSimpleComments(resp);
         setComment(oneComment);
       }
@@ -97,7 +106,9 @@ export default function CommentModal({
         <div className="flex items-center space-x-2 p-4 border-t">
           <Avatar className="h-8 w-8">
             <AvatarImage src="/placeholder.svg?height=32&width=32" alt="User" />
-            <AvatarFallback>U</AvatarFallback>
+            <AvatarFallback>
+              {user?.firstname.charAt(0).toUpperCase()}
+            </AvatarFallback>
           </Avatar>
           <form
             onSubmit={useHandleSubmit}
@@ -110,8 +121,18 @@ export default function CommentModal({
               name="CommentContent"
               placeholder="Write your comment"
             />
-            <Input type="file" name="commentImage" ref={fileInputRef} className="hidden" />
-            <Button onClick={handleClickImg} variant="ghost" size="icon" className="shrink-0">
+            <Input
+              type="file"
+              name="commentImage"
+              ref={fileInputRef}
+              className="hidden"
+            />
+            <Button
+              onClick={handleClickImg}
+              variant="ghost"
+              size="icon"
+              className="shrink-0"
+            >
               <ImageIcon className="h-5 w-5" />
             </Button>
             <Button size="icon" className="shrink-0">

@@ -28,6 +28,7 @@ type User struct {
 	Groups           []*Group
 	Posts            []*Post
 	SuggestedFriends []*User
+	CreatedGroup     []*Group
 }
 
 func (m *ConnDB) GetPosts(userID int) ([]*Post, error) {
@@ -171,6 +172,12 @@ func (m *ConnDB) GetUser(userID int) (*User, error) {
 		return nil, err
 	}
 	u.SuggestedFriends = noFriend
+
+	groupsCreatedByAuthor, err := m.GetGroupAuthor(u.Id)
+	if err != nil {
+		return nil, err
+	}
+	u.CreatedGroup = groupsCreatedByAuthor
 
 	return u, nil
 }

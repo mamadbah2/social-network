@@ -33,7 +33,10 @@ func (hand *Handler) Register(w http.ResponseWriter, r *http.Request) {
 
 	// Gestion de la date anniversaire, conversion time.Time
 	dateStr := r.PostForm.Get("dateOfBirth")
-	date, err := time.Parse("2006-01-02", dateStr)
+	var date time.Time
+	if dateStr != ""{
+		date, err = time.Parse("2006-01-02", dateStr)
+	}
 	if err != nil {
 		hand.Helpers.InfoLog.Println(r.PostForm.Get("lastname"))
 		hand.Helpers.ServerError(w, err)
@@ -81,7 +84,6 @@ func (hand *Handler) Register(w http.ResponseWriter, r *http.Request) {
 	hand.Valid.CheckField(validators.MaxChars(user.FirstName, 20), "FirstName", "This field cannot be more than 20 characters long")
 	hand.Valid.CheckField(validators.NotBlank(user.LastName), "LastName", "This field cannot be blank")
 	hand.Valid.CheckField(validators.MaxChars(user.LastName, 20), "LastName", "This field cannot be more than 20 characters long")
-	hand.Valid.CheckField(validators.NotBlank(user.Nickname), "Nickname", "This field cannot be blank")
 	hand.Valid.CheckField(validators.MaxChars(user.Nickname, 20), "Nickname", "This field cannot be more than 20 characters long")
 	hand.Valid.CheckField(validators.NotBlank(user.Email), "Email", "This field cannot be blank")
 	hand.Valid.CheckField(validators.Matches(user.Email, validators.EmailRX), "email", "This field must be a valid email address")

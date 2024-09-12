@@ -7,17 +7,17 @@ import {
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
+import { usePostContext } from "@/lib/hooks/postctx";
+import useGetData from "@/lib/hooks/useGet";
 import { ReactionOptions, useReaction } from "@/lib/hooks/useReaction";
+import { mapReactionType } from "@/lib/modelmapper";
 import { Reaction } from "@/models/reaction.model";
-import { HeartCrack, HeartIcon, MessageCircleIcon, MessageCirclePlus } from "lucide-react";
+import { HeartCrack, HeartIcon, MessageCirclePlus } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { FormEvent, use, useEffect, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import CommentModal from "./CommentModal";
 import ProfileButton from "./ProfileLink";
-import useGetData from "@/lib/hooks/useGet";
-import { mapReactionType, mapUser } from "@/lib/modelmapper";
-import { usePostContext } from "@/lib/hooks/postctx";
 
 interface PostCardProps {
   author?: number;
@@ -65,11 +65,13 @@ export default function PostCard({
     disliked: false,
   });
 
-  const { expect: initialReaction } = useGetData(`/reaction?entityID=${postId}&reaction_type=post`, mapReactionType);
+  const { expect: initialReaction } = useGetData(
+    `/reaction?entityID=${postId}&reaction_type=post`,
+    mapReactionType
+  );
   useEffect(() => {
     setReactionBefore(initialReaction ?? { liked: false, disliked: false });
-  }, [initialReaction])
-
+  }, [initialReaction]);
 
   // Handle reaction pour gerer les likes et dislikes
   const handleReact = (
@@ -106,7 +108,6 @@ export default function PostCard({
     });
   };
 
-  
   return (
     <Card className="max-w-2xl mx-auto">
       <CommentModal
@@ -115,7 +116,7 @@ export default function PostCard({
         onClose={handleCloseCommentModal}
         postTitle={title}
         postContent={content}
-        postAuthor={username}
+        postAuthor={firstname}
         avatarSrc={avatarSrc}
         postDate={date}
       />
@@ -130,7 +131,7 @@ export default function PostCard({
           </Avatar>
         </ProfileButton>
         <div className="flex flex-col">
-          <span className="font-semibold">{username}</span>
+          <span className="font-semibold">{firstname}</span>
           <span className="text-sm text-muted-foreground">{date}</span>
         </div>
       </CardHeader>
@@ -156,12 +157,15 @@ export default function PostCard({
         <Button
           variant="ghost"
           size="sm"
-          onClick={!isLocked ? (e) =>
-            handleReact(e, {
-              entityId: postId,
-              reactionType: "post",
-              isLike: true,
-            }) : () => { }
+          onClick={
+            !isLocked
+              ? (e) =>
+                  handleReact(e, {
+                    entityId: postId,
+                    reactionType: "post",
+                    isLike: true,
+                  })
+              : () => {}
           }
           className="text-muted-foreground"
         >
@@ -170,12 +174,15 @@ export default function PostCard({
         </Button>
         <Button
           variant="ghost"
-          onClick={!isLocked ? (e) =>
-            handleReact(e, {
-              entityId: postId,
-              reactionType: "post",
-              isLike: false,
-            }) : () => { }
+          onClick={
+            !isLocked
+              ? (e) =>
+                  handleReact(e, {
+                    entityId: postId,
+                    reactionType: "post",
+                    isLike: false,
+                  })
+              : () => {}
           }
           size="sm"
           className="text-muted-foreground"
