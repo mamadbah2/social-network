@@ -1,12 +1,12 @@
 import { Comment } from "@/models/comment.model";
-import { Group } from "@/models/group.model";
 import { Event } from "@/models/event.model";
+import { Group } from "@/models/group.model";
+import { Msg } from "@/models/message.model";
+import { Notification } from "@/models/notification.model";
 import { Post } from "@/models/post.model";
 import { Reaction } from "@/models/reaction.model";
 import { Session } from "@/models/session.model";
 import { User } from "@/models/user.model";
-import { Notification } from "@/models/notification.model";
-import { Msg } from "@/models/message.model";
 
 export function mapSimpleUser(data: any): User {
   if (!data) {
@@ -15,7 +15,7 @@ export function mapSimpleUser(data: any): User {
       email: "",
       firstname: "",
       lastname: "",
-      nickname: " ",
+      nickname: "",
       dateOfBirth: new Date(),
       aboutMe: "",
       private: false,
@@ -45,10 +45,10 @@ export function mapSimpleUser(data: any): User {
 }
 
 export function mapUser(data: any): User[] {
-    if (!data) {
-        return []
-    }
-    
+  if (!data) {
+    return [];
+  }
+
   return data.map((u: any): User => {
     return {
       id: u.Id,
@@ -101,59 +101,63 @@ export function mapSimplePost(data: any): Post {
 }
 
 export function mapPost(data: any): Post[] {
-    if (!data) {
-        return [];
-    }
-    
-    return data.map((p: any): Post => ({
-        id: p.Id,
-        title: p.Title,
-        content: p.Content,
-        createdAt: new Date(p.CreatedAt),
-        privacy: p.Privacy,
-        imageName: p.ImageName,
-        liked: p.Liked,
-        disliked: p.Disliked,
-        numberLike: p.NumberLike,
-        numberDislike: p.NumberDislike,
-        numberComment: p.NumberComment,
-        imageSrc: p.ImageSrc || undefined, // Handle optional imageSrc field
-        author: p.Author ? mapSimpleUser(p.Author) : undefined, // Optional field for the author
-        group: p.Group ? mapGroup(p.Group)[0] : undefined, // Optional field for the group
-        comments: p.Comments ? p.Comments : undefined, // Optional array of comments
-        viewers: p.Viewers ? mapUser(p.Viewers) : undefined, // Optional array of viewers
-    }));
-    
+  if (!data) {
+    return [];
+  }
+
+  return data.map(
+    (p: any): Post => ({
+      id: p.Id,
+      title: p.Title,
+      content: p.Content,
+      createdAt: new Date(p.CreatedAt),
+      privacy: p.Privacy,
+      imageName: p.ImageName,
+      liked: p.Liked,
+      disliked: p.Disliked,
+      numberLike: p.NumberLike,
+      numberDislike: p.NumberDislike,
+      numberComment: p.NumberComment,
+      imageSrc: p.ImageSrc || undefined, // Handle optional imageSrc field
+      author: p.Author ? mapSimpleUser(p.Author) : undefined, // Optional field for the author
+      group: p.Group ? mapGroup(p.Group)[0] : undefined, // Optional field for the group
+      comments: p.Comments ? p.Comments : undefined, // Optional array of comments
+      viewers: p.Viewers ? mapUser(p.Viewers) : undefined, // Optional array of viewers
+    })
+  );
 }
 
 export function mapGroup(data: any): Group[] {
-    if (!data) {
-        return [];
-    }
-    if (!Array.isArray(data)) {
-        return [{
-            id : data.Id,
-            name : data.Name,
-            description : data.Description,
-            creator : mapSimpleUser(data.Creator),
-            createdAt : data.CreatedAt,
-            posts : mapPost(data.Posts) || [],
-            members : mapUser(data.Members),
-            events : mapEvent(data.Events) || [],
-        }];
-    }
-    
+  if (!data) {
+    return [];
+  }
+  if (!Array.isArray(data)) {
+    return [
+      {
+        id: data.Id,
+        name: data.Name,
+        description: data.Description,
+        creator: mapSimpleUser(data.Creator),
+        createdAt: data.CreatedAt,
+        posts: mapPost(data.Posts) || [],
+        members: mapUser(data.Members),
+        events: mapEvent(data.Events) || [],
+      },
+    ];
+  }
 
-    return data.map((g: any): Group => ({
-        id : g.Id,
-        name : g.Name,
-        description : g.Description,
-        creator : mapSimpleUser(g.Creator),
-        createdAt : g.CreatedAt,
-        posts : mapPost(g.Posts) || [],
-        members : mapUser(g.Members),
-        events : mapEvent(g.Events) || [],
-    }));
+  return data.map(
+    (g: any): Group => ({
+      id: g.Id,
+      name: g.Name,
+      description: g.Description,
+      creator: mapSimpleUser(g.Creator),
+      createdAt: g.CreatedAt,
+      posts: mapPost(g.Posts) || [],
+      members: mapUser(g.Members),
+      events: mapEvent(g.Events) || [],
+    })
+  );
 }
 
 export function mapNotification(data: any): Notification[] {
@@ -161,7 +165,7 @@ export function mapNotification(data: any): Notification[] {
     return [];
   }
 
-  data = !Array.isArray(data) ? [data] : data
+  data = !Array.isArray(data) ? [data] : data;
 
   return data.map(
     (n: any): Notification => ({
@@ -192,39 +196,43 @@ export function mapSimpleSession(data: any): Session {
 }
 
 export function mapEvent(data: any): Event[] {
-    if (!data) {
-        return [];
-    }
+  if (!data) {
+    return [];
+  }
 
-    if (!Array.isArray(data)) {
-        return [{
-            Id : data.Id,
-            Title : data.Title,
-            Description : data.Description,
-            Date : data.Date,
-            Time : data.Time,
-            Liked : data.Liked,
-            Disliked : data.Disliked,
-            NumberLike : data.NumberLike,
-            NumberDislike : data.NumberDislike,
-            Creator : mapSimpleUser(data.Creator),
-            Group : mapGroup(data.Group)[0],
-        }];
-    }
+  if (!Array.isArray(data)) {
+    return [
+      {
+        Id: data.Id,
+        Title: data.Title,
+        Description: data.Description,
+        Date: data.Date,
+        Time: data.Time,
+        Liked: data.Liked,
+        Disliked: data.Disliked,
+        NumberLike: data.NumberLike,
+        NumberDislike: data.NumberDislike,
+        Creator: mapSimpleUser(data.Creator),
+        Group: mapGroup(data.Group)[0],
+      },
+    ];
+  }
 
-    return data.map((e: any): Event => ({
-        Id : e.Id,
-        Title : e.Title,
-        Description : e.Description,
-        Date : e.Date,
-        Time : e.Time,
-        Liked : e.Liked,
-        Disliked : e.Disliked,
-        NumberLike : e.NumberLike,
-        NumberDislike : e.NumberDislike,
-        Creator : mapSimpleUser(e.Creator),
-        Group : mapGroup(e.Group)[0],
-    }));
+  return data.map(
+    (e: any): Event => ({
+      Id: e.Id,
+      Title: e.Title,
+      Description: e.Description,
+      Date: e.Date,
+      Time: e.Time,
+      Liked: e.Liked,
+      Disliked: e.Disliked,
+      NumberLike: e.NumberLike,
+      NumberDislike: e.NumberDislike,
+      Creator: mapSimpleUser(e.Creator),
+      Group: mapGroup(e.Group)[0],
+    })
+  );
 }
 
 export function mapComments(data: any): Comment[] {
@@ -261,7 +269,7 @@ export function mapSimpleComments(data: any): Comment {
       numberLike: 0,
       numberDislike: 0,
       post: undefined,
-    };    
+    };
   }
 
   return {
@@ -292,23 +300,21 @@ export function mapReactionType(data: any): Reaction {
   };
 }
 
-
 export function mapMessage(data: any): Msg[] {
-  console.log('data :>> ', data);
+  console.log("data :>> ", data);
   if (!data) {
-      return []
+    return [];
   }
-  
-return data.map((u: any): Msg => {
-  return {
-    id: u.ID,
-    content: u.Content,
-    type: u.Type,
-    sentAt: u.SentAt,
-    sender: mapSimpleUser(u.Sender) ,
-    receiver: mapSimpleUser(u.Receiver) ,
-  };
-});
-// return som
-}
 
+  return data.map((u: any): Msg => {
+    return {
+      id: u.ID,
+      content: u.Content,
+      type: u.Type,
+      sentAt: u.SentAt,
+      sender: mapSimpleUser(u.Sender),
+      receiver: mapSimpleUser(u.Receiver),
+    };
+  });
+  // return som
+}

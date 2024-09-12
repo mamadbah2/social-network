@@ -11,10 +11,10 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
     firstname,
 }: ChatHeaderProps) => <>
         <Avatar>
-            <AvatarImage src={profilePicture} alt={nickname || firstname} />
+            <AvatarImage src={profilePicture} alt={firstname} />
             <AvatarFallback>{firstname.charAt(0).toUpperCase()}</AvatarFallback>
         </Avatar>
-        <span>{nickname || firstname}</span>
+        <span>{firstname}</span>
         <Button onClick={() => {
             // TODO: setIsChatboxOpen(!isChatboxOpen)
         }}>X</Button>

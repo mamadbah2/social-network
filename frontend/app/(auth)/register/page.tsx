@@ -26,12 +26,10 @@ export default function Register() {
     } else {
       Object.keys(err).forEach((key) => {
         console.log("key :>> ", key);
-        target
-          .querySelector(`[name=${key.toLowerCase()}]`)
-          ?.classList.add("border-red-500");
+        target.querySelector(`[name=${key}]`)?.classList.add("border-red-500");
         setTimeout(() => {
           target
-            .querySelector(`[name=${key.toLowerCase()}]`)
+            .querySelector(`[name=${key}]`)
             ?.classList.remove("border-red-500");
         }, 2000);
       });

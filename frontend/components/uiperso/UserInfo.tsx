@@ -44,9 +44,6 @@ export default function UserInfo({ user, isLock }: UserInfoState) {
     }
 
     console.log("Response from backend:", resp);
-
-    // Mettez à jour l'état de la confidentialité localement
-    setPrivacy(newPrivacy);
   };
 
   return (

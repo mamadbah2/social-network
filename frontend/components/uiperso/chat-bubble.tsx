@@ -10,7 +10,7 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
     sentAt = new Date().toISOString().slice(0, 10),
 }: ChatBubbleProps) => (
     <fieldset>
-        <legend>{sender?.nickname || sender?.firstname}</legend>
+        <legend>{sender?.lastname || sender?.firstname}</legend>
         <p>{content}</p>
         <h6>{sentAt}</h6>
     </fieldset>
