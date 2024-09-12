@@ -11,14 +11,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { User } from "@/models/user.model";
+import { Lock } from "lucide-react";
 
 interface UserInfoState {
   user?: User | null;
+  isLock?: boolean;
 }
 
-export default function UserInfo({ user }: UserInfoState) {
+export default function UserInfo({ user, isLock }: UserInfoState) {
   return (
-    <Dialog defaultOpen>
+    <Dialog>
       <DialogTrigger asChild>
         <Button variant="outline">View User Info</Button>
       </DialogTrigger>
@@ -27,6 +29,7 @@ export default function UserInfo({ user }: UserInfoState) {
           <DialogTitle>User Information</DialogTitle>
           <div />
         </DialogHeader>
+        {!isLock &&
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -57,6 +60,16 @@ export default function UserInfo({ user }: UserInfoState) {
             <Textarea id="about" value={user?.aboutMe} readOnly />
           </div>
         </div>
+        }
+        {isLock &&
+        <div>
+          <span className="font-semibold">
+          {" "}
+          <Lock className="h-6 w-6 " />
+          </span>
+          <p>Private Profile</p>
+        </div>
+        }
       </DialogContent>
     </Dialog>
   );

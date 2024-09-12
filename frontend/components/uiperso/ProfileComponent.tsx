@@ -252,7 +252,11 @@ export default function ProfileComponent({ id }: { id: string }) {
             <span className="font-semibold">{user?.posts?.length}</span>
             <span className="text-gray-500">Posts</span>
           </div>
-          <UserInfo user={user} />
+          <UserInfo user={user}
+           isLock={
+            !(user?.followers?.find((u) => u.id.toString() === localStorage.getItem("userID"))) &&
+            user?.private && user.id.toString() !== localStorage.getItem("userID")
+          } />
         </div>
         {
           // If the user is not the current user, show the follow button

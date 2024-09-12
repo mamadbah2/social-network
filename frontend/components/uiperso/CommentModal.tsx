@@ -4,8 +4,6 @@ import { Input } from "@/components/ui/input";
 import { usePostContext } from "@/lib/hooks/postctx";
 import usePostData from "@/lib/hooks/usepost";
 import { mapComments, mapSimpleComments } from "@/lib/modelmapper";
-import { Comment } from "@/models/comment.model";
-import { on } from "events";
 import { ImageIcon, Send, X } from "lucide-react";
 import React, { FormEvent, useRef } from "react";
 interface CommentModalProps {
@@ -46,10 +44,11 @@ export default function CommentModal({
     );
 
     if (resp) {
-      if (window.location.pathname !== "/") {
+      if (window.location.pathname !== "/" && !window.location.pathname.startsWith('/groups')) {
+        console.log('window.location.pathname', window.location.pathname)
         let oneComment = mapSimpleComments(resp);
         setComment(oneComment);
-      } 
+      }
     }
     onClose();
   };
