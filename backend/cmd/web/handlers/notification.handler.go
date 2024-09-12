@@ -108,7 +108,7 @@ func (hand *Handler) Notification(w http.ResponseWriter, r *http.Request) {
 					delete(notifClients, newNotif.Receiver.Id)
 					hand.Helpers.InfoLog.Printf("Connexion fermée pour l'utilisateur %d\n", newNotif.Receiver.Id)
 				}
-				continue
+				return
 			}
 			receiverConn.mu.Unlock()
 		}

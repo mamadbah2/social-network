@@ -2,7 +2,7 @@ import { User } from "./user.model";
 
 export interface Msg {
     id: number
-    text: string
+    content: string
     type: string
     sentAt?: string
     sender?: Partial<User>

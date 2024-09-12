@@ -301,8 +301,8 @@ export function mapMessage(data: any): Msg[] {
   
 return data.map((u: any): Msg => {
   return {
-    id: u.Id,
-    text: u.Content,
+    id: u.ID,
+    content: u.Content,
     type: u.Type,
     sentAt: u.SentAt,
     sender: mapSimpleUser(u.Sender) ,

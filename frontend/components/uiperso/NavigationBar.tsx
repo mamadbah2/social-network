@@ -12,7 +12,6 @@ import Logout from "./logout";
 import NotificationBar from "./notification";
 import ProfileLink from "./ProfileLink";
 import { Bell, BellDot } from "lucide-react";
-import ChatInterface from "./ChatInterface";
 
 export default function NavigationBar() {
   const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false);

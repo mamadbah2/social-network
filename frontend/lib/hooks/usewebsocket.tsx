@@ -6,6 +6,7 @@ import {
   useContext,
   useEffect,
   useRef,
+  useState,
 } from "react";
 
 export const WebSocketCtx = createContext<{
@@ -13,6 +14,7 @@ export const WebSocketCtx = createContext<{
   getReceived: <T>() => T[];
   getApprouved: <T>() => T[];
   removeObject: <T>(obj: T) => boolean;
+  isModified : boolean
 } | null>(null);
 
 export const MessageWebSocketCtx = createContext<{
@@ -20,6 +22,7 @@ export const MessageWebSocketCtx = createContext<{
   getReceived: <T>() => T[];
   getApprouved: <T>() => T[];
   removeObject: <T>(obj: T) => boolean;
+  isModified : boolean
 } | null>(null);
 
 export const WsProvider: React.FC<{
@@ -28,6 +31,7 @@ export const WsProvider: React.FC<{
   context: React.Context<any>;
   children: React.ReactNode;
 }> = ({ uri, mapper, context, children }) => {
+  const [isModified, setIsModified] = useState<boolean>(false); 
   const receivedRef = useRef<any[]>([]);
   const wsRef = useRef<WebSocket | null>(null);
   useEffect(() => {
@@ -55,6 +59,7 @@ export const WsProvider: React.FC<{
         } else {
           receivedRef.current = [...receivedRef.current, ...mapper(data)];
         }
+        setIsModified(!isModified);
       }
     };
     
@@ -88,7 +93,7 @@ export const WsProvider: React.FC<{
 
   return (
     <context.Provider
-      value={{ sendObject, getReceived, getApprouved, removeObject }}
+      value={{ sendObject, getReceived, getApprouved, removeObject, isModified }}
     >
       {children}
     </context.Provider>

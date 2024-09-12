@@ -1,9 +1,9 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"social-network/internal/models"
-	"strconv"
 
 	"github.com/gorilla/websocket"
 )
@@ -19,35 +19,14 @@ var socket = websocket.Upgrader{
 	},
 }
 
-// / Chat Handler's responsibilities:
-// / Retrieve and Send all messages exchanged with the selected user from the database.
-// / Upgrade HTTP protocol to websocket protocol.
-// / Add connections to the chatbox.
-// / Get messages sent by the current user (Sender) in real-time.
-// / Insert the messages in the database's messages table.
-// / Find the targeted user (Receiver) in the chat box connection.
-// / Send messages to the receiver in real-time.
 func (h *Handler) Chat(w http.ResponseWriter, r *http.Request) {
-	/* if r.Method != http.MethodGet {
-		h.Helpers.ClientError(w, http.StatusMethodNotAllowed)
-		return
-	}
- */
 	// Get the sender's ID from the sender's session.
 	session, err := h.ConnDB.GetSession(r)
 	if err != nil {
 		h.Helpers.ServerError(w, err)
 		return
 	}
-	// h.Helpers.ErrorLog.Fatalln("session. =>>", session)
 	senderID := session.UserId
-
-	// Get the receiver's ID from the request's URL.
-	receiverID, err := strconv.Atoi(r.URL.Query().Get("id"))
-	if err != nil {
-		h.Helpers.ClientError(w, http.StatusNotFound)
-		return
-	}
 
 	// Switching Protocol...
 	senderConn, err := socket.Upgrade(w, r, nil)
@@ -59,25 +38,15 @@ func (h *Handler) Chat(w http.ResponseWriter, r *http.Request) {
 
 	chatbox[senderID] = senderConn // Add sender's connection in the chat box.
 
-	// Get the message history from the database.
-	oldMessages, err := h.ConnDB.GetOldConversation(senderID, receiverID)
-	if err != nil {
-		h.Helpers.ServerError(w, err)
-		return
-	}
-
-	// Send the message history to the sender.
-	if err = senderConn.WriteJSON(oldMessages); err != nil {
-		h.Helpers.ServerError(w, err)
-		return
-	}
 	//////////////////////
 	/// REAL-TIME CHAT ///
 	//////////////////////
-	
+
+	var messages []*models.Message
 	for {
 		// Receive new messages from the sender.
-		var newMessage models.Message
+		var newMessage *models.Message
+		var receivers []*models.User
 		// var strMsg string
 		if err := senderConn.ReadJSON(&newMessage); err != nil {
 			senderConn.Close()
@@ -85,21 +54,101 @@ func (h *Handler) Chat(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 
-		// Insert the new messages in the database.
-		h.ConnDB.Set(
-			`INSERT INTO messages (id_sender, id_receiver, content, message_type, created_at)
-			VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)`,
-			senderID, receiverID, newMessage.Content, newMessage.Type, 
-		)
+		switch newMessage.Type {
+		case "getAllMessagePrivate":
 
-		// Send the new messages to the receiver
-		// if the receiver has a connection in the chat box.
-		if receiverConn, exists := chatbox[receiverID]; exists {
-			if err = receiverConn.WriteJSON(newMessage); err != nil {
-				receiverConn.Close()
-				delete(chatbox, receiverID)
-				break
+			fmt.Println("getAllMessagePrivate")
+			oldMsg, err := h.ConnDB.GetOldConversation(newMessage.Sender.Id, newMessage.Receiver.Id, "private")
+			if err != nil {
+				h.Helpers.ServerError(w, err)
+				return
 			}
+
+			// Define the receiver
+			r, err := h.ConnDB.GetUser(newMessage.Receiver.Id)
+			if err != nil {
+				h.Helpers.ServerError(w, err)
+				return
+			}
+			receivers = []*models.User{r}
+
+			// If there is no old message, we add the new message to the messages slice.
+			if len(oldMsg) == 0 {
+				messages = []*models.Message{newMessage}
+			} else {
+				messages = oldMsg
+			}
+		case "getAllMessageGroup":
+			fmt.Println("getAllMessageGroup")
+			fmt.Println("newMessage r - s: ", newMessage.Receiver.Id, "-", newMessage.Sender.Id)
+			oldMsg, err := h.ConnDB.GetOldConversation(newMessage.Sender.Id, newMessage.Receiver.Id, "group")
+			if err != nil {
+				h.Helpers.ServerError(w, err)
+				return
+			}
+			// Define the receivers
+			group, err := h.ConnDB.GetGroup(newMessage.Receiver.Id)
+			if err != nil {
+				h.Helpers.ServerError(w, err)
+				return
+			}
+			receivers = group.Members
+
+			if len(oldMsg) == 0 {
+				messages = []*models.Message{newMessage}
+			} else {
+				fmt.Println("oldMsg: ", oldMsg)
+				messages = oldMsg
+			}
+		case "private":
+			fmt.Println("private")
+			// Save the new message in the database.
+			_, err = h.ConnDB.SaveMessage(newMessage)
+			if err != nil {
+				h.Helpers.ServerError(w, err)
+				return
+			}
+
+			// Define the receiver
+			r, err := h.ConnDB.GetUser(newMessage.Receiver.Id)
+			if err != nil {
+				h.Helpers.ServerError(w, err)
+				return
+			}
+			receivers = []*models.User{r}
+
+			messages = []*models.Message{newMessage}
+		case "group":
+			fmt.Println("group")
+			// Save the new message in the database.
+			_, err = h.ConnDB.SaveMessage(newMessage)
+			if err != nil {
+				h.Helpers.ServerError(w, err)
+				return
+			}
+			// Define the receivers
+			group, err := h.ConnDB.GetGroup(newMessage.Receiver.Id)
+			if err != nil {
+				h.Helpers.ServerError(w, err)
+				return
+			}
+			receivers = group.Members
+
+			messages = []*models.Message{newMessage}
+		}
+		for _, receiver := range receivers {
+			// Send the new messages to the receiver if the receiver is online and not the sender.
+			if receiver.Id == newMessage.Sender.Id &&  newMessage.Type != "getAllMessageGroup" {
+				continue
+			}
+			if receiverConn, exists := chatbox[receiver.Id]; exists {
+				if err = receiverConn.WriteJSON(messages); err != nil {
+					receiverConn.Close()
+					delete(chatbox, newMessage.Receiver.Id)
+					break
+				}
+			}
+
 		}
 	}
 }

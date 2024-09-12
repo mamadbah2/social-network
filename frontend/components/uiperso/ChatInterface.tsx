@@ -1,4 +1,6 @@
-import { ReactEventHandler, use, useState } from 'react'
+'use client';
+
+import { ReactEventHandler, use, useEffect, useState } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -8,6 +10,10 @@ import useGetData from '@/lib/hooks/useGet'
 import { mapSimpleUser } from '@/lib/modelmapper'
 import { User } from '@/models/user.model'
 import { UseMessageWS } from '@/lib/hooks/usewebsocket'
+import { Group } from '@/models/group.model'
+import { SmileIcon } from 'lucide-react'
+import data from '@emoji-mart/data'
+import Picker from '@emoji-mart/react'
 
 
 
@@ -19,52 +25,117 @@ export default function ChatInterface({
   isOpen: boolean
 }) {
 
-  const [selectedContact, setSelectedContact] = useState<User | null>(null)
+  const [selectedContact, setSelectedContact] = useState<User | Group | null>(null)
+  const [showPicker, setShowPicker] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([])
   const [inputMessage, setInputMessage] = useState('')
-  const { sendObject: sendMessage, getReceived: getMessages } = UseMessageWS()
+  const { sendObject: sendMessage, getReceived: getMessages, isModified } = UseMessageWS()
   const { expect: user, error: errMe } = useGetData(`/users?id=${localStorage.getItem("userID")}`, mapSimpleUser);
-  const myID = parseInt(localStorage.getItem('id') || '0')
+  const myID = parseInt(localStorage.getItem('userID') || '0')
 
   if (!isOpen) return null
 
-  const contacts: User[] = user?.followers || []
+  const contacts: User[] = [...(user?.followers || []), ...(user?.followed?.filter((u) => !(user?.followers?.find(f => f.id == u.id))) || [])]
+  const contactGroup: Group[] = user?.groups || []
 
-  const handleContactClick = (contact: User) => {
+  const handleContactClick = (contact: User | Group) => {
     setSelectedContact(contact)
+    console.log('contact :>> ', contact);
+    let toSendMsg: Msg
+    const forPass: Partial<User> = {
+      id: contact.id,
+    }
     // In a real app, you'd fetch messages for this contact here
-    if (sendMessage({
-      type: 'getAllMessagePrivate',
-      receiver: user,
-      sender: contact
-    })) {
-      const oldMessages = getMessages()
-      if (oldMessages.length > 0) {
-        setMessages(getMessages())
+    if ('firstname' in contact) {
+      toSendMsg = {
+        id: 0,
+        type: 'getAllMessagePrivate',
+        content: 'getAllMessagePrivate',
+        sentAt: new Date().toISOString(),
+        receiver: user || undefined,
+        sender: forPass || undefined,
       }
-      console.log('getMessage() :>> ', getMessages());
-
-      setMessages(getMessages())
+    } else {
+      toSendMsg = {
+        id: 0,
+        type: 'getAllMessageGroup',
+        content: 'getAllMessageGroup',
+        sentAt: new Date().toISOString(),
+        receiver: forPass || undefined,
+        sender: user || undefined,
+      }
+    }
+    if (sendMessage(toSendMsg)) {
+      setTimeout(() => {
+        const oldMessages = getMessages<Msg>()
+        console.log('oldMessages :>> ', oldMessages);
+        if (
+          oldMessages.length > 0
+          && oldMessages[0].content != 'getAllMessagePrivate'
+          && oldMessages[0].content != 'getAllMessageGroup'
+        ) {
+          setMessages(oldMessages)
+        } else {
+          setMessages([])
+        }
+      }, 500)
 
     }
 
   }
 
+  useEffect(() => {
+    let lastId: number = 0
+    const timer = setInterval(() => {
+      const instantMsg = getMessages<Msg>()
+      if (instantMsg.length == 1 && lastId != instantMsg[0].id) {
+        if (getMessages<Msg>()[0].content != 'getAllMessagePrivate' && getMessages<Msg>()[0].content != 'getAllMessageGroup') {
+
+          setMessages(prev => [...prev, ...getMessages<Msg>()])
+
+          lastId = instantMsg[0].id
+        }
+      }
+    }, 100)
+    return () => {
+      clearInterval(timer)
+    }
+  }, [isModified])
+
   const handleSendMessage = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
     if (inputMessage.trim() && selectedContact) {
-      const newMessage: Msg = {
-        id: Date.now(),
-        text: inputMessage.trim(),
-        type: 'private',
-        sender: user || undefined,
-        receiver: selectedContact,
-        sentAt: new Date().toISOString(),
+      const forPass: Partial<User> = {
+        id: selectedContact.id,
+      }
+      let newMessage: Msg
+      if ('lastname' in selectedContact) {
+        newMessage = {
+          id: Date.now(),
+          content: inputMessage.trim(),
+          type: 'private',
+          sender: user || undefined,
+          receiver: forPass,
+          sentAt: new Date().toISOString(),
+        }
+      } else {
+        newMessage = {
+          id: Date.now(),
+          content: inputMessage.trim(),
+          type: 'group',
+          sender: user || undefined,
+          receiver: forPass,
+          sentAt: new Date().toISOString(),
+        }
       }
       setMessages([...messages, newMessage])
       setInputMessage('')
       sendMessage(newMessage)
     }
+  }
+
+  const addEmoji = (emoji: any) => {
+    setInputMessage(inputMessage + emoji.native)
   }
 
   return (
@@ -84,20 +155,49 @@ export default function ChatInterface({
               <span className="ml-3">{contact.nickname}</span>
             </div>
           ))}
+          {contactGroup.map(contactGr => (
+            <div
+              key={contactGr.id + 1000}
+              className={`flex items-center p-3 cursor-pointer hover:bg-gray-100 ${selectedContact?.id === contactGr.id ? 'bg-gray-200' : ''}`}
+              onClick={() => handleContactClick(contactGr)}
+            >
+              <Avatar className="h-10 w-10">
+                <AvatarFallback>{contactGr.name[0]}</AvatarFallback>
+              </Avatar>
+              <span className="ml-3">{contactGr.name} - Group</span>
+            </div>
+          ))}
         </ScrollArea>
       </div>
       <div className="flex-1 flex flex-col h-[400px]">
         <ScrollArea className="flex-1 p-4">
           {messages.map(message => (
-            <fieldset key={message.id} className={`mb-2 ${message.sender?.id == myID ? 'text-right' : ''} inline-block bg-blue-100 min-w-[50%] rounded-lg py-2 px-3`}>
+            <fieldset key={message.id} className={`mb-2 ${message.sender?.id == myID ? 'bg-gray-100' : 'bg-blue-100'} inline-block min-w-[60%] rounded-lg py-2 px-3`}>
               <legend className='text-xs'>{message.sender?.nickname || "Bobo"}</legend>
               <span className="">
-                {message.text}
+                {message.content}
               </span>
             </fieldset>
           ))}
         </ScrollArea>
         <div className="p-4 border-t flex">
+          <div className="relative">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="mr-2"
+              onClick={() => setShowPicker(!showPicker)}
+            >
+              <SmileIcon className="h-4 w-4" />
+              <span className="sr-only">Add emoji</span>
+            </Button>
+
+            {showPicker && (
+              <div className=" absolute bottom-10  z-50">
+                <Picker onEmojiSelect={addEmoji} data={data} />
+              </div>
+            )}
+          </div>
           <Input
             type="text"
             placeholder="Type a message..."
