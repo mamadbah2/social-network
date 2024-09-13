@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"social-network/internal/models"
-	"time"
+	"sync"
 
 	"github.com/gorilla/websocket"
 )
@@ -21,10 +21,10 @@ var (
 
 type NotifClient struct {
 	Conn *websocket.Conn
-	// mu   sync.Mutex
 }
 
 var notifClients = make(map[int]*NotifClient)
+var mu sync.RWMutex
 
 // It's really same chat box
 
@@ -43,22 +43,13 @@ func (hand *Handler) Notification(w http.ResponseWriter, r *http.Request) {
 		hand.Helpers.ServerError(w, err)
 		return
 	}
-	defer func() {
-		// Envoyer un message de fermeture
-		err := senderConn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
-		if err != nil {
-			hand.Helpers.ErrorLog.Println("Write close:", err)
-			return
-		}
-		// Attendre que le message de fermeture soit envoyé
-		time.Sleep(time.Second)
-		senderConn.Close()
-}()
+	defer senderConn.Close()
 
 	// Set a read deadline
-	senderConn.SetReadDeadline(time.Now().Add(60 * time.Second))
-
+	// senderConn.SetReadDeadline(time.Now().Add(60 * time.Second))
+	mu.Lock()
 	notifClients[senderID] = &NotifClient{Conn: senderConn} // Add sender's connection.
+	mu.Unlock()
 	fmt.Println("notifClients =>>", notifClients)
 
 	// Get the message history from the database.
@@ -109,14 +100,22 @@ func (hand *Handler) Notification(w http.ResponseWriter, r *http.Request) {
 			// Send the new messages to the receiver
 			// if the receiver has a connection in the chat box.
 		}
-		if receiverConn, exists := notifClients[newNotif.Receiver.Id]; exists {
+
+		// Verrouiller la lecture de la map
+		mu.RLock()
+		receiverConn, exists := notifClients[newNotif.Receiver.Id]
+		mu.RUnlock()
+		if exists {
 			hand.Helpers.InfoLog.Println("newNotif =>>", newNotif)
 			if err = receiverConn.Conn.WriteJSON(newNotif); err != nil {
 				hand.Helpers.ErrorLog.Println("Erreur d'écriture JSON : ", err)
-				
+
 				// Vérifier si la connexion est fermée
 				if err == websocket.ErrCloseSent || websocket.IsCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+					mu.Lock()
 					delete(notifClients, newNotif.Receiver.Id)
+					mu.Unlock()
+					
 					hand.Helpers.InfoLog.Printf("Connexion fermée pour l'utilisateur %d\n", newNotif.Receiver.Id)
 				}
 				return

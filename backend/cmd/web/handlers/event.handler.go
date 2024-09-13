@@ -87,10 +87,12 @@ func (hand *Handler) Events(w http.ResponseWriter, r *http.Request) {
 			Group:       &models.Group{Id: groupID},
 		}
 
-		_, err = hand.ConnDB.SetEvent(event)
+		idEv, err := hand.ConnDB.SetEvent(event)
 		if err != nil {
 			hand.Helpers.ServerError(w, err)
 			return
 		}
+		event.Id = idEv
+		hand.renderJSON(w, event)
 	}
 }
