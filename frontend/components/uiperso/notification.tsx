@@ -123,7 +123,7 @@ const NotificationBar: React.FC<NotificationProps> = ({ isOpen, notifs }) => {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
-        {notifications?.map((n, index) => (
+        {notifications?.map((n, index) => n.sender?.firstname && (
           <div key={index} className="flex items-start space-x-2 sm:space-x-3">
             <Avatar className="h-8 w-8 flex-shrink-0">
               <AvatarFallback>
