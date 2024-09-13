@@ -122,7 +122,7 @@ const GroupBarComponent: React.FC<GroupBarProps> = ({
     });
 
   return (
-    <div className="flex items-center justify-center gap-8  p-4 ml-4 mr-0 mb-4 bg-white border rounded-md fixed  top-23 z-10">
+    <div className="flex items-center  justify-center gap-8  p-4 ml-4 mr-0 mb-4 bg-white border rounded-md fixed  top-23 z-10">
       {groupName ? (
         <>
           <div className="flex items-center space-x-4">

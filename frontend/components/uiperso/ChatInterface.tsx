@@ -15,6 +15,8 @@ import { SmileIcon } from "lucide-react";
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
 
+let lastSelectedContact: User | Group | null = null;
+
 export default function ChatInterface({ isOpen }: { isOpen: boolean }) {
   const [selectedContact, setSelectedContact] = useState<User | Group | null>(
     null
@@ -45,6 +47,7 @@ export default function ChatInterface({ isOpen }: { isOpen: boolean }) {
 
   const handleContactClick = (contact: User | Group) => {
     setSelectedContact(contact);
+    lastSelectedContact = contact;
     console.log("contact :>> ", contact);
     let toSendMsg: Msg;
     const forPass: Partial<User> = {
@@ -96,16 +99,25 @@ export default function ChatInterface({ isOpen }: { isOpen: boolean }) {
           getMessages<Msg>()[0].content != "getAllMessagePrivate" &&
           getMessages<Msg>()[0].content != "getAllMessageGroup"
         ) {
-          setMessages((prev) => [...prev, ...getMessages<Msg>()]);
+          if (instantMsg[0].type == "private") {
+            if (lastSelectedContact?.id == instantMsg[0].sender?.id) {
+              setMessages((prev) => [...prev, ...getMessages<Msg>()]);
 
-          lastId = instantMsg[0].id;
+              lastId = instantMsg[0].id;
+            }
+          } else if (instantMsg[0].type == "group") {
+            if (lastSelectedContact?.id == instantMsg[0].receiver?.id) {
+              setMessages((prev) => [...prev, ...getMessages<Msg>()]);
+              lastId = instantMsg[0].id;
+            }
+          }
         }
       }
     }, 100);
     return () => {
       clearInterval(timer);
     };
-  }, [isModified]);
+  }, []);
 
   const handleSendMessage = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -152,9 +164,8 @@ export default function ChatInterface({ isOpen }: { isOpen: boolean }) {
           {contacts.map((contact) => (
             <div
               key={contact.id}
-              className={`flex items-center p-3 cursor-pointer hover:bg-gray-100 ${
-                selectedContact?.id === contact.id ? "bg-gray-200" : ""
-              }`}
+              className={`flex items-center p-3 cursor-pointer hover:bg-gray-100 ${selectedContact?.id === contact.id ? "bg-gray-200" : ""
+                }`}
               onClick={() => handleContactClick(contact)}
             >
               <Avatar className="h-10 w-10">
@@ -170,9 +181,8 @@ export default function ChatInterface({ isOpen }: { isOpen: boolean }) {
           {contactGroup.map((contactGr) => (
             <div
               key={contactGr.id + 1000}
-              className={`flex items-center p-3 cursor-pointer hover:bg-gray-100 ${
-                selectedContact?.id === contactGr.id ? "bg-gray-200" : ""
-              }`}
+              className={`flex items-center p-3 cursor-pointer hover:bg-gray-100 ${selectedContact?.id === contactGr.id ? "bg-gray-200" : ""
+                }`}
               onClick={() => handleContactClick(contactGr)}
             >
               <Avatar className="h-10 w-10">
@@ -188,16 +198,15 @@ export default function ChatInterface({ isOpen }: { isOpen: boolean }) {
           {messages.map((message) => (
             <fieldset
               key={message.id}
-              className={`mb-2 ${
-                message.sender?.id == myID ? "bg-gray-100" : "bg-blue-100"
-              } inline-block min-w-[60%] rounded-lg py-2 px-3`}
+              className={`mb-2 ${message.sender?.id == myID ? "bg-gray-100" : "bg-blue-100"
+                } inline-block min-w-[60%] rounded-lg py-2 px-3`}
             >
               <legend className="text-xs">{message.sender?.firstname}</legend>
               <span className="">{message.content}</span>
             </fieldset>
           ))}
         </ScrollArea>
-        { selectedContact && (<div className="p-4 border-t flex">
+        {selectedContact && (<div className="p-4 border-t flex">
           <div className="relative">
             <Button
               variant="ghost"

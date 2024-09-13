@@ -36,6 +36,7 @@ interface EventCardProps {
   dislikes: number;
   title: string;
   description: string;
+  isLock : boolean;
   imageSrc?: string; // optional, in case there's no image
   onJoin: () => void;
   onDismiss: () => void;
@@ -53,6 +54,7 @@ export default function EventCard({
   title,
   description,
   imageSrc,
+  isLock,
   onJoin,
   onDismiss,
 }: EventCardProps) {
@@ -176,11 +178,12 @@ export default function EventCard({
             size="sm"
             className="bg-black text-white"
             onClick={(e) =>
+              !isLock ?
               handleReact(e, {
                 entityId: +eventID,
                 reactionType: "event",
                 isLike: true,
-              })
+              }) : ()=>void 0
             }
           >
             Going {liked}
@@ -190,11 +193,12 @@ export default function EventCard({
             size="sm"
             className="border-gray-300 text-gray-600"
             onClick={(e) =>
+              !isLock ?
               handleReact(e, {
                 entityId: +eventID,
                 reactionType: "event",
                 isLike: false,
-              })
+              }) : ()=>void 0
             }
           >
             Not Going {disliked}

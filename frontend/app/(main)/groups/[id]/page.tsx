@@ -163,6 +163,11 @@ export default function Home({ params }: { params: { id: string } }) {
               likes={event.NumberLike}
               description={event.Description}
               imageSrc=""
+              isLock = {
+                !group[0].members.find(
+                  (m) => m.id.toString() === localStorage.getItem("userID")
+                )
+              }
               onJoin={() => console.log("Join event")}
               onDismiss={() => console.log("Dismiss event")}
             />
