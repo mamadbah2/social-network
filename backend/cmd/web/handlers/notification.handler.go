@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"social-network/internal/models"
-	"sync"
 
 	"github.com/gorilla/websocket"
 )
@@ -24,7 +23,6 @@ type NotifClient struct {
 }
 
 var notifClients = make(map[int]*NotifClient)
-var mu sync.RWMutex
 
 // It's really same chat box
 
@@ -115,7 +113,7 @@ func (hand *Handler) Notification(w http.ResponseWriter, r *http.Request) {
 					mu.Lock()
 					delete(notifClients, newNotif.Receiver.Id)
 					mu.Unlock()
-					
+
 					hand.Helpers.InfoLog.Printf("Connexion fermée pour l'utilisateur %d\n", newNotif.Receiver.Id)
 				}
 				return

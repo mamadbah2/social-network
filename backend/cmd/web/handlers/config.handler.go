@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"sync"
 
 	"social-network/cmd/web/helpers"
 	"social-network/cmd/web/sessionManager"
@@ -21,6 +22,9 @@ type FrontData struct {
 	Datas  interface{}
 	Errors map[string]string
 }
+
+var mu sync.RWMutex
+
 
 func (hand *Handler) renderJSON(w http.ResponseWriter, data interface{}) {
 	frontData := &FrontData{

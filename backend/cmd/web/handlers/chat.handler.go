@@ -36,7 +36,9 @@ func (h *Handler) Chat(w http.ResponseWriter, r *http.Request) {
 	}
 	defer senderConn.Close()
 
+	mu.Lock()
 	chatbox[senderID] = senderConn // Add sender's connection in the chat box.
+	mu.Unlock()
 
 	//////////////////////
 	/// REAL-TIME CHAT ///
@@ -138,13 +140,20 @@ func (h *Handler) Chat(w http.ResponseWriter, r *http.Request) {
 		}
 		for _, receiver := range receivers {
 			// Send the new messages to the receiver if the receiver is online and not the sender.
-			if receiver.Id == newMessage.Sender.Id &&  newMessage.Type != "getAllMessageGroup" {
+			if receiver.Id == newMessage.Sender.Id && newMessage.Type != "getAllMessageGroup" {
 				continue
 			}
-			if receiverConn, exists := chatbox[receiver.Id]; exists {
+
+			mu.RLock()
+			receiverConn, exists := chatbox[receiver.Id]
+			mu.RUnlock()
+
+			if exists {
 				if err = receiverConn.WriteJSON(messages); err != nil {
 					receiverConn.Close()
+					mu.Lock()
 					delete(chatbox, newMessage.Receiver.Id)
+					mu.Unlock()
 					break
 				}
 			}
