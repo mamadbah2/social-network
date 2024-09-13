@@ -93,7 +93,7 @@ export default function Home({ params }: { params: { id: string } }) {
         imgSrc="https://image.api.playstation.com/vulcan/ap/rnd/202306/2400/ac505d57a46e24dd96712263d89a150cb443af288c025ff2.jpg"
         groupName={group[0]?.name || "Loading..."}
         createdAt={group[0]?.createdAt.toString() || "Loading..."}
-        descriptionLink={group[0]?.description || "Loading..."}
+        descriptionLink={group[0]?.description || ""}
         creator={
           !!(
             group[0]?.creator?.id &&

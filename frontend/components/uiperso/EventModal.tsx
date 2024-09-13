@@ -1,6 +1,11 @@
 import postData from "@/lib/hooks/usepost";
 import { FormEvent } from "react";
 import { Button } from "../ui/button";
+import UseWS from "@/lib/hooks/usewebsocket";
+import { Notification } from "@/models/notification.model";
+import { send } from "process";
+import useGetData from "@/lib/hooks/useGet";
+import { mapGroup } from "@/lib/modelmapper";
 
 interface EventModalProps {
   isOpen: boolean;
@@ -13,6 +18,9 @@ export default function EventModal({
   onClose,
   GroupId,
 }: EventModalProps) {
+  const { sendObject: sendNotification } = UseWS();
+  const {expect : groups}= useGetData('/groups?id=' + GroupId, mapGroup);
+
   if (!isOpen) return null;
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -26,7 +34,24 @@ export default function EventModal({
     };
     formData.set("group_id", GroupId);
     const [resp, err] = await postData('/events', formData, false)
-    
+    if (resp && groups) {
+      console.log('resp :>> ', resp);
+      // Send notification to all group members
+      groups[0]?.members?.forEach((member) => {
+        let notif: Notification = {
+          entityType: "event",
+          content: `New event: ${data.title}`,
+          approuved: false,
+          entityId: resp.id,
+          sender: { id: parseInt(`${localStorage.getItem("userID")}`) },
+          receiver: member,
+        };
+        if (member.id !== parseInt(`${localStorage.getItem("userID")}`)) {
+          sendNotification(notif);
+        }
+      })
+      // sendNotification(notif);
+    }
     onClose();
   };
 

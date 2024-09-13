@@ -95,14 +95,25 @@ const NotificationBar: React.FC<NotificationProps> = ({ isOpen, notifs }) => {
           }
         });
         break;
+      case "event":
+        const notifID = parseInt(`${e.currentTarget.getAttribute("data-notif")}`);
+        sendObject({
+          id: notifID,
+          approuved: true,
+          sender: { id: parseInt(`${senderId}`) },
+          receiver: { id: parseInt(`${localStorage.getItem("userID")}`) },
+        });
+        e.currentTarget.parentElement?.parentElement?.remove();
+        removeObject({ id: notifID });
 
+        break;
 
       default:
         break;
     }
   };
 
-  const notifications = notifs;
+  const notifications = notifs || [];
 
   return (
     <Card className="absolute top-10 z-50  w-full min-w-80 max-w-sm mx-auto bg-white shadow-lg rounded-xl">
@@ -112,7 +123,7 @@ const NotificationBar: React.FC<NotificationProps> = ({ isOpen, notifs }) => {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
-        {notifications.map((n, index) => (
+        {notifications?.map((n, index) => (
           <div key={index} className="flex items-start space-x-2 sm:space-x-3">
             <Avatar className="h-8 w-8 flex-shrink-0">
               <AvatarFallback>
