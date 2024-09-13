@@ -43,6 +43,9 @@ export default function SideBarList() {
     "/groups",
     mapGroup
   );
+  useEffect(() => {
+    console.log("user :>> ", user);
+  }, [user]);
 
   const [ItemUser, setItemUser] = React.useState<Item[]>([]);
   const [ItemGroup, setItemGroup] = React.useState<Item[]>([]);
@@ -150,10 +153,14 @@ export default function SideBarList() {
                 }
                 className="px-4"
               >
-                Suggested groups
+                Social groups
               </AccordionTrigger>
               <AccordionContent>
-                <ListBar items={ItemGroup} showAddButton section="group" />
+                <ListBar
+                  items={ItemGroup}
+                  showAddButton={false}
+                  section="group"
+                />
                 {(groups?.length || 0) > step && (
                   <Button
                     onClick={handlePaginate}

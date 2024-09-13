@@ -137,7 +137,7 @@ export default function ProfileComponent({ id }: { id: string }) {
             </Avatar>
             <div>
               <div className="flex items-center space-x-2">
-                <h2 className="text-lg font-semibold">{user?.nickname}</h2>
+                <h2 className="text-lg font-semibold">{user?.firstname}</h2>
               </div>
               <p className="text-sm text-gray-500">Account Private</p>
             </div>
@@ -223,7 +223,7 @@ export default function ProfileComponent({ id }: { id: string }) {
           </Avatar>
           <div>
             <div className="flex items-center space-x-2">
-              <h2 className="text-lg font-semibold">{user?.nickname}</h2>
+              <h2 className="text-lg font-semibold">{user?.firstname}</h2>
               <Link href="#" className="text-sm text-blue-600 hover:underline">
                 View About me
               </Link>
@@ -252,11 +252,16 @@ export default function ProfileComponent({ id }: { id: string }) {
             <span className="font-semibold">{user?.posts?.length}</span>
             <span className="text-gray-500">Posts</span>
           </div>
-          <UserInfo user={user}
-           isLock={
-            !(user?.followers?.find((u) => u.id.toString() === localStorage.getItem("userID"))) &&
-            user?.private && user.id.toString() !== localStorage.getItem("userID")
-          } />
+          <UserInfo
+            user={user}
+            isLock={
+              !user?.followers?.find(
+                (u) => u.id.toString() === localStorage.getItem("userID")
+              ) &&
+              user?.private &&
+              user.id.toString() !== localStorage.getItem("userID")
+            }
+          />
         </div>
         {
           // If the user is not the current user, show the follow button

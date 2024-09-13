@@ -33,7 +33,12 @@ func (hand *Handler) Register(w http.ResponseWriter, r *http.Request) {
 
 	// Gestion de la date anniversaire, conversion time.Time
 	dateStr := r.PostForm.Get("dateOfBirth")
-	date, err := time.Parse("2006-01-02", dateStr)
+	var date time.Time
+	if dateStr != ""{
+		date, err = time.Parse("2006-01-02", dateStr)
+	}else{
+		hand.Valid.CheckField(validators.NotBlank(dateStr), "dateOfBirth", "This field cannot be blank")
+	}
 	if err != nil {
 		hand.Helpers.InfoLog.Println(r.PostForm.Get("lastname"))
 		hand.Helpers.ServerError(w, err)
@@ -60,8 +65,8 @@ func (hand *Handler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !exist {
-		hand.Valid.CheckField(false, "Nickname", "Nickname already taken")
+	if !exist && user.Nickname != ""{
+		hand.Valid.CheckField(false, "nickname", "Nickname already taken")
 	}
 
 	exist, err = hand.ConnDB.CheckEmail(user.Email)
@@ -69,23 +74,23 @@ func (hand *Handler) Register(w http.ResponseWriter, r *http.Request) {
 		hand.Helpers.ServerError(w, err)
 		return
 	}
+	
 	if !exist {
-		hand.Valid.CheckField(false, "Email", "Email already taken")
+		hand.Valid.CheckField(false, "email", "Email already taken")
 	}
 
 	if file != nil {
 		user.ProfilePicture = nameImg
 	}
 
-	hand.Valid.CheckField(validators.NotBlank(user.FirstName), "FirstName", "This field cannot be blank")
-	hand.Valid.CheckField(validators.MaxChars(user.FirstName, 20), "FirstName", "This field cannot be more than 20 characters long")
-	hand.Valid.CheckField(validators.NotBlank(user.LastName), "LastName", "This field cannot be blank")
-	hand.Valid.CheckField(validators.MaxChars(user.LastName, 20), "LastName", "This field cannot be more than 20 characters long")
-	hand.Valid.CheckField(validators.NotBlank(user.Nickname), "Nickname", "This field cannot be blank")
-	hand.Valid.CheckField(validators.MaxChars(user.Nickname, 20), "Nickname", "This field cannot be more than 20 characters long")
-	hand.Valid.CheckField(validators.NotBlank(user.Email), "Email", "This field cannot be blank")
+	hand.Valid.CheckField(validators.NotBlank(user.FirstName), "firstname", "This field cannot be blank")
+	hand.Valid.CheckField(validators.MaxChars(user.FirstName, 20), "firstname", "This field cannot be more than 20 characters long")
+	hand.Valid.CheckField(validators.NotBlank(user.LastName), "lastname", "This field cannot be blank")
+	hand.Valid.CheckField(validators.MaxChars(user.LastName, 20), "lastname", "This field cannot be more than 20 characters long")
+	hand.Valid.CheckField(validators.MaxChars(user.Nickname, 20), "nickname", "This field cannot be more than 20 characters long")
+	hand.Valid.CheckField(validators.NotBlank(user.Email), "email", "This field cannot be blank")
 	hand.Valid.CheckField(validators.Matches(user.Email, validators.EmailRX), "email", "This field must be a valid email address")
-	hand.Valid.CheckField(validators.NotBlank(user.Password), "Password", "This field cannot be blank")
+	hand.Valid.CheckField(validators.NotBlank(user.Password), "password", "This field cannot be blank")
 	hand.Valid.CheckField(validators.MinChars(user.Password, 8), "password", "This field must be at least 8 characters long")
 	hand.Valid.CheckField(validators.NotBlankInt(user.DateOfBirth.Day()), "DateOfBirth", "This field cannot be blank")
 	// hand.Valid.CheckField(validators.NotBlank(user.AboutMe), "AboutMe", "This field cannot be blank")

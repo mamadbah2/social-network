@@ -6,7 +6,7 @@ CREATE TABLE users (
     last_name VARCHAR(255) NOT NULL,
     date_of_birth DATETIME NOT NULL,
     profile_picture TEXT,
-    nickname VARCHAR(255) UNIQUE,
+    nickname VARCHAR(255),
     about_me VARCHAR(255),
     profile_privacy BOOLEAN DEFAULT FALSE,
     created_at DATETIME NOT NULL

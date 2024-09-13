@@ -41,7 +41,7 @@ export default function FollowModal({
                   <Avatar className="h-10 w-10">
                     <AvatarImage
                       src={follower.profilePicture}
-                      alt={follower.nickname}
+                      alt={follower.firstname}
                     />
                     <AvatarFallback>
                       {follower.firstname.charAt(0).toUpperCase()}
@@ -49,7 +49,9 @@ export default function FollowModal({
                     </AvatarFallback>
                   </Avatar>
                 </ProfileButton>
-                <span className="text-sm font-medium">{follower.nickname}</span>
+                <span className="text-sm font-medium">
+                  {follower.firstname}
+                </span>
               </li>
             ))}
           </ul>

@@ -28,6 +28,7 @@ type User struct {
 	Groups           []*Group
 	Posts            []*Post
 	SuggestedFriends []*User
+	// CreatedGroup     []*Group
 }
 
 func (m *ConnDB) GetPosts(userID int) ([]*Post, error) {
@@ -172,6 +173,12 @@ func (m *ConnDB) GetUser(userID int) (*User, error) {
 	}
 	u.SuggestedFriends = noFriend
 
+	// groupsCreatedByAuthor, err := m.GetGroupAuthor(u.Id)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// u.CreatedGroup = groupsCreatedByAuthor
+
 	return u, nil
 }
 
@@ -230,4 +237,13 @@ func (m *ConnDB) GetAllIdPublicPost() ([]int, error) {
 		ids = append(ids, id)
 	}
 	return ids, nil
+}
+
+func (m *ConnDB) UpdatePofilePrivacy(UserID int, isPrivate bool) error {
+		stmt := `UPDATE users SET profile_privacy = ? WHERE id = ?`
+		_, err := m.DB.Exec(stmt,isPrivate,UserID)
+		if err != nil {
+						return err
+		}
+		return nil
 }

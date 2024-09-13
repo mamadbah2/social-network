@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"social-network/internal/models"
-	"sync"
+	"time"
 
 	"github.com/gorilla/websocket"
 )
@@ -21,7 +21,7 @@ var (
 
 type NotifClient struct {
 	Conn *websocket.Conn
-	mu   sync.Mutex
+	// mu   sync.Mutex
 }
 
 var notifClients = make(map[int]*NotifClient)
@@ -43,7 +43,20 @@ func (hand *Handler) Notification(w http.ResponseWriter, r *http.Request) {
 		hand.Helpers.ServerError(w, err)
 		return
 	}
-	defer senderConn.Close()
+	defer func() {
+		// Envoyer un message de fermeture
+		err := senderConn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
+		if err != nil {
+			hand.Helpers.ErrorLog.Println("Write close:", err)
+			return
+		}
+		// Attendre que le message de fermeture soit envoyé
+		time.Sleep(time.Second)
+		senderConn.Close()
+}()
+
+	// Set a read deadline
+	senderConn.SetReadDeadline(time.Now().Add(60 * time.Second))
 
 	notifClients[senderID] = &NotifClient{Conn: senderConn} // Add sender's connection.
 	fmt.Println("notifClients =>>", notifClients)
@@ -97,11 +110,9 @@ func (hand *Handler) Notification(w http.ResponseWriter, r *http.Request) {
 			// if the receiver has a connection in the chat box.
 		}
 		if receiverConn, exists := notifClients[newNotif.Receiver.Id]; exists {
-			receiverConn.mu.Lock()
 			hand.Helpers.InfoLog.Println("newNotif =>>", newNotif)
 			if err = receiverConn.Conn.WriteJSON(newNotif); err != nil {
 				hand.Helpers.ErrorLog.Println("Erreur d'écriture JSON : ", err)
-				receiverConn.mu.Unlock()
 				
 				// Vérifier si la connexion est fermée
 				if err == websocket.ErrCloseSent || websocket.IsCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
@@ -110,7 +121,6 @@ func (hand *Handler) Notification(w http.ResponseWriter, r *http.Request) {
 				}
 				return
 			}
-			receiverConn.mu.Unlock()
 		}
 
 	}

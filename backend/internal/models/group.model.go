@@ -242,3 +242,31 @@ func (g *Group) String() string {
 func (p *Post) String() string {
 	return fmt.Sprintf("Post{id=%d, content=%s, created_at=%s}", p.Id, p.Content, p.CreatedAt)
 }
+
+func(m *ConnDB)GetGroupAuthor(iduser int)([]*Group, error){
+	stmt := `SELECT * FROM groups WHERE id_creator = ?`
+	rows, err := m.DB.Query(stmt, iduser)
+	if err != nil {
+		fmt.Println("Error fetching groups:", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var AllGroups []*Group
+	var CreatorId int
+	for rows.Next() {
+		g := &Group{
+			Creator: &User{},
+		}
+
+		err = rows.Scan(&g.Id, &CreatorId, &g.Name, &g.Description, &g.CreatedAt)
+		if err != nil {
+			return nil, err
+		}
+		g.Creator, err = m.GetUser(CreatorId)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return AllGroups, nil
+}

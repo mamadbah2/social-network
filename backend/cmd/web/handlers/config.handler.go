@@ -27,6 +27,7 @@ func (hand *Handler) renderJSON(w http.ResponseWriter, data interface{}) {
 		Datas:  data,
 		Errors: hand.Valid.FieldErrors,
 	}
+
 	
 	// Transformation de toutes les données en json
 	dataByte, err := json.Marshal(frontData)

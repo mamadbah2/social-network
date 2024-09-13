@@ -25,6 +25,7 @@ export default function Register() {
       router.push("/login");
     } else {
       Object.keys(err).forEach((key) => {
+        console.log("key :>> ", key);
         target.querySelector(`[name=${key}]`)?.classList.add("border-red-500");
         setTimeout(() => {
           target
