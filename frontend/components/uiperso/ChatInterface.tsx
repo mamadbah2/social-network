@@ -141,6 +141,8 @@ export default function ChatInterface({
   return (
     <div className=" z-50 flex flex-col h-[700px] w-[350px] max-w-md mx-auto border rounded-lg overflow-hidden bg-white">
       <div className="border-b max-h-[200px] min-h-[100px] overflow-scroll ">
+        {contacts.length != 0 && contactGroup.length != 0 && !selectedContact && (<h3 className='text-center'> Please Select one conversation for start ...</h3>)}
+        {contacts.length == 0 && contactGroup.length == 0 && (<h3 className='text-center'>Enter in one group or follow one User</h3>)}
         <ScrollArea className="h-full">
           {contacts.map(contact => (
             <div
@@ -180,7 +182,7 @@ export default function ChatInterface({
             </fieldset>
           ))}
         </ScrollArea>
-        <div className="p-4 border-t flex">
+        { selectedContact && (<div className="p-4 border-t flex">
           <div className="relative">
             <Button
               variant="ghost"
@@ -211,7 +213,7 @@ export default function ChatInterface({
           >
             Send
           </Button>
-        </div>
+        </div>)}
       </div>
     </div>
   )

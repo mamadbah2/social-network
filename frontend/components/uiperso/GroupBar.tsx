@@ -2,7 +2,6 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import CreatePostModal from "./CreatePostModal";
 import FollowModal from "./followerList";
 import { User } from "@/models/user.model";
 import { handleMember } from "@/services/member.service";
