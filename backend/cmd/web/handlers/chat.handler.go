@@ -4,12 +4,14 @@ import (
 	"fmt"
 	"net/http"
 	"social-network/internal/models"
+	"sync"
 
 	"github.com/gorilla/websocket"
 )
 
 // / This chat box will be used to store online users
 var chatbox = make(map[int]*websocket.Conn)
+var chatboxMutex sync.Mutex
 
 var socket = websocket.Upgrader{
 	ReadBufferSize:  2048,
@@ -36,10 +38,9 @@ func (h *Handler) Chat(w http.ResponseWriter, r *http.Request) {
 	}
 	defer senderConn.Close()
 
-	mu.Lock()
-	chatbox[senderID] = senderConn // Add sender's connection in the chat box.
-	mu.Unlock()
-
+	chatboxMutex.Lock()
+	chatbox[senderID] = senderConn
+	chatboxMutex.Unlock()
 	//////////////////////
 	/// REAL-TIME CHAT ///
 	//////////////////////
@@ -52,7 +53,9 @@ func (h *Handler) Chat(w http.ResponseWriter, r *http.Request) {
 		// var strMsg string
 		if err := senderConn.ReadJSON(&newMessage); err != nil {
 			senderConn.Close()
+			chatboxMutex.Lock()
 			delete(chatbox, senderID)
+			chatboxMutex.Unlock()
 			break
 		}
 
@@ -143,17 +146,16 @@ func (h *Handler) Chat(w http.ResponseWriter, r *http.Request) {
 			if receiver.Id == newMessage.Sender.Id && newMessage.Type != "getAllMessageGroup" {
 				continue
 			}
-
-			mu.RLock()
+			chatboxMutex.Lock()
 			receiverConn, exists := chatbox[receiver.Id]
-			mu.RUnlock()
+			chatboxMutex.Unlock()
 
 			if exists {
 				if err = receiverConn.WriteJSON(messages); err != nil {
 					receiverConn.Close()
-					mu.Lock()
+					chatboxMutex.Lock()
 					delete(chatbox, newMessage.Receiver.Id)
-					mu.Unlock()
+					chatboxMutex.Unlock()
 					break
 				}
 			}
