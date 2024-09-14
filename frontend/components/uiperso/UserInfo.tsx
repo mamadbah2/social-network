@@ -26,10 +26,14 @@ export default function UserInfo({ user, isLock }: UserInfoState) {
     localStorage.getItem("userID") === user?.id.toString()
   );
   useEffect(() => {
-    setPrivacy(user?.private ? "private" : "public");
-    SetUpdatePrivacy(localStorage.getItem("userID") === user?.id.toString());
-  }, [user]);
+    if (user) {
+      setPrivacy(user?.private ? "private" : "public");
+      console.log("privacy", privacy);
+      SetUpdatePrivacy(localStorage.getItem("userID") === user?.id.toString());
+    }
+  }, [user, privacy]);
   const updatePrivacy = async (newPrivacy: string) => {
+    console.log("newPrivacy", newPrivacy);
     const formData = new FormData();
     formData.append("updatePrivacy", newPrivacy);
     const [resp, err] = await postData(
@@ -37,6 +41,8 @@ export default function UserInfo({ user, isLock }: UserInfoState) {
       formData,
       false
     );
+
+    console.log("Error from backend:", err);
 
     if (!resp) {
       console.log("Response is null or undefined");

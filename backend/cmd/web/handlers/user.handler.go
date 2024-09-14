@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 )
@@ -51,6 +52,12 @@ func (hand *Handler) Users(w http.ResponseWriter, r *http.Request) {
 		}
 
 	case http.MethodPost:
+		err := r.ParseForm()
+		if err != nil {
+			hand.Helpers.ClientError(w, http.StatusMethodNotAllowed)
+			return
+		}
+
 		query := r.URL.Query()
 		if query.Has("id") {
 			id, err := strconv.Atoi(query.Get("id"))
@@ -59,6 +66,7 @@ func (hand *Handler) Users(w http.ResponseWriter, r *http.Request) {
 							return
 			}
 			isPrivate := false
+			fmt.Println("value ->", r.PostForm.Get("updatePrivacy") )
 			if r.PostForm.Get("updatePrivacy") == "public" {
 							isPrivate = false
 			} else {
