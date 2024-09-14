@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
 import { Input } from "@/components/ui/input";
 import postData from "@/lib/hooks/usepost";
-import React, { FormEvent, useEffect, useState } from "react";
+import React, { FormEvent, useState } from "react";
 
 interface PostModalProps {
   isOpen: boolean;
@@ -15,13 +15,28 @@ export default function CreatePostGroupModal({
   group_Id,
   onClose,
 }: PostModalProps) {
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [isTitleValid, setIsTitleValid] = useState(true);
+  const [isContentValid, setIsContentValid] = useState(true);
+
   if (!isOpen) return null;
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const trimmedTitle = title.trim();
+    const trimmedContent = content.trim();
+
+    // Validate title and content
+    if (trimmedTitle === "" || trimmedContent === "") {
+      setIsTitleValid(trimmedTitle !== "");
+      setIsContentValid(trimmedContent !== "");
+      return;
+    }
+
     const formData = new FormData(e.currentTarget);
-    formData.set("group_id", group_Id)
-    formData.set("privacy", "group")
+    formData.set("group_id", group_Id);
+    formData.set("privacy", "group");
     const [resp, err] = await postData("/posts", formData, true);
 
     onClose();
@@ -39,9 +54,23 @@ export default function CreatePostGroupModal({
             <input
               type="text"
               name="title"
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              value={title}
+              onChange={(e) => {
+                setTitle(e.target.value);
+                if (!isTitleValid && e.target.value.trim() !== "") {
+                  setIsTitleValid(true);
+                }
+              }}
+              className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm sm:text-sm ${
+                isTitleValid
+                  ? "border-gray-300 focus:border-indigo-500"
+                  : "border-red-500"
+              }`}
               required
             />
+            {!isTitleValid && (
+              <p className="text-red-500 text-sm mt-1">Post title is required.</p>
+            )}
           </div>
 
           <div className="mb-4">
@@ -50,16 +79,30 @@ export default function CreatePostGroupModal({
             </label>
             <textarea
               name="content"
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              value={content}
+              onChange={(e) => {
+                setContent(e.target.value);
+                if (!isContentValid && e.target.value.trim() !== "") {
+                  setIsContentValid(true);
+                }
+              }}
+              className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm sm:text-sm ${
+                isContentValid
+                  ? "border-gray-300 focus:border-indigo-500"
+                  : "border-red-500"
+              }`}
               rows={3}
             />
+            {!isContentValid && (
+              <p className="text-red-500 text-sm mt-1">Content is required.</p>
+            )}
           </div>
 
           <div className="mb-4">
             <label className="block text-sm mb-2 font-medium text-gray-700">
               Image
             </label>
-            <Input type="file" name="imagePost"/>
+            <Input type="file" name="imagePost" />
           </div>
 
           <div className="flex justify-end">

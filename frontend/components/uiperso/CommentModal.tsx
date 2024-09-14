@@ -7,6 +7,7 @@ import postData from "@/lib/hooks/usepost";
 import { mapSimpleComments, mapSimpleUser } from "@/lib/modelmapper";
 import { ImageIcon, Send, X } from "lucide-react";
 import React, { FormEvent, useRef } from "react";
+
 interface CommentModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -17,6 +18,7 @@ interface CommentModalProps {
   postContent: string;
   postId: number;
 }
+
 export default function CommentModal({
   isOpen,
   onClose,
@@ -27,22 +29,40 @@ export default function CommentModal({
   postContent,
   postId,
 }: CommentModalProps) {
-  // Si le modal n'est pas ouvert, on ne le rend pas
   if (!isOpen) return null;
 
   const { setComment } = usePostContext();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-
   const { expect: user, error: errUser } = useGetData(
     `/users?id=${localStorage.getItem("userID")}`,
     mapSimpleUser
   );
 
-  // Fonction pour gérer la soumission
   const useHandleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    if (!formData.get("CommentContent")) return;
+
+    // Trim and validate input
+    const commentContent = (formData.get("CommentContent") as string).trim();
+    
+    // Add error styling and message if comment content is empty
+    const commentInput = e.currentTarget.querySelector('input[name="CommentContent"]') as HTMLInputElement;
+    const errorMessage = e.currentTarget.querySelector(".error-message") as HTMLElement;
+
+    if (!commentContent) {
+      commentInput.classList.add("border-red-500");
+      if (errorMessage) {
+        errorMessage.classList.remove("hidden");
+      }
+      return;
+    }
+
+    // Remove error styling if input is valid
+    commentInput.classList.remove("border-red-500");
+    if (errorMessage) {
+      errorMessage.classList.add("hidden");
+    }
+
     const [resp, err] = await postData(
       `/comment?Id=${String(postId)}`,
       formData,
@@ -62,11 +82,10 @@ export default function CommentModal({
     onClose();
   };
 
-  // Fonction pour simuler le clic sur l'input file
   const handleClickImg = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     if (fileInputRef.current) {
-      fileInputRef.current.click(); // Simule le clic sur l'input file
+      fileInputRef.current.click();
     }
   };
 
@@ -98,7 +117,6 @@ export default function CommentModal({
         </div>
         <div className="p-4">
           <h2 className="text-lg font-semibold mb-2">{postTitle}</h2>
-
           <p className="text-sm text-muted-foreground max-h-[150px] overflow-y-auto">
             {postContent}
           </p>
@@ -139,6 +157,9 @@ export default function CommentModal({
               <Send className="h-4 w-4" />
               <span className="sr-only">Send comment</span>
             </Button>
+            <p className="error-message text-red-500 mt-2 hidden">
+              Comment cannot be empty or just spaces.
+            </p>
           </form>
         </div>
       </div>

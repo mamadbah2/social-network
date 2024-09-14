@@ -13,7 +13,7 @@ import {
 import { usePostContext } from "@/lib/hooks/postctx";
 import useGetData from "@/lib/hooks/useGet";
 import postData from "@/lib/hooks/usepost";
-import { mapSimplePost, mapSimpleUser, mapUser } from "@/lib/modelmapper";
+import { mapSimplePost, mapSimpleUser } from "@/lib/modelmapper";
 import { User } from "@/models/user.model";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -35,10 +35,12 @@ export default function CreatePostModal({ isOpen, onClose }: PostModalProps) {
     setUserID(localStorage.getItem("userID") || "0");
   }, []);
 
-  const [privacy, setPrivacy] = useState<string>("");
+  const [privacy, setPrivacy] = useState<string>("public");
   const [selectedUsers, setSelectedUsers] = useState<Item[]>([]);
   const [search, setSearch] = useState<string>("");
   const [ItemUser, setItemUser] = React.useState<Item[]>([]);
+  const [isTitleValid, setIsTitleValid] = useState(true);
+  const [isContentValid, setIsContentValid] = useState(true);
   const router = useRouter();
   const { setPostTable } = usePostContext();
   const {
@@ -62,15 +64,25 @@ export default function CreatePostModal({ isOpen, onClose }: PostModalProps) {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+    const title = formData.get("title")?.toString().trim() || "";
+    const content = formData.get("content")?.toString().trim() || "";
+
+    // Validate title and content
+    if (title === "" || content === "") {
+      setIsTitleValid(title !== "");
+      setIsContentValid(content !== "");
+      return;
+    }
+
     formData.set("privacy", privacy);
 
     if (privacy === "almost private") {
       const selectedUserIds = selectedUsers.map((user) => user.id);
-
-      selectedUserIds.forEach((id, index) => {
+      selectedUserIds.forEach((id) => {
         formData.append(`followers`, id.toString());
       });
     }
+
     const [resp, err] = await postData("/posts", formData, true);
     setSelectedUsers([]);
     setPrivacy("");
@@ -104,9 +116,16 @@ export default function CreatePostModal({ isOpen, onClose }: PostModalProps) {
             <input
               type="text"
               name="title"
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm sm:text-sm ${
+                isTitleValid
+                  ? "border-gray-300 focus:border-indigo-500"
+                  : "border-red-500"
+              }`}
               required
             />
+            {!isTitleValid && (
+              <p className="text-red-500 text-sm mt-1">Post title is required.</p>
+            )}
           </div>
 
           <div className="mb-4">
@@ -115,9 +134,16 @@ export default function CreatePostModal({ isOpen, onClose }: PostModalProps) {
             </label>
             <textarea
               name="content"
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm sm:text-sm ${
+                isContentValid
+                  ? "border-gray-300 focus:border-indigo-500"
+                  : "border-red-500"
+              }`}
               rows={3}
             />
+            {!isContentValid && (
+              <p className="text-red-500 text-sm mt-1">Content is required.</p>
+            )}
           </div>
 
           <div className="mb-4">
@@ -186,7 +212,6 @@ export default function CreatePostModal({ isOpen, onClose }: PostModalProps) {
                         width={15}
                         height={15}
                         alt="cancel icon"
-                        className=""
                       />
                     </button>
                   </div>

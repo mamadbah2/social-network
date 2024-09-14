@@ -3,7 +3,6 @@ import { FormEvent } from "react";
 import { Button } from "../ui/button";
 import UseWS from "@/lib/hooks/usewebsocket";
 import { Notification } from "@/models/notification.model";
-import { send } from "process";
 import useGetData from "@/lib/hooks/useGet";
 import { mapGroup } from "@/lib/modelmapper";
 
@@ -19,28 +18,53 @@ export default function EventModal({
   GroupId,
 }: EventModalProps) {
   const { sendObject: sendNotification } = UseWS();
-  const {expect : groups}= useGetData('/groups?id=' + GroupId, mapGroup);
+  const { expect: groups } = useGetData('/groups?id=' + GroupId, mapGroup);
 
   if (!isOpen) return null;
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const data = {
-      title: formData.get("title") as string,
-      date: formData.get("date") as string,
-      time: formData.get("time") as string,
-      description: formData.get("description") as string,
-    };
+
+    // Trim input values to remove extra spaces
+    const title = (formData.get("title") as string).trim();
+    const date = (formData.get("date") as string).trim();
+    const time = (formData.get("time") as string).trim();
+    const description = (formData.get("description") as string).trim();
+
+    // Validation: Check if fields are empty after trimming
+    const invalidFields: string[] = [];
+    if (!title) invalidFields.push("title");
+    if (!date) invalidFields.push("date");
+    if (!time) invalidFields.push("time");
+    if (!description) invalidFields.push("description");
+
+    // If any field is invalid, add the error styling and stop the form submission
+    if (invalidFields.length > 0) {
+      invalidFields.forEach((field) => {
+        const input = e.currentTarget.querySelector(`[name="${field}"]`);
+        if (input) {
+          input.classList.add("border-red-500");
+        }
+      });
+      e.currentTarget.querySelector(".error-message")?.classList.remove("hidden");
+      return;
+    }
+
+    // Reset invalid inputs to normal if they are valid now
+    e.currentTarget.querySelectorAll("input, textarea").forEach((input) => {
+      input.classList.remove("border-red-500");
+    });
+    e.currentTarget.querySelector(".error-message")?.classList.add("hidden");
+
     formData.set("group_id", GroupId);
-    const [resp, err] = await postData('/events', formData, false)
+    const [resp, err] = await postData('/events', formData, false);
+    
     if (resp && groups) {
-      console.log('resp :>> ', resp);
-      // Send notification to all group members
       groups[0]?.members?.forEach((member) => {
         let notif: Notification = {
           entityType: "event",
-          content: `New event: ${data.title}`,
+          content: `New event: ${title}`,
           approuved: false,
           entityId: resp.id,
           sender: { id: parseInt(`${localStorage.getItem("userID")}`) },
@@ -49,9 +73,9 @@ export default function EventModal({
         if (member.id !== parseInt(`${localStorage.getItem("userID")}`)) {
           sendNotification(notif);
         }
-      })
-      // sendNotification(notif);
+      });
     }
+
     onClose();
   };
 
@@ -60,6 +84,10 @@ export default function EventModal({
       <div className="bg-white p-6 rounded-lg shadow-lg w-96">
         <h2 className="text-xl font-semibold mb-4">Create New Event</h2>
         <form onSubmit={handleSubmit}>
+          <p className="error-message text-red-500 mb-4 hidden">
+            All fields are required and cannot be just spaces.
+          </p>
+
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700">
               Event Name
@@ -104,19 +132,15 @@ export default function EventModal({
               name="description"
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               rows={3}
+              required
             />
           </div>
 
           <div className="flex justify-end gap-4">
-            <Button
-              onClick={onClose}
-              variant="outline"
-              className="bg-black text-white"           >
+            <Button onClick={onClose} variant="outline" className="bg-black text-white">
               Cancel
             </Button>
-            <Button
-              type="submit"
-              variant="outline"            >
+            <Button type="submit" variant="outline">
               Save
             </Button>
           </div>
