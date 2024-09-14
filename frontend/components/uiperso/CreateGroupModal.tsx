@@ -10,6 +10,10 @@ const CreateGroupForm: React.FC<CreateGroupFormProps> = ({ onSave, onCancel }) =
   const [description, setDescription] = useState('');
 
   const handleSave = () => {
+    if (groupName.split(' ').join('') == '' || description.split(' ').join('') == '') {
+      alert('empty field')
+      return
+    }
     onSave(groupName, description);
   };
 
