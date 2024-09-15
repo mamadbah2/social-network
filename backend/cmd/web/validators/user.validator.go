@@ -1,6 +1,7 @@
 package validators
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"regexp"
@@ -72,6 +73,7 @@ func VerifyImg(filePath string) bool {
 	buffer := make([]byte, 512)
 	_, err = file.Read(buffer)
 	if err != nil {
+		fmt.Println(err)
 		return false
 	}
 

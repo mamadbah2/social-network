@@ -44,10 +44,14 @@ export default function CommentModal({
 
     // Trim and validate input
     const commentContent = (formData.get("CommentContent") as string).trim();
-    
+
     // Add error styling and message if comment content is empty
-    const commentInput = e.currentTarget.querySelector('input[name="CommentContent"]') as HTMLInputElement;
-    const errorMessage = e.currentTarget.querySelector(".error-message") as HTMLElement;
+    const commentInput = e.currentTarget.querySelector(
+      'input[name="CommentContent"]'
+    ) as HTMLInputElement;
+    const errorMessage = e.currentTarget.querySelector(
+      ".error-message"
+    ) as HTMLElement;
 
     if (!commentContent) {
       commentInput.classList.add("border-red-500");
@@ -62,24 +66,36 @@ export default function CommentModal({
     if (errorMessage) {
       errorMessage.classList.add("hidden");
     }
-
+    let target = e.currentTarget;
     const [resp, err] = await postData(
       `/comment?Id=${String(postId)}`,
       formData,
       true
     );
-
-    if (resp) {
-      if (
-        window.location.pathname !== "/" &&
-        !window.location.pathname.startsWith("/groups")
-      ) {
-        console.log("window.location.pathname", window.location.pathname);
-        let oneComment = mapSimpleComments(resp);
-        setComment(oneComment);
+    if (Object.keys(err).length == 0) {
+      if (resp) {
+        if (
+          window.location.pathname !== "/" &&
+          !window.location.pathname.startsWith("/groups")
+        ) {
+          console.log("window.location.pathname", window.location.pathname);
+          let oneComment = mapSimpleComments(resp);
+          setComment(oneComment);
+        }
       }
+      onClose();
+    } else {
+      console.log("ERR :>>", err);
+      Object.keys(err).forEach((key) => {
+        console.log("key :>> ", key);
+        target.querySelector(`[name=${key}]`)?.classList.add("border-red-500");
+        setTimeout(() => {
+          target
+            .querySelector(`[name=${key}]`)
+            ?.classList.remove("border-red-500");
+        }, 2000);
+      });
     }
-    onClose();
   };
 
   const handleClickImg = (e: React.MouseEvent<HTMLButtonElement>) => {

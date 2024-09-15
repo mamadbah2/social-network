@@ -2,7 +2,7 @@
 
 import { Input } from "@/components/ui/input";
 import postData from "@/lib/hooks/usepost";
-import React, { FormEvent, useState } from "react";
+import { FormEvent, useState } from "react";
 
 interface PostModalProps {
   isOpen: boolean;
@@ -37,9 +37,23 @@ export default function CreatePostGroupModal({
     const formData = new FormData(e.currentTarget);
     formData.set("group_id", group_Id);
     formData.set("privacy", "group");
-    const [resp, err] = await postData("/posts", formData, true);
+    let target = e.currentTarget;
+    const [, err] = await postData("/posts", formData, true);
 
-    onClose();
+    if (Object.keys(err).length == 0) {
+      onClose();
+    } else {
+      console.log("ERR :>>", err);
+      Object.keys(err).forEach((key) => {
+        console.log("key :>> ", key);
+        target.querySelector(`[name=${key}]`)?.classList.add("border-red-500");
+        setTimeout(() => {
+          target
+            .querySelector(`[name=${key}]`)
+            ?.classList.remove("border-red-500");
+        }, 2000);
+      });
+    }
   };
 
   return (
@@ -69,7 +83,9 @@ export default function CreatePostGroupModal({
               required
             />
             {!isTitleValid && (
-              <p className="text-red-500 text-sm mt-1">Post title is required.</p>
+              <p className="text-red-500 text-sm mt-1">
+                Post title is required.
+              </p>
             )}
           </div>
 

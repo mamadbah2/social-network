@@ -43,13 +43,17 @@ export default function CreatePostModal({ isOpen, onClose }: PostModalProps) {
   const [isContentValid, setIsContentValid] = useState(true);
   const router = useRouter();
   const { setPostTable } = usePostContext();
-  const {
-    expect: user,
-    error: errUser,
-  } = useGetData<User>(`/users?id=${userID}`, mapSimpleUser);
+  const { expect: user, error: errUser } = useGetData<User>(
+    `/users?id=${userID}`,
+    mapSimpleUser
+  );
 
   useEffect(() => {
-    if (user?.followers && (user?.followers).length > 0 && ItemUser.length === 0) {
+    if (
+      user?.followers &&
+      (user?.followers).length > 0 &&
+      ItemUser.length === 0
+    ) {
       setItemUser(
         (user?.followers).map((u: any) => ({
           id: u.id,
@@ -73,6 +77,7 @@ export default function CreatePostModal({ isOpen, onClose }: PostModalProps) {
       setIsContentValid(content !== "");
       return;
     }
+    console.log("privacy :>> ", privacy);
 
     formData.set("privacy", privacy);
 
@@ -82,15 +87,28 @@ export default function CreatePostModal({ isOpen, onClose }: PostModalProps) {
         formData.append(`followers`, id.toString());
       });
     }
-
+    let target = e.currentTarget;
     const [resp, err] = await postData("/posts", formData, true);
-    setSelectedUsers([]);
-    setPrivacy("");
-    let onePost = mapSimplePost(resp);
 
-    // Add the new post to the top of the post table if the location isn't /
-    setPostTable((prev) => [onePost, ...(prev ?? [])]);
-    onClose();
+    if (Object.keys(err).length == 0) {
+      setSelectedUsers([]);
+      let onePost = mapSimplePost(resp);
+
+      // Add the new post to the top of the post table if the location isn't /
+      setPostTable((prev) => [onePost, ...(prev ?? [])]);
+      onClose();
+    } else {
+      console.log("ERR :>>", err);
+      Object.keys(err).forEach((key) => {
+        console.log("key :>> ", key);
+        target.querySelector(`[name=${key}]`)?.classList.add("border-red-500");
+        setTimeout(() => {
+          target
+            .querySelector(`[name=${key}]`)
+            ?.classList.remove("border-red-500");
+        }, 2000);
+      });
+    }
   };
 
   const handleAddUser = (user: Item) => {
@@ -124,7 +142,9 @@ export default function CreatePostModal({ isOpen, onClose }: PostModalProps) {
               required
             />
             {!isTitleValid && (
-              <p className="text-red-500 text-sm mt-1">Post title is required.</p>
+              <p className="text-red-500 text-sm mt-1">
+                Post title is required.
+              </p>
             )}
           </div>
 

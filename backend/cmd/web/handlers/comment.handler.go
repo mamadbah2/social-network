@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"net/http"
+	"os"
+	"social-network/cmd/web/validators"
 	"social-network/internal/models"
 	"strconv"
 )
@@ -19,15 +21,22 @@ func (hand *Handler) ComsHandle(w http.ResponseWriter, r *http.Request) {
 			hand.Helpers.ClientError(w, http.StatusMethodNotAllowed)
 			return
 		}
-
+		var tempFile *os.File
 		fileImg, fileHeaderImg, _ := r.FormFile("commentImage")
 		var nameImg string
 		if fileImg != nil {
-			_, _ = hand.Helpers.Getfile(fileImg, fileHeaderImg.Filename)
+			tempFile, _ = hand.Helpers.Getfile(fileImg, fileHeaderImg.Filename)
 			nameImg = fileHeaderImg.Filename
+			hand.Valid.CheckField(validators.VerifyImg(tempFile.Name()), "commentImage", "choose a valid image")
+			hand.Valid.CheckField(validators.CheckFileSize(tempFile.Name()), "commentImage", "max size image should be 20 mb")
 		} else {
 			nameImg = ""
 		}
+		if !hand.Valid.Valid() {
+			hand.renderJSON(w, nil)
+			return
+		}
+	
 
 		c := &models.Comment{
 			Post:   &models.Post{}, // Initialize Post

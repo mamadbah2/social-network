@@ -24,6 +24,7 @@ export default function Register() {
     if (Object.keys(err).length == 0) {
       router.push("/login");
     } else {
+      console.log("ERR :>>", err);
       Object.keys(err).forEach((key) => {
         console.log("key :>> ", key);
         target.querySelector(`[name=${key}]`)?.classList.add("border-red-500");

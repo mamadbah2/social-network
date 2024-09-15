@@ -1,8 +1,11 @@
 package handlers
 
 import (
+	"fmt"
 	"html"
 	"net/http"
+	"os"
+	"social-network/cmd/web/validators"
 	"social-network/internal/models"
 	"strconv"
 	"strings"
@@ -66,8 +69,12 @@ func (hand *Handler) Post(w http.ResponseWriter, r *http.Request) {
 		fileImg, fileHeaderImg, _ := r.FormFile("imagePost")
 		var nameImg string
 		if fileImg != nil {
-			_, _ = hand.Helpers.Getfile(fileImg, fileHeaderImg.Filename)
+		var tempFile *os.File
+		tempFile, _ = hand.Helpers.Getfile(fileImg, fileHeaderImg.Filename)
+		fmt.Println(validators.VerifyImg(tempFile.Name()))
 			nameImg = fileHeaderImg.Filename
+			hand.Valid.CheckField(validators.VerifyImg(tempFile.Name()), "imagePost", "choose a valid image")
+			hand.Valid.CheckField(validators.CheckFileSize(tempFile.Name()), "imagePost", "max size image should be 20 mb")
 		} else {
 			nameImg = ""
 		}
@@ -77,11 +84,13 @@ func (hand *Handler) Post(w http.ResponseWriter, r *http.Request) {
 		privacy := r.PostForm.Get("privacy")
 		groupIdStr := r.PostForm.Get("group_id")
 		escapedContent := html.EscapeString(content)
+		fmt.Println("preivacy", privacy)
 
-		if strings.TrimSpace(escapedContent) == "" || strings.TrimSpace(title) == "" || strings.TrimSpace(privacy) == "" {
-			http.Error(w, "Title, content, and privacy fields must not be empty.", http.StatusBadRequest)
+		if !hand.Valid.Valid() {
+			hand.renderJSON(w, nil)
 			return
 		}
+	
 
 		var groupId int
 		if groupIdStr != "" {
@@ -107,9 +116,11 @@ func (hand *Handler) Post(w http.ResponseWriter, r *http.Request) {
 
 		idPost, err := hand.ConnDB.SetPost(title, escapedContent, nameImg, privacy, actualUser.Id, groupId, selectedFollowers)
 		if err != nil {
+			fmt.Println(err)
 			hand.Helpers.ServerError(w, err)
 			return
 		}
+		fmt.Println("idddd", idPost)
 		lastPost := models.Post{
 			Id:        idPost,
 			Title:     title,
