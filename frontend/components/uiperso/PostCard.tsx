@@ -169,7 +169,11 @@ export default function PostCard({
           }
           className="text-muted-foreground"
         >
-          <HeartIcon className="mr-1 h-6 w-6" />
+          <HeartIcon
+            className={`mr-1 h-6 w-6 ${
+              reactionBefore.liked ? "text-red-500 fill-red-500" : ""
+            }`}
+          />{" "}
           {liked}
         </Button>
         <Button
@@ -187,7 +191,11 @@ export default function PostCard({
           size="sm"
           className="text-muted-foreground"
         >
-          <HeartCrack className="mr-1 h-6 w-6" />
+          <HeartCrack
+            className={`mr-1 h-6 w-6 ${
+              reactionBefore.disliked ? "text-white fill-red-500" : ""
+            }`}
+          />{" "}
           {disliked}
         </Button>
         <Button

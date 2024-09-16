@@ -9,7 +9,7 @@ import useGetData from "@/lib/hooks/useGet";
 import postData from "@/lib/hooks/usepost";
 import { mapPost } from "@/lib/modelmapper";
 import { Post } from "@/models/post.model";
-import React, { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 function Home() {
   const { expect: posts } = useGetData<Post[]>("/groupHomePage", mapPost);
@@ -29,7 +29,6 @@ function Home() {
   }, [postTable]);
 
   const handleSave = async (name: string, description: string) => {
-
     const formData = new FormData();
     formData.append("GroupName", name);
     formData.append("GroupDescrp", description);
@@ -52,9 +51,11 @@ function Home() {
         creator={false}
         setShowForm={setShowForm}
       />
-      {showForm && <CreateGroupForm onSave={handleSave} onCancel={handleCancel} />}
-      <div className="pt-24">
-      <PostSection posts={updatedPost} />
+      {showForm && (
+        <CreateGroupForm onSave={handleSave} onCancel={handleCancel} />
+      )}
+      <div className="pt-24 ">
+        <PostSection posts={updatedPost} />
       </div>
     </>
   );

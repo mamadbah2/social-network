@@ -1,19 +1,19 @@
 "use client";
 
-import { ReactEventHandler, use, useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Msg } from "@/models/message.model";
 import useGetData from "@/lib/hooks/useGet";
-import { mapSimpleUser } from "@/lib/modelmapper";
-import { User } from "@/models/user.model";
 import { UseMessageWS } from "@/lib/hooks/usewebsocket";
+import { mapSimpleUser } from "@/lib/modelmapper";
 import { Group } from "@/models/group.model";
-import { SmileIcon } from "lucide-react";
+import { Msg } from "@/models/message.model";
+import { User } from "@/models/user.model";
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
+import { SmileIcon } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 let lastSelectedContact: User | Group | null = null;
 
@@ -90,6 +90,24 @@ export default function ChatInterface({ isOpen }: { isOpen: boolean }) {
     }
   };
 
+  const contactBoxRef = useRef<HTMLDivElement>(null); // Ajoutez un ref
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        contactBoxRef.current &&
+        !contactBoxRef.current.contains(event.target as Node)
+      ) {
+        setSelectedContact(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [contactBoxRef]);
+
   useEffect(() => {
     let lastId: number = 0;
     const timer = setInterval(() => {
@@ -156,16 +174,29 @@ export default function ChatInterface({ isOpen }: { isOpen: boolean }) {
   };
 
   return (
-    <div className=" z-50 flex flex-col h-[700px] w-[350px] max-w-md mx-auto border rounded-lg overflow-hidden bg-white">
-      <div className="border-b max-h-[200px] min-h-[100px] overflow-scroll ">
-        {contacts.length != 0 && contactGroup.length != 0 && !selectedContact && (<h3 className='text-center'> Please Select one conversation for start ...</h3>)}
-        {contacts.length == 0 && contactGroup.length == 0 && (<h3 className='text-center'>Enter in one group or follow one User</h3>)}
+    <div
+      ref={contactBoxRef}
+      className="z-50 flex flex-col h-full 2xl:w-[350px] w-[280px] max-w-md mx-auto rounded-lg overflow-hidden bg-slate-200"
+    >
+      <div className="border-b max-h-[250px] min-h-[150px] overflow-scroll">
+        {contacts.length != 0 &&
+          contactGroup.length != 0 &&
+          !selectedContact && (
+            <h3 className="text-center">
+              {" "}
+              Please Select one conversation for start ...
+            </h3>
+          )}
+        {contacts.length == 0 && contactGroup.length == 0 && (
+          <h3 className="text-center">Enter in one group or follow one User</h3>
+        )}
         <ScrollArea className="h-full">
           {contacts.map((contact) => (
             <div
               key={contact.id}
-              className={`flex items-center p-3 cursor-pointer hover:bg-gray-100 ${selectedContact?.id === contact.id ? "bg-gray-200" : ""
-                }`}
+              className={`flex items-center p-3 cursor-pointer hover:bg-gray-100 ${
+                selectedContact?.id === contact.id ? "bg-gray-200" : ""
+              }`}
               onClick={() => handleContactClick(contact)}
             >
               <Avatar className="h-10 w-10">
@@ -181,8 +212,9 @@ export default function ChatInterface({ isOpen }: { isOpen: boolean }) {
           {contactGroup.map((contactGr) => (
             <div
               key={contactGr.id + 1000}
-              className={`flex items-center p-3 cursor-pointer hover:bg-gray-100 ${selectedContact?.id === contactGr.id ? "bg-gray-200" : ""
-                }`}
+              className={`flex items-center p-3 cursor-pointer hover:bg-gray-100 ${
+                selectedContact?.id === contactGr.id ? "bg-gray-200" : ""
+              }`}
               onClick={() => handleContactClick(contactGr)}
             >
               <Avatar className="h-10 w-10">
@@ -193,48 +225,56 @@ export default function ChatInterface({ isOpen }: { isOpen: boolean }) {
           ))}
         </ScrollArea>
       </div>
-      <div className="flex-1 flex flex-col h-[400px]">
+      <div className="flex-1 flex flex-col h-[100px] bg-slate-200">
         <ScrollArea className="flex-1 p-4">
-          {messages.map((message) => (
-            <fieldset
-              key={message.id}
-              className={`mb-2 ${message.sender?.id == myID ? "bg-gray-100" : "bg-blue-100"
+          {selectedContact &&
+            messages.map((message) => (
+              <fieldset
+                key={message.id}
+                className={`mb-2 ${
+                  message.sender?.id == myID
+                    ? "bg-white break-all"
+                    : "bg-[#292929] text-white break-all"
                 } inline-block min-w-[60%] rounded-lg py-2 px-3`}
-            >
-              <legend className="text-xs">{message.sender?.firstname}</legend>
-              <span className="">{message.content}</span>
-            </fieldset>
-          ))}
+              >
+                <legend className="text-xs font-bold bg-white text-black rounded-full px-2 py-1">
+                  {message.sender?.firstname}
+                </legend>
+                <span className="break-all w-[80px]">{message.content}</span>
+              </fieldset>
+            ))}
         </ScrollArea>
-        {selectedContact && (<div className="p-4 border-t flex">
-          <div className="relative">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="mr-2"
-              onClick={() => setShowPicker(!showPicker)}
-            >
-              <SmileIcon className="h-4 w-4" />
-              <span className="sr-only">Add emoji</span>
-            </Button>
+        {selectedContact && (
+          <div className="p-4 border-t flex">
+            <div className="relative">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="mr-2"
+                onClick={() => setShowPicker(!showPicker)}
+              >
+                <SmileIcon className="h-4 w-4" />
+                <span className="sr-only">Add emoji</span>
+              </Button>
 
-            {showPicker && (
-              <div className=" absolute bottom-10  z-50">
-                <Picker onEmojiSelect={addEmoji} data={data} />
-              </div>
-            )}
+              {showPicker && (
+                <div className=" absolute bottom-10 z-50">
+                  <Picker onEmojiSelect={addEmoji} data={data} />
+                </div>
+              )}
+            </div>
+            <Input
+              type="text"
+              placeholder="Type a message..."
+              value={inputMessage}
+              onChange={(e) => setInputMessage(e.target.value)}
+              className="flex-1 mr-2 mb-4"
+            />
+            <Button onClick={handleSendMessage} data-type="user">
+              Send
+            </Button>
           </div>
-          <Input
-            type="text"
-            placeholder="Type a message..."
-            value={inputMessage}
-            onChange={(e) => setInputMessage(e.target.value)}
-            className="flex-1 mr-2"
-          />
-          <Button onClick={handleSendMessage} data-type="user">
-            Send
-          </Button>
-        </div>)}
+        )}
       </div>
     </div>
   );

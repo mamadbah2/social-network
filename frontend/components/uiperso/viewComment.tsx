@@ -1,21 +1,17 @@
+import useGetData from "@/lib/hooks/useGet";
 import { ReactionOptions, useReaction } from "@/lib/hooks/useReaction";
+import { mapReactionType } from "@/lib/modelmapper";
 import { Comment } from "@/models/comment.model";
-import { HeartCrack, HeartIcon, ImageIcon } from "lucide-react";
+import { Reaction } from "@/models/reaction.model";
+import { HeartCrack, HeartIcon } from "lucide-react";
+import Image from "next/image";
+import { FormEvent, useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { CardContent, CardFooter } from "../ui/card";
 import ProfileButton from "./ProfileLink";
-import Image from "next/image";
-import { FormEvent, useEffect, useState } from "react";
-import { Reaction } from "@/models/reaction.model";
-import useGetData from "@/lib/hooks/useGet";
-import { mapReactionType } from "@/lib/modelmapper";
 
-export default function ViewComment({
-  comment,
-}: {
-  comment: Comment;
-}) {
+export default function ViewComment({ comment }: { comment: Comment }) {
   const { handleReactionSubmit, loading, error } = useReaction();
   const [liked, setLiked] = useState(comment.numberLike);
   const [disliked, setDisliked] = useState(comment.numberDislike);
@@ -23,11 +19,14 @@ export default function ViewComment({
     liked: false,
     disliked: false,
   });
-  
-  const {expect: initialReaction} = useGetData(`/reaction?entityID=${comment.id}&reaction_type=comment`, mapReactionType );
+
+  const { expect: initialReaction } = useGetData(
+    `/reaction?entityID=${comment.id}&reaction_type=comment`,
+    mapReactionType
+  );
   useEffect(() => {
-    setReactionBefore(initialReaction ?? {liked: false, disliked: false});
-  }, [initialReaction])
+    setReactionBefore(initialReaction ?? { liked: false, disliked: false });
+  }, [initialReaction]);
 
   const handleReact = (
     e: FormEvent<HTMLButtonElement>,
@@ -66,9 +65,7 @@ export default function ViewComment({
   return (
     <>
       {
-        <div
-          className="bg-white shadow-md rounded-xl p-4 max-w-sm mx-auto"
-        >
+        <div className="bg-white shadow-md rounded-xl p-4 max-w-sm mx-auto">
           <div className="flex items-center space-x-3">
             <ProfileButton id={comment.author?.id}>
               <Avatar>
@@ -119,7 +116,11 @@ export default function ViewComment({
               }
               className="text-muted-foreground"
             >
-              <HeartIcon className="mr-1 h-6 w-6" />
+              <HeartIcon
+                className={`mr-1 h-6 w-6 ${
+                  reactionBefore.liked ? "text-white fill-red-500" : ""
+                }`}
+              />
               {liked}
             </Button>
             <Button
@@ -134,7 +135,11 @@ export default function ViewComment({
               size="sm"
               className="text-muted-foreground"
             >
-              <HeartCrack className="mr-1 h-6 w-6" />
+              <HeartCrack
+                className={`mr-1 h-6 w-6 ${
+                  reactionBefore.disliked ? "text-white fill-red-500" : ""
+                }`}
+              />
               {disliked}
             </Button>
           </CardFooter>

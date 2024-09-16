@@ -1,14 +1,18 @@
 "use client";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Toaster } from "@/components/ui/toaster";
+import ChatInterface from "@/components/uiperso/ChatInterface";
 import NavigationBar from "@/components/uiperso/NavigationBar";
 import { WithAuth } from "@/components/uiperso/PrivateRoute";
 import SideBarList from "@/components/uiperso/sidebarlist";
 import { PostProvider } from "@/lib/hooks/postctx";
-import { MessageWebSocketCtx, WebSocketCtx, WsProvider } from "@/lib/hooks/usewebsocket";
+import {
+  MessageWebSocketCtx,
+  WebSocketCtx,
+  WsProvider,
+} from "@/lib/hooks/usewebsocket";
 import { mapMessage, mapNotification } from "@/lib/modelmapper";
-import { Toaster } from "@/components/ui/toaster"
 import React from "react";
-import ChatInterface from "@/components/uiperso/ChatInterface";
 function MainLayout({
   children,
 }: Readonly<{
@@ -16,7 +20,11 @@ function MainLayout({
 }>) {
   return (
     <WsProvider uri="/chat" mapper={mapMessage} context={MessageWebSocketCtx}>
-      <WsProvider uri="/notification" mapper={mapNotification} context={WebSocketCtx}>
+      <WsProvider
+        uri="/notification"
+        mapper={mapNotification}
+        context={WebSocketCtx}
+      >
         <PostProvider>
           <div className="flex flex-col gap-2 bg-muted w-full h-screen p-5 pb-10 overflow-hidden">
             <header>
@@ -31,7 +39,7 @@ function MainLayout({
                   {children}
                 </section>
               </ScrollArea>
-              <aside className="bg-background h-full rounded-lg">
+              <aside className="bg-background rounded-lg">
                 <ChatInterface isOpen />
               </aside>
             </main>

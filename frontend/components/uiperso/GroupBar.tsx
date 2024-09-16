@@ -1,17 +1,17 @@
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import Link from "next/link";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
-import FollowModal from "./followerList";
+import UseWS from "@/lib/hooks/usewebsocket";
 import { User } from "@/models/user.model";
 import { handleMember } from "@/services/member.service";
-import { toast } from "../ui/use-toast";
-import UseWS from "@/lib/hooks/usewebsocket";
+import Link from "next/link";
+import { useState } from "react";
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
 } from "../ui/hover-card";
+import { toast } from "../ui/use-toast";
+import FollowModal from "./followerList";
 
 type IconProps = React.SVGProps<SVGSVGElement>;
 
@@ -122,111 +122,115 @@ const GroupBarComponent: React.FC<GroupBarProps> = ({
     });
 
   return (
-    <div className="flex items-center  justify-center gap-8  p-4 ml-4 mr-0 mb-4 bg-white border rounded-md fixed  top-23 z-10">
+    <div className="w-full flex justify-center overflow-hidden">
       {groupName ? (
         <>
-          <div className="flex items-center space-x-4">
-            <Avatar>
-              <AvatarImage src={imgSrc} alt={groupName} />
-              <AvatarFallback>
-                {groupName.charAt(0).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <div className="flex items-center space-x-2">
-                <HoverCard>
-                  <HoverCardTrigger className=" cursor-pointer">
-                    {groupName.length > 10
-                      ? `${groupName.substring(0, 10)}...`
-                      : groupName}
-                  </HoverCardTrigger>
-                  <HoverCardContent>{groupName}</HoverCardContent>
-                </HoverCard>
-                <span className="text-muted-foreground">•</span>
-                <Link
-                  href={descriptionLink}
-                  className="text-muted-foreground"
-                  prefetch={false}
-                >
-                  View description
-                </Link>
+          <div className="flex items-center justify-between gap-8 p-4 ml-4 mr-0 mb-4 w-fit overflow-hidden bg-white rounded-md fixed top-23 z-10">
+            <div className="flex items-center space-x-4">
+              <Avatar>
+                <AvatarImage src={imgSrc} alt={groupName} />
+                <AvatarFallback>
+                  {groupName.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <div className="flex items-center space-x-2">
+                  <HoverCard>
+                    <HoverCardTrigger className=" cursor-pointer">
+                      {groupName.length > 10
+                        ? `${groupName.substring(0, 10)}...`
+                        : groupName}
+                    </HoverCardTrigger>
+                    <HoverCardContent>{groupName}</HoverCardContent>
+                  </HoverCard>
+                  <span className="text-muted-foreground">•</span>
+                  <Link
+                    href={descriptionLink}
+                    className="text-muted-foreground"
+                    prefetch={false}
+                  >
+                    View description
+                  </Link>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Created at {createdAt}
+                </p>
               </div>
-              <p className="text-sm text-muted-foreground">
-                Created at {createdAt}
-              </p>
             </div>
-          </div>
-          <div className="flex flex-wrap items-center space-y-2 space-x-2">
-            {isMember && (
-              <>
-                <FollowModal
-                  isOpen={FollowModalData.isOpen}
-                  onClose={handleCloseFollowModal}
-                  modalName={FollowModalData.modalName}
-                  Follow={FollowModalData.follow}
-                />
-                <Button
-                  variant="outline"
-                  className="flex items-center space-x-1"
-                  onClick={() =>
-                    handleOpenFollowModal("Group Members", members)
-                  }
-                >
-                  <UserIcon className="w-4 h-4" />
-                </Button>
-                <Button
-                  onClick={handleCreatePost}
-                  variant="default"
-                  className="flex items-center space-x-1"
-                >
-                  <PlusIcon className="w-4 h-4" />
-                  <span>Create Post</span>
-                </Button>
-                <Button
-                  onClick={handleCreateEvent}
-                  variant="default"
-                  className="flex items-center space-x-1"
-                >
-                  <PlusIcon className="w-4 h-4" />
-                  <span>Create Event</span>
-                </Button>
-                {
+            <div className="flex items-center space-x-2">
+              {isMember && (
+                <>
+                  <FollowModal
+                    isOpen={FollowModalData.isOpen}
+                    onClose={handleCloseFollowModal}
+                    modalName={FollowModalData.modalName}
+                    Follow={FollowModalData.follow}
+                  />
                   <Button
-                    onClick={() => setShowForm && setShowForm(true)}
-                    variant="default"
+                    variant="outline"
                     className="flex items-center space-x-1"
+                    onClick={() =>
+                      handleOpenFollowModal("Group Members", members)
+                    }
+                  >
+                    <UserIcon className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    onClick={handleCreatePost}
+                    variant="default"
+                    className="2xl:flex items-center space-x-1 w-20 text-xs 2xl:w-full"
                   >
                     <PlusIcon className="w-4 h-4" />
-                    <span>Add Members</span>
+                    <span>Create Post</span>
                   </Button>
-                }
-              </>
-            )}
-            {!isMember && (
-              <Button
-                onClick={(e) => {
-                  console.log("add member");
-                  addMember(e);
-                }}
-                variant="default"
-                className="flex items-center space-x-1"
-              >
-                <PlusIcon className="w-4 h-4" />
-                <span>Join</span>
-              </Button>
-            )}
+                  <Button
+                    onClick={handleCreateEvent}
+                    variant="default"
+                    className="flex items-center space-x-1 w-20 text-xs 2xl:w-full"
+                  >
+                    <PlusIcon className="w-4 h-4" />
+                    <span>Create Event</span>
+                  </Button>
+                  {
+                    <Button
+                      onClick={() => setShowForm && setShowForm(true)}
+                      variant="default"
+                      className="flex items-center space-x-1 w-20 text-xs 2xl:w-full"
+                    >
+                      <PlusIcon className="w-4 h-4" />
+                      <span>Add Members</span>
+                    </Button>
+                  }
+                </>
+              )}
+              {!isMember && (
+                <Button
+                  onClick={(e) => {
+                    console.log("add member");
+                    addMember(e);
+                  }}
+                  variant="default"
+                  className="flex items-center space-x-1"
+                >
+                  <PlusIcon className="w-4 h-4" />
+                  <span>Join</span>
+                </Button>
+              )}
+            </div>
           </div>
         </>
       ) : (
         setShowForm && (
-          <Button
-            onClick={() => setShowForm(true)}
-            variant="default"
-            className="flex items-center space-x-1"
-          >
-            <PlusIcon className="w-4 h-4" />
-            <span>Create Group</span>
-          </Button>
+          <div className="flex justify-center items-center w-max px-4 py-2 h-full rounded-md bg-white">
+            <Button
+              onClick={() => setShowForm(true)}
+              variant="default"
+              className="flex items-center space-x-1"
+            >
+              <PlusIcon className="w-4 h-4" />
+              <span>Create Group</span>
+            </Button>
+          </div>
         )
       )}
     </div>
